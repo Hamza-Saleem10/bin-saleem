@@ -157,13 +157,66 @@ label.required-input:after {
     .dataTables_length, .dataTables_length {
         float: none;
     }
-
-    
     .dataTables_filter input {
         float: none;
         background-color: white;
     }
+}
+ /* When menu is collapsed AND we have enough screen width */
+ @media (min-width: 768px) {
+    body.sidebar-collapsed .table-responsive,
+    body.sidebar-collapsed .dataTables_wrapper {
+        overflow-x: hidden !important;
+    }
 
-    
+    body.sidebar-collapsed table.dataTable {
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
 
+    body.sidebar-collapsed table.dataTable thead th,
+    body.sidebar-collapsed table.dataTable tbody td {
+        white-space: normal !important;
+        word-wrap: break-word;
+    }
+}
+
+/* Remove scrollbar completely */
+.table-responsive {
+    overflow-x: hidden !important;
+}
+
+/* Force DataTables to fit container */
+table.dataTable {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+.chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.border-custom {
+    border-left: 4px solid #28a745 !important;
+}
+
+.stats-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-select-sm {
+    font-size: 0.875rem;
+    padding: 0.375rem 1rem;
+}
+
+#apply-analytics-filter {
+    padding: 0.375rem 0.75rem;
 }

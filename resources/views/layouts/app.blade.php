@@ -66,6 +66,8 @@
         <script src="{{ asset('js/jquery.ui.monthpicker.min.js') }}"></script>
         <script src="{{ asset('assets/intl-tel-input/js/intlTelInput.min.js') }}"></script>
         <script src="{{ asset('assets/intl-tel-input/js/utils.js') }}"></script>
+        <script src="{{ asset('js/chart.js') }}"></script>
+
 
         
         <script src="{{asset('js/menu-setting.js?v=1' . config('app.version'))}}"></script>

@@ -59,6 +59,7 @@ Route::get('levels_seeder', [UserController::class, 'test']);
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
+    Route::post('/dashboard/get-monthly-analytics', [DashboardController::class, 'getMonthlyAnalytics'])->name('dashboard.getMonthlyAnalytics');
 
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::get('change-password', [UserController::class, 'changePassword'])->name('users.changePassword');

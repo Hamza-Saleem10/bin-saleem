@@ -234,10 +234,10 @@
                             {!! Form::hidden('route_id[]', $route->id) !!}
                             @endif
                             
-                            {{-- ================= Pick Up ================= --}}
+                            {{-- ================= Pick & Drop ================= --}}
                             <div class="form-group col-md-3">
-                                {!! Form::label('pick_up[]', 'Pick From', ['class' => 'form-label required-input']) !!}
-                                {!! Form::select('pick_up[]',['' => 'Select Route','Jeddah Airport' => 'Jeddah Airport','Makkah Hotel' => 'Makkah Hotel','Madinah Hotel' => 'Madinah Hotel','Madinah Airport' => 'Madinah Airport','Makkah Ziyarat' => 'Makkah Ziyarat','Madinah Ziyarat' => 'Madinah Ziyarat'], old("pick_up.$index", $route->pick_up ?? ''), ['class' => 'form-control pick-up','maxlength' => '191','required']) !!}
+                                {!! Form::label('pick_up[]', 'Pick & Drop', ['class' => 'form-label required-input']) !!}
+                                {!! Form::select('pick_up[]',['' => 'Select Route','Jeddah Airport To Makkah Hotel' => 'Jeddah Airport To Makkah Hotel','Makkah Hotel To Madinah Hotel' => 'Makkah Hotel To Madinah Hotel','Madinah Hotel To Jeddah Airport' => 'Madinah Hotel To Jedddah Airport','Madinah Hotel To Madinah Airport' => 'Madinah Hotel To Madinah Airport','Madinah Hotel To Makkah Hotel' => 'Madinah Hotel To Makkah Hotel', 'Makkah Hotel To Madinah Airport' => 'Makkah Hotel To Madinah Airport', 'Makkah Hotel to Jeddah Airport' => 'Makkah Hotel to Jeddah Airport','Makkah Hotel To Makkah Ziyarat' => 'Makkah Hotel To Makkah Ziyarat','Madinah Hotel To Madinah Ziyarat' => 'Madinah Hotel To Madinah Ziyarat'], old("pick_up.$index", $route->pick_up ?? ''), ['class' => 'form-control pick-up','maxlength' => '191','required']) !!}
                             </div>
                             {{-- ================= Date Field ================= --}}
                             <div class="form-group col-md-3 pickup-date-field" style="{{ old("pick_up.$index", $route->pick_up ?? '') ? '' : 'display: none;' }}">
