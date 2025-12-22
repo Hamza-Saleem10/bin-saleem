@@ -34,7 +34,7 @@
                     <span class="sun"><i class="bi bi-brightness-high-fill"></i></span>
                     <span class="moon"><i class="bi bi-moon-stars-fill"></i></span>
                 </button>
-                <button class="admin-login" onclick="openAdmin()">Admin</button>
+                <button onclick="window.location.href='{{ route('login') }}'" class="admin-login">Admin</button>
             </div>
 
             <nav>
@@ -544,14 +544,14 @@
     });
 
     // === ADMIN PANEL ACCESS ===
-    function openAdmin() {
-        const pass = prompt("Enter Admin Password:");
-        if (pass === "admin123") {
-            window.location.href = "{{ route('login') }}";
-        } else {
-            alert("Incorrect password.");
-        }
-    }
+    // function openAdmin() {
+    //     const pass = prompt("Enter Admin Password:");
+    //     if (pass === "admin123") {
+    //         window.location.href = "{{ route('login') }}";
+    //     } else {
+    //         alert("Incorrect password.");
+    //     }
+    // }
 
     // === VEHICLE PREFILL ===
     document.querySelectorAll(".book-now").forEach(btn => {

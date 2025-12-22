@@ -20,7 +20,7 @@ class Booking extends Model
         'number_of_pax',
         'status',
         'is_active',
-        'created_by',   
+        'created_by',
         'updated_by'
     ];
 
@@ -28,22 +28,23 @@ class Booking extends Model
     {
         return $query->where('is_active', 1);
     }
-    
-    // public function vehicle(){
-    //     return $this->belongsTo(Vehicle::class);
-    // }
+
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class);
+    }
     // Relationship with Hotel Details (One-to-Many)
     public function hotelDetails()
     {
-        return $this->hasMany(BookingsHotelDetail::class,'booking_id');
+        return $this->hasMany(BookingsHotelDetail::class, 'booking_id');
     }
-    
+
     // Relationship with Flight Details (One-to-Many)
     public function flightDetails()
     {
         return $this->hasMany(BookingsFlightDetail::class);
     }
-    
+
     // Relationship with Route Details (One-to-Many)
     public function routeDetails()
     {
