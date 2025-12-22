@@ -10,8 +10,7 @@
     <!-- Preload Critical Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap"
-          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/welcomeblade.css') }}">
 </head>
@@ -22,7 +21,7 @@
     <header>
         <div class="header-inner">
             <div class="brand">
-                <img src="{{ asset('assets/images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" />
+                <img src="{{ asset('images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" />
                 <div class="brand-text">
                     <h1>Bin Saleem Umrah Taxi Service</h1>
                     <div class="tagline">Luxury Transfers • Saudi Arabia</div>
@@ -51,7 +50,7 @@
     <div class="slider-container">
         <div class="slider">
             <div class="slide active">
-                <img src="{{ asset('assets/images/main slider.jpg') }}" alt="Luxury Transfer in Makkah" />
+                <img src="{{ asset('images/main slider.jpg') }}" alt="Luxury Transfer in Makkah" />
                 <div class="slide-overlay">
                     <h2>Seamless Umrah Journeys</h2>
                     <p>Luxury transfers between Jeddah, Makkah & Madinah</p>
@@ -59,7 +58,7 @@
             </div>
 
             <div class="slide slide-2">
-                <img src="{{ asset('assets/images/slider2.jpg') }}" alt="Premium Fleet" />
+                <img src="{{ asset('images/slider2.jpg') }}" alt="Premium Fleet" />
                 <div class="slide-overlay">
                     <h2>Modern & Comfortable Fleet</h2>
                     <p>Camry • Innova • HiAce • Staria • GMC</p>
@@ -148,7 +147,7 @@
         <div class="fleet-grid">
             <!-- Camry -->
             <article class="fleet-card">
-                <img src="{{ asset('assets/images/camry.jpg') }}" alt="Toyota Camry" />
+                <img src="{{ asset('images/camry.jpg') }}" alt="Toyota Camry" />
                 <div class="fleet-card-body">
                     <h3>Toyota Camry</h3>
                     <div class="fleet-meta">
@@ -163,7 +162,7 @@
 
             <!-- Innova -->
             <article class="fleet-card">
-                <img src="{{ asset('assets/images/innova.jpg') }}" alt="Toyota Innova" />
+                <img src="{{ asset('images/innova.jpg') }}" alt="Toyota Innova" />
                 <div class="fleet-card-body">
                     <h3>Toyota Innova</h3>
                     <div class="fleet-meta">
@@ -178,7 +177,7 @@
 
             <!-- HiAce -->
             <article class="fleet-card">
-                <img src="{{ asset('assets/images/hiace.jpg') }}" alt="Toyota HiAce" />
+                <img src="{{ asset('images/hiace.jpg') }}" alt="Toyota HiAce" />
                 <div class="fleet-card-body">
                     <h3>Toyota HiAce</h3>
                     <div class="fleet-meta">
@@ -193,7 +192,7 @@
 
             <!-- Staria -->
             <article class="fleet-card">
-                <img src="{{ asset('assets/images/staria.jpg') }}" alt="Hyundai Staria" />
+                <img src="{{ asset('images/staria.jpg') }}" alt="Hyundai Staria" />
                 <div class="fleet-card-body">
                     <h3>Hyundai Staria</h3>
                     <div class="fleet-meta">
@@ -208,7 +207,7 @@
 
             <!-- GMC -->
             <article class="fleet-card">
-                <img src="{{ asset('assets/images/gmc.jpg') }}" alt="GMC Yukon" />
+                <img src="{{ asset('images/gmc.jpg') }}" alt="GMC Yukon" />
                 <div class="fleet-card-body">
                     <h3>GMC Yukon</h3>
                     <div class="fleet-meta">
@@ -243,17 +242,17 @@
 
         <div class="routes-grid">
             <div class="route-card">
-                <img src="{{ asset('assets/images/route1.jpg') }}" alt="Jeddah to Makkah" />
+                <img src="{{ asset('images/route1.jpg') }}" alt="Jeddah to Makkah" />
                 <div class="route-body"><strong>Jeddah Airport → Makkah Hotel</strong><div class="price">300 SR</div><a href="#book" class="btn">Book Now</a></div>
             </div>
 
             <div class="route-card">
-                <img src="{{ asset('assets/images/route2.jpg') }}" alt="Makkah to Madinah" />
+                <img src="{{ asset('images/route2.jpg') }}" alt="Makkah to Madinah" />
                 <div class="route-body"><strong>Makkah → Madinah Hotel</strong><div class="price">800 SR</div><a href="#book" class="btn">Book Long Trip</a></div>
             </div>
 
             <div class="route-card">
-                <img src="{{ asset('assets/images/route3.jpeg') }}" alt="Airport Pickup" />
+                <img src="{{ asset('images/route3.jpeg') }}" alt="Airport Pickup" />
                 <div class="route-body"><strong>Jeddah Airport → Madinah</strong><div class="price">1,000 SR</div><a href="#book" class="btn">Book Direct</a></div>
             </div>
         </div>
@@ -330,7 +329,7 @@
         <div class="footer-container">
             <div class="footer-section main-info">
                 <div class="footer-brand">
-                    <img src="{{ asset('assets/images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" class="footer-logo" />
+                    <img src="{{ asset('images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" class="footer-logo" />
                     <div class="footer-brand-text">
                         <h3>Bin Saleem Umrah Taxi Service</h3>
                         <p class="tagline">Luxury Transfers Across Saudi Arabia</p>
