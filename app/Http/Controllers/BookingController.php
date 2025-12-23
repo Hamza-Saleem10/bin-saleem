@@ -16,40 +16,154 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         $bookings = Booking::with(['routeDetails:id,booking_id,vehicle_id,pick_up,pickup_date,pickup_time','routeDetails.vehicle:id,name']);
+
+    //         return DataTables::of($bookings)
+    //             ->addColumn('route_vehicle', function ($booking) {
+    //                 return $booking->routeDetails
+    //                     ->map(fn ($r) => optional($r->vehicle)->name)
+    //                     ->implode(', ');
+    //             })
+    //             ->addColumn('pick_up', function ($booking) {
+    //                 return $booking->routeDetails
+    //                     ->pluck('pick_up')
+    //                     ->implode(', ');
+    //             })
+    //             ->addColumn('pickup_date', function ($booking) {
+    //                 return $booking->routeDetails
+    //                     ->pluck('pickup_date')
+    //                     ->implode(', ');
+    //             })
+    //             ->addColumn('pickup_time', function ($booking) {
+    //                 return $booking->routeDetails
+    //                     ->pluck('pickup_time')
+    //                     ->implode(', ');
+    //             })
+    //             ->addColumn('is_active', function ($booking) {
+    //                 return getStatusBadge($booking->is_active);
+    //             })
+    //             ->addColumn('action', function ($booking) {
+    //                 $actions = '<div class="overlay-edit d-flex">';
+
+    //                 if (auth()->user()->can('Update Booking')) {
+    //                     $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1" title="Edit"><i class="feather icon-edit-2"></i></a>';
+    //                 }
+
+    //                 if (auth()->user()->can('Update Booking Status')) {
+    //                     $actions .= '<a href="' . route('bookings.updateStatus', $booking->uuid) . '" class="btn btn-icon ' . ($booking->status == 'active' ? 'btn-danger' : 'btn-success') . ' btn-status me-1" title="Change Status">' .
+    //                         '<i class="feather ' . ($booking->status == 'active' ? 'icon-x-circle' : 'icon-check-circle') . '"></i></a>';
+    //                 }
+
+    //                 if (auth()->user()->can('Delete Booking')) {
+    //                     $actions .= '<a href="' . route('bookings.destroy', $booking->uuid) . '" class="btn btn-icon btn-danger btn-delete" title="Delete"><i class="feather icon-trash-2"></i></a>';
+    //                 }
+
+    //                 $actions .= '</div>';
+    //                 return $actions;
+    //             })
+    //             ->rawColumns(['is_active', 'action'])
+    //             ->make(true);
+    //     }
+
+    //     return view('bookings.index');
+    // }
+    
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $bookings = Booking::with(['vehicle:id,name']);
 
-            return DataTables::of($bookings)
-                ->addColumn('is_active', function ($booking) {
-                    return getStatusBadge($booking->is_active);
-                })
-                ->addColumn('action', function ($booking) {
+            $routes = BookingsRouteDetail::with([
+                'booking:id,uuid,voucher_number,customer_name,customer_contact,status,is_active',
+                'vehicle:id,name'
+            ]);
+
+            return DataTables::of($routes)
+            
+                ->addColumn('voucher_number', fn($r) => $r->booking->voucher_number)
+                ->addColumn('customer_name', fn($r) => $r->booking->customer_name)
+                ->addColumn('customer_contact', fn($r) => $r->booking->customer_contact)
+
+                ->addColumn('vehicle', fn($r) => optional($r->vehicle)->name)
+                ->addColumn('pick_up', fn($r) => $r->pick_up)
+                ->addColumn('pickup_date', fn($r) => $r->pickup_date)
+                ->addColumn('pickup_time', fn($r) => $r->pickup_time)
+
+                ->addColumn('status', fn($r) =>$r->booking->status)
+                // ->addColumn('status', fn($r) => getStatusBadge($r->booking->is_active))
+
+                ->addColumn('action', function ($r) {
+                    $booking = $r->booking;
+
                     $actions = '<div class="overlay-edit d-flex">';
 
                     if (auth()->user()->can('Update Booking')) {
-                        $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1" title="Edit"><i class="feather icon-edit-2"></i></a>';
-                    }
-
-                    if (auth()->user()->can('Update Booking Status')) {
-                        $actions .= '<a href="' . route('bookings.updateStatus', $booking->uuid) . '" class="btn btn-icon ' . ($booking->status == 'active' ? 'btn-danger' : 'btn-success') . ' btn-status me-1" title="Change Status">' .
-                            '<i class="feather ' . ($booking->status == 'active' ? 'icon-x-circle' : 'icon-check-circle') . '"></i></a>';
+                        $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1">
+                        <i class="feather icon-edit-2"></i></a>';
                     }
 
                     if (auth()->user()->can('Delete Booking')) {
-                        $actions .= '<a href="' . route('bookings.destroy', $booking->uuid) . '" class="btn btn-icon btn-danger btn-delete" title="Delete"><i class="feather icon-trash-2"></i></a>';
+                        $actions .= '<a href="' . route('bookings.destroy', $booking->uuid) . '" class="btn btn-icon btn-danger btn-delete">
+                        <i class="feather icon-trash-2"></i></a>';
                     }
 
                     $actions .= '</div>';
                     return $actions;
                 })
-                ->rawColumns(['is_active', 'action'])
+                ->filter(function ($query) use ($request) {
+                    if ($request->has('search') && $request->search['value'] != '') {
+                        $search = $request->search['value'];
+                        
+                        $query->where(function ($q) use ($search) {
+                            // Search in main table columns
+                            $q->orWhere('pick_up', 'LIKE', "%{$search}%")
+                              ->orWhere('pickup_date', 'LIKE', "%{$search}%")
+                              ->orWhere('pickup_time', 'LIKE', "%{$search}%");
+                            
+                            // Search in booking relationship
+                            $q->orWhereHas('booking', function ($bookingQuery) use ($search) {
+                                $bookingQuery->where('voucher_number', 'LIKE', "%{$search}%")
+                                            ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                                            ->orWhere('customer_contact', 'LIKE', "%{$search}%")
+                                            ->orWhere('status', 'LIKE', "%{$search}%");
+                            });
+                            
+                            // Search in vehicle relationship
+                            $q->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
+                                $vehicleQuery->where('name', 'LIKE', "%{$search}%");
+                            });
+                        });
+                    }
+                })
+                
+                ->orderColumn('pickup_date', function ($query, $order) {
+                    $query->orderBy('pickup_date', $order);
+                })
+                ->orderColumn('voucher_number', function ($query, $order) {
+                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                          ->orderBy('bookings.voucher_number', $order)
+                          ->select('bookings_route_details.*');
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                          ->orderBy('bookings.customer_name', $order)
+                          ->select('bookings_route_details.*');
+                })
+                ->orderColumn('status', function ($query, $order) {
+                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                          ->orderBy('bookings.status', $order)
+                          ->select('bookings_route_details.*');
+                })
+
+                ->rawColumns(['status', 'action'])
                 ->make(true);
         }
 
         return view('bookings.index');
     }
+
     /**
      * Show the form for creating a new resource.
      *

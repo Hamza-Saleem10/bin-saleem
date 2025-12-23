@@ -28,6 +28,6 @@ class BookingsRouteDetail extends Model
         return $this->belongsTo(Booking::class);
     }
     public function vehicle(){
-        return $this->belongsTo(Vehicle::class);
+        return $this->belongsTo(Vehicle::class,'vehicle_id');
     }
 }

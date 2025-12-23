@@ -142,7 +142,7 @@
                 <div class="col-xl-12 col-md-12">
                     <div class="card user-profile-list">
                         <div class="card-body-dd theme-tbl">
-                            <x-table :keys="['Customer Name', 'Email', 'Contact No', 'Vehicle', 'Pick up ', 'Dropoff','Status','Active/In-Active','']"></x-table>
+                            <x-table :keys="['Voucher No','Customer Name','Contact No', 'Vehicle', 'Pick & Drop ', 'Pick Up Date','Pick Up Time','Status','']"></x-table>
                         </div>
                     </div>
                 </div>
@@ -156,11 +156,12 @@
             $(document).ready(function() {
                 const datatable_url = route('bookings.datatable');
                 const datatable_columns = [{
-                        data: 'customer_name',
+                        data: 'voucher_number',
                     },
                     {
-                        data: 'customer_email',
+                        data: 'customer_name',
                     },
+                    
                     {
                         data: 'customer_contact'
                     },
@@ -168,18 +169,16 @@
                         data: 'vehicle'
                     },
                     {
-                        data: 'pickup'
+                        data: 'pick_up'
                     },
                     {
-                        data: 'dropoff'
+                        data: 'pickup_date'
+                    },
+                    {
+                        data: 'pickup_time'
                     },
                     {
                         data: 'status',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'is_active',
                         orderable: false,
                         searchable: false
                     },
