@@ -11,6 +11,7 @@ class Booking extends Model
     use HasUuid, HasBy;
     protected $fillable = [
         'uuid',
+        'voucher_number',
         'customer_name',
         'customer_email',
         'customer_contact',
