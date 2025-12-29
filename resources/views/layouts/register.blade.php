@@ -24,12 +24,12 @@
         <div class="row mobile_web">
             <!-- Left Section -->
             <div class="col-md-6 col-12 left-section">
-                <div class="left-heading d-flex flex-column justify-content-center align-items-center">
+                {{-- <div class="left-heading d-flex flex-column justify-content-center align-items-center">
                     <img src="{{ asset('public_theme/images/main-logo.png') }}" class="img-fluid login_banner"
                         alt="E-School Logo" />
                     <h1 class="text-light mt-3 mb-0 main-heading">e-school</h1>
                     <h2 class="text-light main-heading1">Gilgit Baltistan</h2>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Right Section -->

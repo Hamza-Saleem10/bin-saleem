@@ -21,7 +21,7 @@
     <header>
         <div class="header-inner">
             <div class="brand">
-                <img src="{{ asset('images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" />
+                <img src="{{ asset('images/logo-dark.png') }}" alt="Bin Saleem Umrah Taxi Service Logo" />
                 <div class="brand-text">
                     <h1>Bin Saleem Umrah Taxi Service</h1>
                     <div class="tagline">Luxury Transfers • Saudi Arabia</div>
@@ -329,7 +329,7 @@
         <div class="footer-container">
             <div class="footer-section main-info">
                 <div class="footer-brand">
-                    <img src="{{ asset('images/logo-dark.jpg') }}" alt="Bin Saleem Umrah Taxi Service Logo" class="footer-logo" />
+                    <img src="{{ asset('images/logo-dark.png') }}" alt="Bin Saleem Umrah Taxi Service Logo" class="footer-logo" />
                     <div class="footer-brand-text">
                         <h3>Bin Saleem Umrah Taxi Service</h3>
                         <p class="tagline">Luxury Transfers Across Saudi Arabia</p>

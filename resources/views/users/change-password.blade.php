@@ -3,11 +3,11 @@
     <div class="container-fluid  g-0">
         <div class="row mobile_web g-0">
             <div class="col-lg-7 col-12 signup_banner_wrapper">
-                <div class="left-heading d-flex flex-column justify-content-center align-items-center ">
+                {{-- <div class="left-heading d-flex flex-column justify-content-center align-items-center ">
                     <img src="{{ asset('public_theme/images/main-logo.png') }}" class="img-fluid login_banner" alt="E-School Logo" />
                     <h1 class="text-light mt-3 mb-0 main-heading">e-school</h1>
                     <h2 class="text-light main-heading1">Gilgit Baltistan</h2>
-                </div>
+                </div> --}}
             </div>
             <div class="col-lg-5 col-12 left_area d-flex justify-content-center align-items-center">
                 <div class="login_area justify-content-center">
