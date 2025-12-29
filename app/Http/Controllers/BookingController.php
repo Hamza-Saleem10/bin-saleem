@@ -193,6 +193,7 @@ class BookingController extends Controller
             'child_person' => 'nullable|integer|min:0',
             'infant_person' => 'nullable|integer|min:0',
             'number_of_pax' => 'required|integer|min:0',
+            // 'date_field_name' => 'required|date',
             'status' => 'sometimes|in:pending,confirmed,completed,cancelled',
 
             // ARRAY VALIDATION for hotel details
@@ -263,6 +264,7 @@ class BookingController extends Controller
                 'child_person' => $validated['child_person'] ?? 0,
                 'infant_person' => $validated['infant_person'] ?? 0,
                 'number_of_pax' => $validated['number_of_pax'],
+                // 'date_field_name' => $validated['date_field_name'],
                 'status' => $validated['status'],
             ];
 

@@ -71,57 +71,57 @@ class DashboardController extends Controller
     }
 
     public function getMonthlyAnalytics(Request $request)
-{
-    $month = $request->input('month', date('n'));
-    $year = $request->input('year', date('Y'));
-    
-    // Get days in selected month
-    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-    
-    $dates = [];
-    $confirmedData = [];
-    $completedData = [];
-    $pendingData = [];
-    $cancelledData = [];
-    
-    // Initialize arrays with 0 for each day
-    for ($day = 1; $day <= $daysInMonth; $day++) {
-        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
-        $dates[] = $day;
-        
-        // Query your bookings for each status on this date
-        // Example queries (adjust according to your database structure):
-        $confirmedData[] = Booking::whereDate('created_at', $date)
-            ->where('status', 'confirmed')->count();
-        $completedData[] = Booking::whereDate('created_at', $date)
-            ->where('status', 'completed')->count();
-        $pendingData[] = Booking::whereDate('created_at', $date)
-            ->where('status', 'pending')->count();
-        $cancelledData[] = Booking::whereDate('created_at', $date)
-            ->where('status', 'cancelled')->count();
+    {
+        $month = $request->input('month', date('n'));
+        $year = $request->input('year', date('Y'));
+
+        // Get days in selected month
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        $dates = [];
+        $confirmedData = [];
+        $completedData = [];
+        $pendingData = [];
+        $cancelledData = [];
+
+        // Initialize arrays with 0 for each day
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $dates[] = $day;
+
+            // Query your bookings for each status on this date
+            // Example queries (adjust according to your database structure):
+            $confirmedData[] = Booking::whereDate('created_at', $date)
+                ->where('status', 'confirmed')->count();
+            $completedData[] = Booking::whereDate('created_at', $date)
+                ->where('status', 'completed')->count();
+            $pendingData[] = Booking::whereDate('created_at', $date)
+                ->where('status', 'pending')->count();
+            $cancelledData[] = Booking::whereDate('created_at', $date)
+                ->where('status', 'cancelled')->count();
+        }
+
+        // Calculate monthly totals
+        $summary = [
+            'total_bookings' => array_sum($confirmedData) + array_sum($completedData) + array_sum($pendingData) + array_sum($cancelledData),
+            'confirmed' => array_sum($confirmedData),
+            'completed' => array_sum($completedData),
+            'pending' => array_sum($pendingData),
+            'cancelled' => array_sum($cancelledData),
+        ];
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'dates' => $dates,
+                'confirmed' => $confirmedData,
+                'completed' => $completedData,
+                'pending' => $pendingData,
+                'cancelled' => $cancelledData,
+                'summary' => $summary
+            ]
+        ]);
     }
-    
-    // Calculate monthly totals
-    $summary = [
-        'total_bookings' => array_sum($confirmedData) + array_sum($completedData) + array_sum($pendingData) + array_sum($cancelledData),
-        'confirmed' => array_sum($confirmedData),
-        'completed' => array_sum($completedData),
-        'pending' => array_sum($pendingData),
-        'cancelled' => array_sum($cancelledData),
-    ];
-    
-    return response()->json([
-        'status' => true,
-        'data' => [
-            'dates' => $dates,
-            'confirmed' => $confirmedData,
-            'completed' => $completedData,
-            'pending' => $pendingData,
-            'cancelled' => $cancelledData,
-            'summary' => $summary
-        ]
-    ]);
-}
 }
 
 
