@@ -32,7 +32,7 @@ class DashboardController extends Controller
         try {
             // Bookings stats
             $totalBookings = Booking::count();
-            $newBookings = Booking::where('status', 'new')->count();
+            $newBookings = Booking::whereDate('created_at', date('Y-m-d'))->count();
             $pendingBookings = Booking::where('status', 'pending')->count();
             $confirmedBookings = Booking::where('status', 'confirmed')->count();
             $completedBookings = Booking::where('status', 'completed')->count();
@@ -42,6 +42,7 @@ class DashboardController extends Controller
             $totalVehicles = Vehicle::count();
             $activeVehicles = Vehicle::where('is_active', 1)->count();
             $inactiveVehicles = Vehicle::where('is_active', 0)->count();
+            $underMaintenanceVehicles = Vehicle::where('is_active', 'maintenance')->count();
 
             return response()->json([
                 'status' => true,
@@ -58,6 +59,7 @@ class DashboardController extends Controller
                     'total-vehicles' => $totalVehicles,
                     'active-vehicles' => $activeVehicles,
                     'inactive-vehicles' => $inactiveVehicles,
+                    'unermaintenance-vehicles' => $underMaintenanceVehicles
                 ]
             ]);
 
