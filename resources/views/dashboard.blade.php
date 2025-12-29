@@ -39,7 +39,7 @@
                                             <select id="analytics-year" class="form-select form-select-sm">
                                                 @php
                                                     $currentYear = date('Y');
-                                                    for ($year = $currentYear; $year >= $currentYear - 5; $year--) {
+                                                    for ($year = $currentYear; $year >= $currentYear - 10; $year--) {
                                                         echo "<option value='$year' " . ($year == $currentYear ? 'selected' : '') . ">$year</option>";
                                                     }
                                                 @endphp

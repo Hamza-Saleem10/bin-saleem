@@ -70,58 +70,110 @@ class DashboardController extends Controller
         }
     }
 
-    public function getMonthlyAnalytics(Request $request)
-    {
-        $month = $request->input('month', date('n'));
-        $year = $request->input('year', date('Y'));
+public function getMonthlyAnalytics(Request $request)
+{
+    $month = $request->input('month', date('n'));
+    $year = $request->input('year', date('Y'));
 
-        // Get days in selected month
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    // Get days in selected month
+    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
-        $dates = [];
-        $confirmedData = [];
-        $completedData = [];
-        $pendingData = [];
-        $cancelledData = [];
+    $dates = [];
+    $confirmedData = [];
+    $completedData = [];
+    $pendingData = [];
+    $cancelledData = [];
 
-        // Initialize arrays with 0 for each day
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
-            $dates[] = $day;
+    // Initialize arrays with 0 for each day
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+        $dates[] = $day;
 
-            // Query your bookings for each status on this date
-            // Example queries (adjust according to your database structure):
-            $confirmedData[] = Booking::whereDate('created_at', $date)
-                ->where('status', 'confirmed')->count();
-            $completedData[] = Booking::whereDate('created_at', $date)
-                ->where('status', 'completed')->count();
-            $pendingData[] = Booking::whereDate('created_at', $date)
-                ->where('status', 'pending')->count();
-            $cancelledData[] = Booking::whereDate('created_at', $date)
-                ->where('status', 'cancelled')->count();
-        }
+        // Count bookings for each status on this date
+        // This counts bookings that were created, updated, or exist on this date
+        $confirmedData[] = Booking::whereDate('created_at', '<=', $date)
+            ->where(function($query) use ($date) {
+                $query->where('status', 'confirmed')
+                      ->whereDate('created_at', '<=', $date)
+                      ->orWhere(function($q) use ($date) {
+                          $q->where('status', '!=', 'confirmed')
+                            ->whereDate('updated_at', '<=', $date);
+                      });
+            })
+            ->count();
 
-        // Calculate monthly totals
-        $summary = [
-            'total_bookings' => array_sum($confirmedData) + array_sum($completedData) + array_sum($pendingData) + array_sum($cancelledData),
-            'confirmed' => array_sum($confirmedData),
-            'completed' => array_sum($completedData),
-            'pending' => array_sum($pendingData),
-            'cancelled' => array_sum($cancelledData),
-        ];
+        $completedData[] = Booking::where('status', 'completed')
+            ->whereDate('created_at', '<=', $date)
+            ->where(function($query) use ($date) {
+                $query->whereDate('updated_at', '>=', $date)
+                      ->orWhere(function($q) use ($date) {
+                          $q->whereDate('created_at', '=', $date)
+                            ->where('status', 'completed');
+                      });
+            })
+            ->count();
 
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'dates' => $dates,
-                'confirmed' => $confirmedData,
-                'completed' => $completedData,
-                'pending' => $pendingData,
-                'cancelled' => $cancelledData,
-                'summary' => $summary
-            ]
-        ]);
+        $pendingData[] = Booking::where('status', 'pending')
+            ->whereDate('created_at', '<=', $date)
+            ->count();
+
+        $cancelledData[] = Booking::where('status', 'cancelled')
+            ->whereDate('created_at', '<=', $date)
+            ->count();
     }
+
+    // For monthly summary, count bookings that exist during the month
+    // (created in the month OR had status changes in the month)
+    $startDate = "$year-$month-01";
+    $endDate = "$year-$month-$daysInMonth";
+
+    $monthlyConfirmed = Booking::where('status', 'confirmed')
+        ->where(function($query) use ($startDate, $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate])
+                  ->orWhereBetween('updated_at', [$startDate, $endDate]);
+        })
+        ->count();
+
+    $monthlyCompleted = Booking::where('status', 'completed')
+        ->where(function($query) use ($startDate, $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate])
+                  ->orWhereBetween('updated_at', [$startDate, $endDate]);
+        })
+        ->count();
+
+    $monthlyPending = Booking::where('status', 'pending')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->count();
+
+    $monthlyCancelled = Booking::where('status', 'cancelled')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->count();
+
+    // Total bookings for the month (all bookings created in the month)
+    $totalBookings = Booking::whereBetween('created_at', [$startDate, $endDate])
+        ->count();
+
+    // Calculate monthly totals
+    $summary = [
+        'total-bookings' => $totalBookings,
+        'confirmed' => $monthlyConfirmed,
+        'completed' => $monthlyCompleted,
+        'pending' => $monthlyPending,
+        'cancelled' => $monthlyCancelled,
+    ];
+
+    return response()->json([
+        'status' => true,
+        'data' => [
+            'dates' => $dates,
+            'confirmed' => $confirmedData,
+            'completed' => $completedData,
+            'pending' => $pendingData,
+            'cancelled' => $cancelledData,
+            'summary' => $summary
+        ]
+    ]);
+}
 }
 
 
