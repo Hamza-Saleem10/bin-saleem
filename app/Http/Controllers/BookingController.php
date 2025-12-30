@@ -89,7 +89,7 @@ class BookingController extends Controller
 
                 ->addColumn('vehicle', fn($r) => optional($r->vehicle)->name)
                 ->addColumn('pick_up', fn($r) => $r->pick_up)
-                ->addColumn('pickup_date', fn($r) => $r->pickup_date)
+                ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time)
 
                 ->addColumn('status', fn($r) => $r->booking->status)
@@ -143,7 +143,6 @@ class BookingController extends Controller
                         });
                     }
                 })
-
                 ->orderColumn('pickup_date', function ($query, $order) {
                     $query->orderBy('pickup_date', $order);
                 })
@@ -162,14 +161,12 @@ class BookingController extends Controller
                         ->orderBy('bookings.status', $order)
                         ->select('bookings_route_details.*');
                 })
-
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
 
         return view('bookings.index');
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -183,50 +180,6 @@ class BookingController extends Controller
         return view('bookings.create', get_defined_vars());
     }
     /**
-     * Display booking voucher with all booking details
-     *
-     * @param string $uuid
-     * @return \Illuminate\Http\Response
-     */
-    public function bookingvoucher($uuid)
-    {
-        // Find booking with UUID and eager load all related details
-        $booking = Booking::where('uuid', $uuid)
-            ->with([
-                'hotelDetails', // All hotel details
-                'flightDetails', // All flight details  
-                'routeDetails.vehicle', // All route details with vehicle info
-                
-            ])
-            ->firstOrFail();
-            
-        $bookingByUser = User::find($booking->booking_by);
-
-        // Calculate totals
-        $totalHotels = $booking->hotelDetails->count();
-        $totalFlights = $booking->flightDetails->count();
-        $totalRoutes = $booking->routeDetails->count();
-
-        // Calculate total duration for hotels
-        $totalHotelNights = 0;
-        foreach ($booking->hotelDetails as $hotel) {
-            if ($hotel->check_in_date && $hotel->check_out_date) {
-                $checkIn = Carbon::parse($hotel->check_in_date);
-                $checkOut = Carbon::parse($hotel->check_out_date);
-                $totalHotelNights += $checkOut->diffInDays($checkIn);
-            }
-        }
-
-        // Get all unique vehicles used in routes
-        $vehicles = $booking->routeDetails->map(function ($route) {
-            return optional($route->vehicle)->name;
-        })->filter()->unique()->implode(', ');
-        
-
-        return view('bookings.partials.booking-voucher', get_defined_vars());
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
@@ -237,6 +190,7 @@ class BookingController extends Controller
         // Validate all input data
         $validated = $request->validate([
             // Basic fields remain the same
+            'title' => 'required|in:Mr.,Mrs.',
             'customer_name' => 'required|string|max:191',
             'customer_email' => 'nullable|email|max:191',
             'customer_contact_full' => 'required|regex:/^\+[1-9]\d{1,14}$/',
@@ -309,7 +263,7 @@ class BookingController extends Controller
 
             // Extract main booking data (non-array fields)
             $bookingData = [
-                'customer_name' => $validated['customer_name'],
+                'customer_name' => trim($validated['title'] . ' ' . $validated['customer_name']),
                 'customer_email' => $validated['customer_email'] ?? null,
                 'customer_contact' => $fullContactNumber,
                 'booking_by' => $validated['booking_by'] ?? auth()->id(),
@@ -400,12 +354,13 @@ class BookingController extends Controller
     {
         $users = User::pluck('name', 'id');
         $vehicles = Vehicle::active()->pluck('name', 'id');
+        
         return view('bookings.edit', get_defined_vars());
     }
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateFeeStructureRequest  $request
+     * @param  \App\Http\Requests\UpdateBookingRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Booking $booking)
@@ -621,5 +576,50 @@ class BookingController extends Controller
             return $this->sendResponse(true, __('messages.booking_update'));
         }
         return $this->sendResponse(false, __('messages.booking_not_found'), [], 404);
+    }
+
+    /**
+     * Display booking voucher with all booking details
+     *
+     * @param string $uuid
+     * @return \Illuminate\Http\Response
+     */
+    public function bookingvoucher($uuid)
+    {
+        // Find booking with UUID and eager load all related details
+        $booking = Booking::where('uuid', $uuid)
+            ->with([
+                'hotelDetails', // All hotel details
+                'flightDetails', // All flight details  
+                'routeDetails.vehicle', // All route details with vehicle info
+                'bookedBy',
+            ])
+            ->firstOrFail();
+            
+
+        $bookingByUser = User::find($booking->booking_by);
+
+        // Calculate totals
+        $totalHotels = $booking->hotelDetails->count();
+        $totalFlights = $booking->flightDetails->count();
+        $totalRoutes = $booking->routeDetails->count();
+
+        // Calculate total duration for hotels
+        $totalHotelNights = 0;
+        foreach ($booking->hotelDetails as $hotel) {
+            if ($hotel->check_in_date && $hotel->check_out_date) {
+                $checkIn = Carbon::parse($hotel->check_in_date);
+                $checkOut = Carbon::parse($hotel->check_out_date);
+                $totalHotelNights += $checkOut->diffInDays($checkIn);
+            }
+        }
+
+        // Get all unique vehicles used in routes
+        $vehicles = $booking->routeDetails->map(function ($route) {
+            return optional($route->vehicle)->name;
+        })->filter()->unique()->implode(', ');
+        
+
+        return view('bookings.partials.booking-voucher', get_defined_vars());
     }
 }

@@ -21,6 +21,9 @@ class BookingsRouteDetail extends Model
         'created_by',
         'updated_by',
     ];
+    protected $casts = [
+        'pickup_date' => 'date',
+    ];
     
     // Relationship back to Booking
     public function booking()

@@ -864,7 +864,7 @@
                     </div>
                     <div class="booking-date">
                         Date: {{ date('F d, Y') }}<br>
-                        Booked By: Mr. {{ optional($booking)->booking_by_name ?? 'N/A' }}
+                        Booked By: Mr. {{ optional($booking->bookedBy)->name ?? 'N/A' }}
                     </div>
                 </div>
             </div>

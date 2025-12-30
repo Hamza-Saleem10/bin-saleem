@@ -17,9 +17,14 @@
                     {{-- ================= Customer Name ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('customer_name', 'Name', ['class' => 'form-label required-input']) !!}
-                        {!! Form::text('customer_name', old('customer_name', $booking->customer_name ?? ''), ['class' => 'form-control ' . $errors->first('customer_name', 'error'),'placeholder' => 'Customer Name','maxlength' => '191','required']) !!}
+                        <div class="d-flex gap-2">
+                            {{-- Title Dropdown --}}
+                            {!! Form::select('title', ['Mr.' => 'Mr.', 'Mrs.' => 'Mrs.'], old('title', isset($booking) && str_starts_with($booking->customer_name, 'Mrs.') ? 'Mrs.' : 'Mr.'), ['class' => 'form-select', 'style' => 'width: 90px;', 'required']) !!}
+                            {{-- Customer Name --}}
+                            {!! Form::text('customer_name', old('customer_name', isset($booking) ? trim(str_replace(['Mr.', 'Mrs.'], '', $booking->customer_name)) : ''), ['class' => 'form-control ' . $errors->first('customer_name', 'error'), 'placeholder' => 'Customer Name', 'maxlength' => '191', 'required']) !!}
+                        </div>
                         {!! $errors->first('customer_name', '<label class="error">:message</label>') !!}
-                    </div>
+                    </div>                    
                     
                     {{-- ================= Customer Email ================= --}}
                     <div class="form-group col-md-4">

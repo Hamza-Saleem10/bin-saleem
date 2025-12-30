@@ -56,6 +56,7 @@ class AclSeeder extends Seeder
             ['name' => 'Update Booking', 'permission_group_id' => 3, 'guard_name' => 'web'],
             ['name' => 'Delete Booking', 'permission_group_id' => 3, 'guard_name' => 'web'],
             ['name' => 'Update Booking Status', 'permission_group_id' => 3, 'guard_name' => 'web'],
+            ['name' => 'View Booking Voucher', 'permission_group_id' => 3, 'guard_name' => 'web'],
 
             ['name' => 'Vehicles List', 'permission_group_id' => 4, 'guard_name' => 'web'],
             ['name' => 'Create Vehicle', 'permission_group_id' => 4, 'guard_name' => 'web'],

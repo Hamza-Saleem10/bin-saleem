@@ -65,6 +65,10 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+    public function bookedBy()
+    {
+        return $this->belongsTo(User::class, 'booking_by');
+    }
 
     public function vehicle()
     {
