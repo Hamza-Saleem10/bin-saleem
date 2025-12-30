@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Booking;
 use App\Models\Vehicle;
 use Yajra\DataTables\DataTables;
@@ -171,6 +172,7 @@ class BookingController extends Controller
      */
     public function create()
     {
+        $users = User::pluck('name', 'id');
         $vehicles = Vehicle::active()->pluck('name', 'id');
         return view('bookings.create', get_defined_vars());
     }
@@ -189,6 +191,7 @@ class BookingController extends Controller
             'customer_name' => 'required|string|max:191',
             'customer_email' => 'nullable|email|max:191',
             'customer_contact_full' => 'required|regex:/^\+[1-9]\d{1,14}$/',
+            'booking_by' => 'required|exists:users,id',
             'adult_person' => 'nullable|integer|min:0',
             'child_person' => 'nullable|integer|min:0',
             'infant_person' => 'nullable|integer|min:0',
@@ -260,6 +263,7 @@ class BookingController extends Controller
                 'customer_name' => $validated['customer_name'],
                 'customer_email' => $validated['customer_email'] ?? null,
                 'customer_contact' => $fullContactNumber,
+                'booking_by' => $validated['booking_by'] ?? auth()->id(),
                 'adult_person' => $validated['adult_person'] ?? 0,
                 'child_person' => $validated['child_person'] ?? 0,
                 'infant_person' => $validated['infant_person'] ?? 0,
@@ -345,6 +349,7 @@ class BookingController extends Controller
      */
     public function edit(Booking $booking)
     {
+        $users = User::pluck('name', 'id');
         $vehicles = Vehicle::active()->pluck('name', 'id');
         return view('bookings.edit', get_defined_vars());
     }

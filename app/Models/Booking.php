@@ -16,6 +16,7 @@ class Booking extends Model
         'customer_name',
         'customer_email',
         'customer_contact',
+        'booking_by',
         'adult_person',
         'child_person',
         'infant_person',

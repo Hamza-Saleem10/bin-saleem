@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('customer_name',191);
             $table->string('customer_email', 191)->nullable();
             $table->string('customer_contact', 20)->nullable();
+            $table->unsignedBigInteger('booking_by')->nullable();
             $table->integer('adult_person')->default(0);
             $table->integer('child_person')->default(0);
             $table->integer('infant_person')->default(0);

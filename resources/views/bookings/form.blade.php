@@ -36,6 +36,13 @@
                         {!! Form::hidden('customer_contact_full', old('customer_contact_full', $booking->customer_contact_full ?? ''), ['id' => 'customer_contact_full']) !!}
                         {!! $errors->first('customer_contact', '<label class="error">:message</label>') !!}
                     </div>
+
+                    {{-- ================= Booking By ================= --}}
+                    <div class="form-group col-md-4">
+                        {!! Form::label('booking_by', 'Booking By', ['class' => 'form-label required-input']) !!}
+                        {!! Form::select('booking_by',$users, old('booking_by', $booking->booking_by ?? ''),['class' => 'form-control ' . $errors->first('booking_by', 'error'),'placeholder' => 'Select User','required']) !!}
+                        {!! $errors->first('booking_by', '<label class="error">:message</label>') !!}
+                    </div>
                     
                     {{-- ================= Number of Pax ================= --}}
                     <div class="form-group col-md-4">
