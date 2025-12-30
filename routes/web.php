@@ -61,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
     Route::post('/dashboard/get-monthly-analytics', [DashboardController::class, 'getMonthlyAnalytics'])->name('dashboard.getMonthlyAnalytics');
-    // Route::post('/dashboard/get-recent-bookings', [DashboardController::class, 'getRecentBookings'])->name('dashboard.getRecentBookings');
-    
+    Route::post('/dashboard/get-recent-bookings', [DashboardController::class, 'getRecentBookings'])->name('dashboard.getRecentBookings');
+
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::get('change-password', [UserController::class, 'changePassword'])->name('users.changePassword');
     Route::post('update-password', [UserController::class, 'updatePassword'])->name('users.updatePassword');

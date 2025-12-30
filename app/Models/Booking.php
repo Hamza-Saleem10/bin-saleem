@@ -60,10 +60,14 @@ class Booking extends Model
         // Format: BST-0001, BST-0002, etc.
         return 'BST-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function vehicle()
     {
-        return $this->belongsTo(Vehicle::class);
+        return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
     // Relationship with Hotel Details (One-to-Many)
     public function hotelDetails()

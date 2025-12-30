@@ -400,7 +400,7 @@
             </div>
 
             <!-- Recent Bookings Section -->
-            {{-- <div class="row">
+            <div class="row">
                 <div class="col-xl-12">
                     <div class="card shadow">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -417,14 +417,15 @@
                                 <table class="table table-hover" id="recent-bookings-table">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
+                                            <th>Voucher No</th>
                                             <th>Customer</th>
                                             <th>Vehicle</th>
                                             <th>Amount</th>
                                             <th>Status</th>
-                                            <th>Date</th>
+                                            <th>Booking Date</th>
+                                            <th>Created By</th>
                                             <th>Action</th>
-                                        </tr>
+                                        </tr>   
                                     </thead>
                                     <tbody id="recent-bookings-body">
                                         <!-- Will be populated by JavaScript -->
@@ -434,7 +435,7 @@
                         </div>
                     </div>
                 </div>
-            </div> --}}
+            </div>
         </div>
     </div>
 
@@ -792,6 +793,102 @@
                 }
             }
             
+            $(document).ready(function() {
+                // Function to load recent bookings
+                function loadRecentBookings() {
+                    $.ajax({
+                        url: '{{ route("dashboard.getRecentBookings") }}',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            limit: 10
+                        },
+                        beforeSend: function() {
+                            // Show loading indicator
+                            $('#recent-bookings-body').html(
+                                '<tr><td colspan="8" class="text-center">' +
+                                '<div class="spinner-border spinner-border-sm" role="status">' +
+                                '<span class="visually-hidden">Loading...</span>' +
+                                '</div> Loading bookings...' +
+                                '</td></tr>'
+                            );
+                        },
+                        success: function(response) {
+                            if (response.status && response.bookings.length > 0) {
+                                let html = '';
+                                response.bookings.forEach(function(booking) {
+                                    html += `
+                                        <tr>
+                                            <td>${booking.voucher_number}</td>
+                                            <td>${booking.customer_name}</td>
+                                            <td>${booking.vehicle_name}</td>
+                                            <td>${formatCurrency(booking.total_amount)}</td>
+                                            <td>
+                                                <span class="badge ${booking.status_badge}">
+                                                    ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                                                </span>
+                                            </td>
+                                            <td>${booking.created_at}</td>
+                                            <td>${booking.created_by_name}</td>
+                                            <td>
+                                                <a href="/bookings/${booking.id}" class="btn btn-sm btn-outline-primary" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `;
+                                });
+                                $('#recent-bookings-body').html(html);
+                            } else {
+                                $('#recent-bookings-body').html(
+                                    '<tr><td colspan="8" class="text-center text-muted">No bookings found</td></tr>'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error loading recent bookings:', error);
+                            $('#recent-bookings-body').html(
+                                '<tr><td colspan="8" class="text-center text-danger">' +
+                                'Error loading bookings. Please try again.' +
+                                '</td></tr>'
+                            );
+                        }
+                    });
+                }
+
+                // Format currency function
+                // function formatCurrency(amount) {
+                //     return '₹' + parseFloat(amount).toFixed(2); // Change currency symbol as needed
+                // }
+                function formatCurrency(amount) {
+                    return new Intl.NumberFormat('en-SA', {
+                        style: 'currency',
+                        currency: 'SAR'
+                    }).format(amount);
+                }
+
+                // Load bookings on page load
+                loadRecentBookings();
+
+                // Refresh button click event
+                $('#refresh-recent-bookings').click(function() {
+                    loadRecentBookings();
+                    
+                    // Add rotation animation to refresh icon
+                    const icon = $(this).find('i');
+                    icon.css('transform', 'rotate(360deg)');
+                    icon.css('transition', 'transform 0.5s ease');
+                    
+                    setTimeout(() => {
+                        icon.css('transform', 'rotate(0deg)');
+                    }, 500);
+                });
+
+                // Optional: Auto-refresh every 30 seconds
+                setInterval(loadRecentBookings, 30000);
+            });
+
         </script>
     @endpush
 </x-app-layout>

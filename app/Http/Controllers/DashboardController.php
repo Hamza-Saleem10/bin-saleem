@@ -236,31 +236,32 @@ class DashboardController extends Controller
     /**
      * Get recent bookings for dashboard
      */
-    // public function getRecentBookings(Request $request)
-    // {
-    //     $limit = $request->input('limit', 10);
+    public function getRecentBookings(Request $request)
+    {
+        $limit = $request->input('limit', 10);
 
-    //     $bookings = Booking::with(['customer', 'vehicle'])
-    //         ->orderBy('created_at', 'desc')
-    //         ->limit($limit)
-    //         ->get()
-    //         ->map(function ($booking) {
-    //             return [
-    //                 'id' => $booking->id,
-    //                 'customer_name' => $booking->customer->name ?? 'N/A',
-    //                 'vehicle_name' => $booking->vehicle->name ?? 'N/A',
-    //                 'status' => $booking->status,
-    //                 'total_amount' => $booking->total_amount,
-    //                 'created_at' => $booking->created_at->format('M d, Y H:i'),
-    //                 'status_badge' => $this->getStatusBadge($booking->status)
-    //             ];
-    //         });
+        $bookings = Booking::with(['vehicle:id,name','user:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($booking) { 
+                return [
+                    'voucher_number' => $booking->voucher_number,
+                    'customer_name' => $booking->customer_name ?? 'N/A',
+                    'vehicle_name' => optional($booking->vehicle)->name ?? 'N/A',
+                    'total_amount' => $booking->total_amount,
+                    'status' => $booking->status,
+                    'created_at' => $booking->created_at->format('M d, Y H:i'),
+                    'status_badge' => $this->getStatusBadge($booking->status),
+                    'created_by_name' => optional($booking->user)->name ?? 'System',
+                ];
+            });
 
-    //     return response()->json([
-    //         'status' => true,
-    //         'bookings' => $bookings
-    //     ]);
-    // }
+        return response()->json([
+            'status' => true,
+            'bookings' => $bookings
+        ]);
+    }
 
     /**
      * Get status badge class
