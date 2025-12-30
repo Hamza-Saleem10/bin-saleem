@@ -67,6 +67,7 @@
         <script src="{{ asset('assets/intl-tel-input/js/intlTelInput.min.js') }}"></script>
         <script src="{{ asset('assets/intl-tel-input/js/utils.js') }}"></script>
         <script src="{{ asset('js/chart.js') }}"></script>
+        
 
 
         

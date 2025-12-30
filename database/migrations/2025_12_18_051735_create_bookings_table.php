@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->integer('child_person')->default(0);
             $table->integer('infant_person')->default(0);
             $table->integer('number_of_pax')->default(0);
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->enum('status', ['Pending', 'Confirmed', 'Completed', 'Cancelled'])->default('Pending');
             $table->boolean('is_active')->default(1)->comment('0: Inactive, 1: Active');
             $table->bigInteger('created_by')->nullable()->unsigned();

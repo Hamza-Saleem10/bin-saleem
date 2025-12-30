@@ -2,65 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-
 use App\Models\Booking;
 use App\Models\Vehicle;
-use App\Models\Review;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display dashboard
      */
     public function index()
     {
-        return view('dashboard', get_defined_vars());
+        return view('dashboard');
     }
 
+    /**
+     * Get dashboard statistics
+     */
     public function getStats(Request $request)
     {
-        $roleName = roleName();
-        $user = Auth::user();
-
         try {
-            // Bookings stats
-            $totalBookings = Booking::count();
-            $newBookings = Booking::whereDate('created_at', date('Y-m-d'))->count();
-            $pendingBookings = Booking::where('status', 'pending')->count();
-            $confirmedBookings = Booking::where('status', 'confirmed')->count();
-            $completedBookings = Booking::where('status', 'completed')->count();
-            $cancelledBookings = Booking::where('status', 'cancelled')->count();
+            // Get bookings statistics
+            $bookingsStats = $this->getBookingsStats();
 
-            // Vehicles stats
-            $totalVehicles = Vehicle::count();
-            $activeVehicles = Vehicle::where('is_active', 1)->count();
-            $inactiveVehicles = Vehicle::where('is_active', 0)->count();
-            $underMaintenanceVehicles = Vehicle::where('is_active', 'maintenance')->count();
+            // Get vehicles statistics
+            $vehiclesStats = $this->getVehiclesStats();
 
             return response()->json([
                 'status' => true,
-                'stats' => [
-                    // Bookings
-                    'total-bookings' => $totalBookings,
-                    'new-bookings' => $newBookings,
-                    'pending-bookings' => $pendingBookings,
-                    'confirmed-bookings' => $confirmedBookings,
-                    'completed-bookings' => $completedBookings,
-                    'cancelled-bookings' => $cancelledBookings,
-
-                    // Vehicles
-                    'total-vehicles' => $totalVehicles,
-                    'active-vehicles' => $activeVehicles,
-                    'inactive-vehicles' => $inactiveVehicles,
-                    'unermaintenance-vehicles' => $underMaintenanceVehicles
-                ]
+                'stats' => array_merge($bookingsStats, $vehiclesStats)
             ]);
 
         } catch (\Exception $e) {
@@ -72,110 +45,235 @@ class DashboardController extends Controller
         }
     }
 
-public function getMonthlyAnalytics(Request $request)
-{
-    $month = $request->input('month', date('n'));
-    $year = $request->input('year', date('Y'));
+    /**
+     * Get bookings statistics
+     */
+    private function getBookingsStats()
+    {
+        $today = Carbon::today();
 
-    // Get days in selected month
-    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $stats = [
+            // Total bookings count
+            'total-bookings' => Booking::count(),
 
-    $dates = [];
-    $confirmedData = [];
-    $completedData = [];
-    $pendingData = [];
-    $cancelledData = [];
+            // Today's new bookings
+            'new-bookings' => Booking::whereDate('created_at', $today)->count(),
 
-    // Initialize arrays with 0 for each day
-    for ($day = 1; $day <= $daysInMonth; $day++) {
-        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
-        $dates[] = $day;
+            // Status-based counts
+            'pending-bookings' => Booking::where('status', 'pending')->count(),
+            'confirmed-bookings' => Booking::where('status', 'confirmed')->count(),
+            'completed-bookings' => Booking::where('status', 'completed')->count(),
+            'cancelled-bookings' => Booking::where('status', 'cancelled')->count(),
 
-        // Count bookings for each status on this date
-        // This counts bookings that were created, updated, or exist on this date
-        $confirmedData[] = Booking::whereDate('created_at', '<=', $date)
-            ->where(function($query) use ($date) {
-                $query->where('status', 'confirmed')
-                      ->whereDate('created_at', '<=', $date)
-                      ->orWhere(function($q) use ($date) {
-                          $q->where('status', '!=', 'confirmed')
-                            ->whereDate('updated_at', '<=', $date);
-                      });
-            })
-            ->count();
+            // Additional metrics
+            'today-revenue' => Booking::where('status', 'completed')
+                ->whereDate('updated_at', $today)
+                ->sum('total_amount'),
+            'monthly-revenue' => Booking::where('status', 'completed')
+                ->whereMonth('updated_at', now()->month)
+                ->whereYear('updated_at', now()->year)
+                ->sum('total_amount'),
+        ];
 
-        $completedData[] = Booking::where('status', 'completed')
-            ->whereDate('created_at', '<=', $date)
-            ->where(function($query) use ($date) {
-                $query->whereDate('updated_at', '>=', $date)
-                      ->orWhere(function($q) use ($date) {
-                          $q->whereDate('created_at', '=', $date)
-                            ->where('status', 'completed');
-                      });
-            })
-            ->count();
-
-        $pendingData[] = Booking::where('status', 'pending')
-            ->whereDate('created_at', '<=', $date)
-            ->count();
-
-        $cancelledData[] = Booking::where('status', 'cancelled')
-            ->whereDate('created_at', '<=', $date)
-            ->count();
+        return $stats;
     }
 
-    // For monthly summary, count bookings that exist during the month
-    // (created in the month OR had status changes in the month)
-    $startDate = "$year-$month-01";
-    $endDate = "$year-$month-$daysInMonth";
+    /**
+     * Get vehicles statistics
+     */
+    private function getVehiclesStats()
+    {
+        return [
+            'total-vehicles' => Vehicle::count(),
+            'active-vehicles' => Vehicle::where('is_active', '1')->count(),
+            'inactive-vehicles' => Vehicle::where('is_active', '0')->count(),
+            // 'under-maintenance-vehicles' => Vehicle::where('maintenance_status', 'maintenance')->count(),
 
-    $monthlyConfirmed = Booking::where('status', 'confirmed')
-        ->where(function($query) use ($startDate, $endDate) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
-                  ->orWhereBetween('updated_at', [$startDate, $endDate]);
-        })
-        ->count();
+            // Vehicle type breakdown
+            'available-vehicles' => Vehicle::where('is_active', 1)
+                // ->where('maintenance_status', '!=', 'maintenance')
+                ->count(),
+        ];
+    }
 
-    $monthlyCompleted = Booking::where('status', 'completed')
-        ->where(function($query) use ($startDate, $endDate) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
-                  ->orWhereBetween('updated_at', [$startDate, $endDate]);
-        })
-        ->count();
+    /**
+     * Get monthly analytics data
+     */
+    /**
+     * Get monthly analytics data
+     */
+    public function getMonthlyAnalytics(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:2020|max:' . (date('Y') + 1)
+        ]);
 
-    $monthlyPending = Booking::where('status', 'pending')
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->count();
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-    $monthlyCancelled = Booking::where('status', 'cancelled')
-        ->whereBetween('created_at', [$startDate, $endDate])
-        ->count();
+        try {
+            // Get days in selected month
+            $daysInMonth = Carbon::create($year, $month)->daysInMonth;
+            $dates = [];
 
-    // Total bookings for the month (all bookings created in the month)
-    $totalBookings = Booking::whereBetween('created_at', [$startDate, $endDate])
-        ->count();
+            // Prepare daily data arrays
+            $dailyData = [
+                'confirmed' => array_fill(1, $daysInMonth, 0),
+                'completed' => array_fill(1, $daysInMonth, 0),
+                'pending' => array_fill(1, $daysInMonth, 0),
+                'cancelled' => array_fill(1, $daysInMonth, 0)
+            ];
 
-    // Calculate monthly totals
-    $summary = [
-        'total-bookings' => $totalBookings,
-        'confirmed' => $monthlyConfirmed,
-        'completed' => $monthlyCompleted,
-        'pending' => $monthlyPending,
-        'cancelled' => $monthlyCancelled,
-    ];
+            // Query bookings for the selected month
+            $bookings = Booking::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->get();
 
-    return response()->json([
-        'status' => true,
-        'data' => [
-            'dates' => $dates,
-            'confirmed' => $confirmedData,
-            'completed' => $completedData,
-            'pending' => $pendingData,
-            'cancelled' => $cancelledData,
-            'summary' => $summary
-        ]
-    ]);
+            // Process daily counts
+            foreach ($bookings as $booking) {
+                $day = (int) $booking->created_at->format('d');
+                $status = strtolower($booking->status);
+
+                if (isset($dailyData[$status][$day])) {
+                    $dailyData[$status][$day]++;
+                }
+            }
+
+            // Prepare dates array for chart
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dates[] = $day;
+            }
+
+            // Get monthly summary
+            $summary = $this->getMonthlySummary($month, $year);
+
+            // Calculate trends (comparison with previous month)
+            $previousMonth = Carbon::create($year, $month)->subMonth();
+            $previousSummary = $this->getMonthlySummary($previousMonth->month, $previousMonth->year);
+
+            $trends = [
+                'confirmed_trend' => $this->calculateTrend($summary['confirmed'], $previousSummary['confirmed']),
+                'completed_trend' => $this->calculateTrend($summary['completed'], $previousSummary['completed']),
+                'revenue_trend' => $this->calculateTrend($summary['revenue'], $previousSummary['revenue']),
+            ];
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'dates' => $dates,
+                    'confirmed' => array_values($dailyData['confirmed']),
+                    'completed' => array_values($dailyData['completed']),
+                    'pending' => array_values($dailyData['pending']),
+                    'cancelled' => array_values($dailyData['cancelled']),
+                    'summary' => $summary,
+                    'trends' => $trends,
+                    'month_name' => Carbon::create($year, $month)->format('F Y')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to fetch analytics data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get monthly summary
+     */
+    private function getMonthlySummary($month, $year)
+    {
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+
+        // Get status counts using Eloquent
+        $confirmed = Booking::where('status', 'confirmed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        $completed = Booking::where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        $pending = Booking::where('status', 'pending')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        $cancelled = Booking::where('status', 'cancelled')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        // Get revenue from completed bookings
+        $revenue = Booking::where('status', 'completed')
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->sum('total_amount');
+
+        return [
+            'total' => $confirmed + $completed + $pending + $cancelled,
+            'confirmed' => $confirmed,
+            'completed' => $completed,
+            'pending' => $pending,
+            'cancelled' => $cancelled,
+            'revenue' => $revenue ?: 0
+        ];
+    }
+
+    /**
+     * Calculate percentage trend
+     */
+    private function calculateTrend($current, $previous)
+    {
+        if ($previous == 0) {
+            return $current > 0 ? 100 : 0;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
+
+    /**
+     * Get recent bookings for dashboard
+     */
+    // public function getRecentBookings(Request $request)
+    // {
+    //     $limit = $request->input('limit', 10);
+
+    //     $bookings = Booking::with(['customer', 'vehicle'])
+    //         ->orderBy('created_at', 'desc')
+    //         ->limit($limit)
+    //         ->get()
+    //         ->map(function ($booking) {
+    //             return [
+    //                 'id' => $booking->id,
+    //                 'customer_name' => $booking->customer->name ?? 'N/A',
+    //                 'vehicle_name' => $booking->vehicle->name ?? 'N/A',
+    //                 'status' => $booking->status,
+    //                 'total_amount' => $booking->total_amount,
+    //                 'created_at' => $booking->created_at->format('M d, Y H:i'),
+    //                 'status_badge' => $this->getStatusBadge($booking->status)
+    //             ];
+    //         });
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'bookings' => $bookings
+    //     ]);
+    // }
+
+    /**
+     * Get status badge class
+     */
+    private function getStatusBadge($status)
+    {
+        $badges = [
+            'pending' => 'bg-warning',
+            'confirmed' => 'bg-info',
+            'completed' => 'bg-success',
+            'cancelled' => 'bg-danger'
+        ];
+
+        return $badges[$status] ?? 'bg-secondary';
+    }
 }
-}
-
-

@@ -57,10 +57,12 @@ Route::get('levels_seeder', [UserController::class, 'test']);
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
+    // Dashboard Routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
     Route::post('/dashboard/get-monthly-analytics', [DashboardController::class, 'getMonthlyAnalytics'])->name('dashboard.getMonthlyAnalytics');
-
+    // Route::post('/dashboard/get-recent-bookings', [DashboardController::class, 'getRecentBookings'])->name('dashboard.getRecentBookings');
+    
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
     Route::get('change-password', [UserController::class, 'changePassword'])->name('users.changePassword');
     Route::post('update-password', [UserController::class, 'updatePassword'])->name('users.updatePassword');
@@ -114,23 +116,23 @@ Route::middleware(['auth'])->group(function () {
     // Route::resource('bookings', BookingController::class)->only('destroy')->middleware('permission:Delete Booking');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy')->middleware('permission:Update Booking');
     Route::post('bookings/datatable', [BookingController::class, 'index'])->name('bookings.datatable')->middleware('permission:Bookings List');
-    Route::get('bookings/update-status/{booking}',[BookingController::class, 'updateStatus'])->name('bookings.updateStatus')->middleware('permission:Update Booking Status');
-    
+    Route::get('bookings/update-status/{booking}', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus')->middleware('permission:Update Booking Status');
+
     ############# Vehicles
     Route::resource('vehicles', VehicleController::class)->only('index')->middleware('permission:Vehicles List');
     Route::resource('vehicles', VehicleController::class)->only(['create', 'store'])->middleware('permission:Create Vehicle');
     Route::resource('vehicles', VehicleController::class)->only(['edit', 'update'])->middleware('permission:Update Vehicle');
     Route::resource('vehicles', VehicleController::class)->only('destroy')->middleware('permission:Delete Vehicle');
     Route::post('vehicles/datatable', [VehicleController::class, 'index'])->name('vehicles.datatable')->middleware('permission:Vehicles List');
-    Route::get('vehicles/update-status/{vehicle}',[VehicleController::class, 'updateStatus'])->name('vehicles.updateStatus')->middleware('permission:Update Vehicle Status');
-    
+    Route::get('vehicles/update-status/{vehicle}', [VehicleController::class, 'updateStatus'])->name('vehicles.updateStatus')->middleware('permission:Update Vehicle Status');
+
     ############# Reviews
     Route::resource('reviews', ReviewController::class)->only('index')->middleware('permission:Reviews List');
     Route::resource('reviews', ReviewController::class)->only(['create', 'store'])->middleware('permission:Create Review');
     Route::resource('reviews', ReviewController::class)->only(['edit', 'update'])->middleware('permission:Update Review');
     Route::resource('reviews', ReviewController::class)->only('destroy')->middleware('permission:Delete Review');
     Route::post('reviews/datatable', [ReviewController::class, 'index'])->name('reviews.datatable')->middleware('permission:Reviews List');
-    Route::get('reviews/update-status/{review}',[ReviewController::class, 'updateStatus'])->name('reviews.updateStatus')->middleware('permission:Update Review Status');
+    Route::get('reviews/update-status/{review}', [ReviewController::class, 'updateStatus'])->name('reviews.updateStatus')->middleware('permission:Update Review Status');
 });
 
 Route::post('refresh-captcha', [UserController::class, 'refreshCaptcha'])->name('refresh-captcha');
