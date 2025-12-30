@@ -71,7 +71,7 @@ class BookingController extends Controller
 
     //     return view('bookings.index');
     // }
-    
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -82,7 +82,7 @@ class BookingController extends Controller
             ]);
 
             return DataTables::of($routes)
-            
+
                 ->addColumn('voucher_number', fn($r) => $r->booking->voucher_number)
                 ->addColumn('customer_name', fn($r) => $r->booking->customer_name)
                 ->addColumn('customer_contact', fn($r) => $r->booking->customer_contact)
@@ -92,7 +92,7 @@ class BookingController extends Controller
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date)
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time)
 
-                ->addColumn('status', fn($r) =>$r->booking->status)
+                ->addColumn('status', fn($r) => $r->booking->status)
                 // ->addColumn('status', fn($r) => getStatusBadge($r->booking->is_active))
 
                 ->addColumn('action', function ($r) {
@@ -103,6 +103,11 @@ class BookingController extends Controller
                     if (auth()->user()->can('Update Booking')) {
                         $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1">
                         <i class="feather icon-edit-2"></i></a>';
+                    }
+
+                    if (auth()->user()->can('View Booking Voucher')) {
+                        $actions .= '<a href="' . route('bookings.bookingvoucher', $booking->uuid) . '" class="btn btn-icon btn-info me-1">
+                        <i class="feather icon-eye"></i></a>';
                     }
 
                     if (auth()->user()->can('Delete Booking')) {
@@ -116,21 +121,21 @@ class BookingController extends Controller
                 ->filter(function ($query) use ($request) {
                     if ($request->has('search') && $request->search['value'] != '') {
                         $search = $request->search['value'];
-                        
+
                         $query->where(function ($q) use ($search) {
                             // Search in main table columns
                             $q->orWhere('pick_up', 'LIKE', "%{$search}%")
-                              ->orWhere('pickup_date', 'LIKE', "%{$search}%")
-                              ->orWhere('pickup_time', 'LIKE', "%{$search}%");
-                            
+                                ->orWhere('pickup_date', 'LIKE', "%{$search}%")
+                                ->orWhere('pickup_time', 'LIKE', "%{$search}%");
+
                             // Search in booking relationship
                             $q->orWhereHas('booking', function ($bookingQuery) use ($search) {
                                 $bookingQuery->where('voucher_number', 'LIKE', "%{$search}%")
-                                            ->orWhere('customer_name', 'LIKE', "%{$search}%")
-                                            ->orWhere('customer_contact', 'LIKE', "%{$search}%")
-                                            ->orWhere('status', 'LIKE', "%{$search}%");
+                                    ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                                    ->orWhere('customer_contact', 'LIKE', "%{$search}%")
+                                    ->orWhere('status', 'LIKE', "%{$search}%");
                             });
-                            
+
                             // Search in vehicle relationship
                             $q->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
                                 $vehicleQuery->where('name', 'LIKE', "%{$search}%");
@@ -138,24 +143,24 @@ class BookingController extends Controller
                         });
                     }
                 })
-                
+
                 ->orderColumn('pickup_date', function ($query, $order) {
                     $query->orderBy('pickup_date', $order);
                 })
                 ->orderColumn('voucher_number', function ($query, $order) {
                     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                          ->orderBy('bookings.voucher_number', $order)
-                          ->select('bookings_route_details.*');
+                        ->orderBy('bookings.voucher_number', $order)
+                        ->select('bookings_route_details.*');
                 })
                 ->orderColumn('customer_name', function ($query, $order) {
                     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                          ->orderBy('bookings.customer_name', $order)
-                          ->select('bookings_route_details.*');
+                        ->orderBy('bookings.customer_name', $order)
+                        ->select('bookings_route_details.*');
                 })
                 ->orderColumn('status', function ($query, $order) {
                     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                          ->orderBy('bookings.status', $order)
-                          ->select('bookings_route_details.*');
+                        ->orderBy('bookings.status', $order)
+                        ->select('bookings_route_details.*');
                 })
 
                 ->rawColumns(['status', 'action'])
@@ -174,7 +179,51 @@ class BookingController extends Controller
     {
         $users = User::pluck('name', 'id');
         $vehicles = Vehicle::active()->pluck('name', 'id');
+
         return view('bookings.create', get_defined_vars());
+    }
+    /**
+     * Display booking voucher with all booking details
+     *
+     * @param string $uuid
+     * @return \Illuminate\Http\Response
+     */
+    public function bookingvoucher($uuid)
+    {
+        // Find booking with UUID and eager load all related details
+        $booking = Booking::where('uuid', $uuid)
+            ->with([
+                'hotelDetails', // All hotel details
+                'flightDetails', // All flight details  
+                'routeDetails.vehicle', // All route details with vehicle info
+                
+            ])
+            ->firstOrFail();
+            
+        $bookingByUser = User::find($booking->booking_by);
+
+        // Calculate totals
+        $totalHotels = $booking->hotelDetails->count();
+        $totalFlights = $booking->flightDetails->count();
+        $totalRoutes = $booking->routeDetails->count();
+
+        // Calculate total duration for hotels
+        $totalHotelNights = 0;
+        foreach ($booking->hotelDetails as $hotel) {
+            if ($hotel->check_in_date && $hotel->check_out_date) {
+                $checkIn = Carbon::parse($hotel->check_in_date);
+                $checkOut = Carbon::parse($hotel->check_out_date);
+                $totalHotelNights += $checkOut->diffInDays($checkIn);
+            }
+        }
+
+        // Get all unique vehicles used in routes
+        $vehicles = $booking->routeDetails->map(function ($route) {
+            return optional($route->vehicle)->name;
+        })->filter()->unique()->implode(', ');
+        
+
+        return view('bookings.partials.booking-voucher', get_defined_vars());
     }
 
     /**
