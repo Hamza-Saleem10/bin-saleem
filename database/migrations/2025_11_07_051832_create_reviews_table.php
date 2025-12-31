@@ -15,9 +15,11 @@ return new class extends Migration {
             $table->uuid('uuid')->unique();
             $table->string('author');
             $table->string('location');
-            $table->text('comment');
             $table->unsignedTinyInteger('rating')->default(5);
             $table->string('booking_reference')->nullable();
+            $table->string('route_detail')->nullable();
+            $table->date('travel_date')->nullable();
+            $table->text('comment');
             $table->boolean('is_active')->default(1)->comment('0: Inactive, 1: Active');
             $table->bigInteger('created_by')->nullable()->unsigned();
             $table->bigInteger('updated_by')->nullable()->unsigned();

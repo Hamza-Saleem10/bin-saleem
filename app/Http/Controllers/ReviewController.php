@@ -41,7 +41,6 @@ class ReviewController extends Controller
                 ->rawColumns(['is_active', 'action'])
                 ->make(true);
         }
-        // $reviews = Review::latest()->paginate(15);
         return view('reviews.index');
     }
 
@@ -61,9 +60,11 @@ class ReviewController extends Controller
         $data = $request->validate([
             'author'    => 'required|string|max:255',
             'location'  => 'required|string|max:255',
-            'comment'   => 'required|string',
             'rating'    => 'required|integer|min:1|max:5',
             'booking_reference' => 'nullable|string|max:255',
+            'route_detail' => 'nullable|string|max:255',
+            'travel_date' => 'nullable|date',
+            'comment'   => 'required|string',
         ]);
 
         Review::create($data);
@@ -88,9 +89,11 @@ class ReviewController extends Controller
         $data = $request->validate([
             'author'    => 'required|string|max:255',
             'location'  => 'required|string|max:255',
-            'comment'   => 'required|string',
             'rating'    => 'required|integer|min:1|max:5',
             'booking_reference' => 'nullable|string|max:255',
+            'route_detail' => 'nullable|string|max:255',
+            'travel_date' => 'nullable|date',
+            'comment'   => 'required|string',
         ]);
 
         $review->update($data);

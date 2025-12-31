@@ -14,21 +14,21 @@
             <div class="accordion-body">
                 <div class="row g-3">
                     {{-- ================= Author Name ================= --}}
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         {!! Form::label('author', 'Author Name', ['class' => 'form-label required-input']) !!}
                         {!! Form::text('author', null, ['class' => 'form-control ' . $errors->first('author', 'error'), 'placeholder' => '', 'required']) !!}
                         {!! $errors->first('author', '<label class="error">:message</label>') !!}
                     </div>
 
                     {{-- ================= Location ================= --}}
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         {!! Form::label('location', 'Location', ['class' => 'form-label required-input']) !!}
                         {!! Form::text('location', null, ['class' => 'form-control ' . $errors->first('location', 'error'), 'placeholder' => 'e.g., Jeddah, Saudi Arabia', 'required']) !!}
                         {!! $errors->first('location', '<label class="error">:message</label>') !!}
                     </div>
 
                     {{-- ================= Rating ================= --}}
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         {!! Form::label('rating', 'Rating', ['class' => 'form-label required-input']) !!}
                         {!! Form::select('rating', [
                             '' => '-- Select Rating --',
@@ -42,11 +42,26 @@
                     </div>
 
                     {{-- ================= Booking Reference ================= --}}
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-4">
                         {!! Form::label('booking_reference', 'Booking Reference (Optional)', ['class' => 'form-label']) !!}
-                        {!! Form::text('booking_reference', null, ['class' => 'form-control ' . $errors->first('booking_reference', 'error'), 'placeholder' => 'e.g., BSL-2025-0481']) !!}
+                        {!! Form::text('booking_reference', null, ['class' => 'form-control ' . $errors->first('booking_reference', 'error'), 'placeholder' => 'e.g. BSL-2025-0481']) !!}
                         {!! $errors->first('booking_reference', '<label class="error">:message</label>') !!}
                     </div>
+                    
+                    {{-- ================= Booking Route ================= --}}
+                    <div class="form-group col-md-4">
+                        {!! Form::label('route_detail', 'Route Details', ['class' => 'form-label']) !!}
+                        {!! Form::text('route_detail', null, ['class' => 'form-control ' . $errors->first('route_detail', 'error'), 'placeholder' => 'e.g. Jeddah to Makkah']) !!}
+                        {!! $errors->first('route_detail', '<label class="error">:message</label>') !!}
+                    </div>
+
+                    {{-- ================= Travelling Date ================= --}}
+                    <div class="form-group col-md-4">
+                        {!! Form::label('travel_date', 'Traveling Date', ['class' => 'form-label']) !!}
+                        {!! Form::date('travel_date', null, ['class' => 'form-control ' . $errors->first('travel_date', 'error'), 'placeholder' => 'e.g. 12 Apr 2025']) !!}
+                        {!! $errors->first('travel_date', '<label class="error">:message</label>') !!}
+                    </div>
+
                     {{-- ================= Comment ================= --}}
                     <div class="form-group col-md-12">
                         {!! Form::label('comment', 'Comment', ['class' => 'form-label required-input']) !!}
