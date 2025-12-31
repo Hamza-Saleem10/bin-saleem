@@ -2,76 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Vehicle;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use App\Models\BookingsFlightDetail;
+use Illuminate\Support\Facades\DB;
 use App\Models\BookingsHotelDetail;
 use App\Models\BookingsRouteDetail;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
+use App\Models\BookingsFlightDetail;
 
 
 class BookingController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     if ($request->ajax()) {
-    //         $bookings = Booking::with(['routeDetails:id,booking_id,vehicle_id,pick_up,pickup_date,pickup_time','routeDetails.vehicle:id,name']);
-
-    //         return DataTables::of($bookings)
-    //             ->addColumn('route_vehicle', function ($booking) {
-    //                 return $booking->routeDetails
-    //                     ->map(fn ($r) => optional($r->vehicle)->name)
-    //                     ->implode(', ');
-    //             })
-    //             ->addColumn('pick_up', function ($booking) {
-    //                 return $booking->routeDetails
-    //                     ->pluck('pick_up')
-    //                     ->implode(', ');
-    //             })
-    //             ->addColumn('pickup_date', function ($booking) {
-    //                 return $booking->routeDetails
-    //                     ->pluck('pickup_date')
-    //                     ->implode(', ');
-    //             })
-    //             ->addColumn('pickup_time', function ($booking) {
-    //                 return $booking->routeDetails
-    //                     ->pluck('pickup_time')
-    //                     ->implode(', ');
-    //             })
-    //             ->addColumn('is_active', function ($booking) {
-    //                 return getStatusBadge($booking->is_active);
-    //             })
-    //             ->addColumn('action', function ($booking) {
-    //                 $actions = '<div class="overlay-edit d-flex">';
-
-    //                 if (auth()->user()->can('Update Booking')) {
-    //                     $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1" title="Edit"><i class="feather icon-edit-2"></i></a>';
-    //                 }
-
-    //                 if (auth()->user()->can('Update Booking Status')) {
-    //                     $actions .= '<a href="' . route('bookings.updateStatus', $booking->uuid) . '" class="btn btn-icon ' . ($booking->status == 'active' ? 'btn-danger' : 'btn-success') . ' btn-status me-1" title="Change Status">' .
-    //                         '<i class="feather ' . ($booking->status == 'active' ? 'icon-x-circle' : 'icon-check-circle') . '"></i></a>';
-    //                 }
-
-    //                 if (auth()->user()->can('Delete Booking')) {
-    //                     $actions .= '<a href="' . route('bookings.destroy', $booking->uuid) . '" class="btn btn-icon btn-danger btn-delete" title="Delete"><i class="feather icon-trash-2"></i></a>';
-    //                 }
-
-    //                 $actions .= '</div>';
-    //                 return $actions;
-    //             })
-    //             ->rawColumns(['is_active', 'action'])
-    //             ->make(true);
-    //     }
-
-    //     return view('bookings.index');
-    // }
-
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -107,7 +52,7 @@ class BookingController extends Controller
 
                     if (auth()->user()->can('View Booking Voucher')) {
                         $actions .= '<a href="' . route('bookings.bookingvoucher', $booking->uuid) . '" class="btn btn-icon btn-info me-1">
-                        <i class="feather icon-eye"></i></a>';
+                        <i class="feather icon-file-text"></i></a>';
                     }
 
                     if (auth()->user()->can('Delete Booking')) {
