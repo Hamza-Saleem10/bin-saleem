@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -18,12 +18,14 @@ class VehicleController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            $vehicles = Vehicle::with('media')->get();
 
-            $vehicles = Vehicle::query();
             return DataTables::of($vehicles)
-
                 ->addColumn('is_active', function ($vehicle) {
                     return getStatusBadge($vehicle->is_active);
+                })
+                ->addColumn('image_url', function ($vehicle) {
+                    return $vehicle->getImageUrlAttribute();
                 })
                 ->addColumn('action', function ($vehicle) {
                     $actions = '<div class="overlay-edit d-flex">';
@@ -77,14 +79,17 @@ class VehicleController extends Controller
             $data['features'] = null;
         }
 
-        // Handle image
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('vehicles', 'public');
+        // Remove vehicle_image from data array before creating vehicle
+        unset($data['vehicle_image']);
+
+        // Create the vehicle record
+        $vehicle = Vehicle::create($data);
+
+        // Handle image upload via Media Library
+        if ($request->hasFile('vehicle_image')) {
+            $vehicle->addMediaFromRequest('vehicle_image')
+                ->toMediaCollection('vehicles');
         }
-
-        // $data['is_active'] = $request->has('is_active');
-
-        Vehicle::create($data);
 
         return redirect()->route('vehicles.index')->with('success', 'Vehicle added successfully.');
     }
@@ -105,33 +110,31 @@ class VehicleController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'seats' => 'required|integer|min:1|max:50',
-            'bags' => 'required|integer|min:0|max:50',
+            'bags_capacity' => 'required|integer|min:0|max:50',
             'features' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'vehicle_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'is_active' => 'sometimes|boolean',
         ]);
 
-        // features convert comma text -> array
+        // Features handling
         if ($request->filled('features')) {
             $data['features'] = array_filter(array_map('trim', explode(',', $request->features)));
         } else {
             $data['features'] = null;
         }
 
-        // image upload
-        if ($request->hasFile('image')) {
-
-            // delete old image
-            if ($vehicle->image) {
-                Storage::disk('public')->delete($vehicle->image);
-            }
-
-            $data['image'] = $request->file('image')->store('vehicles', 'public');
+        // Handle image upload via Media Library
+        if ($request->hasFile('vehicle_image')) {
+            // Clear old images from the 'vehicles' collection and add the new one
+            $vehicle->clearMediaCollection('vehicles');
+            $vehicle->addMediaFromRequest('vehicle_image')
+                ->toMediaCollection('vehicles');
         }
 
-        // checkbox active
-        $data['is_active'] = $request->has('is_active');
+        // Remove vehicle_image from data array before updating
+        unset($data['vehicle_image']);
 
+        $data['is_active'] = $request->has('is_active');
         $vehicle->update($data);
 
         return redirect()->route('vehicles.index')->with('success', 'Vehicle updated successfully.');

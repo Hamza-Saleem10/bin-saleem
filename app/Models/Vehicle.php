@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+
 use App\Traits\HasBy;
 use App\Traits\HasUuid;
+use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Vehicle extends Model
+class Vehicle extends Model implements HasMedia
 {
-    use HasBy, HasUuid;
+    use HasBy, HasUuid, InteractsWithMedia;
 
     protected $fillable = [
         'uuid',
         'name',
         'seats',
-        'bags-capacity',
+        'bags_capacity',
         'features',
-        'vehicle_image',
         'is_active',
         'created_by',
         'updated_by'
@@ -26,11 +29,22 @@ class Vehicle extends Model
     {
         return $query->where('is_active', true);
     }
-    
-    // public function getFeaturesAttribute($value)
-    // {
-    //     return is_string($value) ? json_decode($value, true) : $value;
-    // }
+
+    // Define image conversions (e.g., a 'thumb' for the table)
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(100)
+            ->height(70)
+            ->nonQueued();
+    }
+
+    public function getImageUrlAttribute()
+    {
+        $media = $this->getFirstMedia('vehicles');
+        return $media ? $media->getUrl('thumb') : asset('assets/images/default-car.jpg');
+    }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class);
@@ -38,9 +52,6 @@ class Vehicle extends Model
     public function routedetails()
     {
         return $this->hasMany(BookingsRouteDetail::class);
-    }   
-    // public function getImageUrlAttribute()
-    // {
-    //     return $this->image ? asset('storage/' . $this->image) : asset('assets/images/default-car.jpg');
-    // }
+    }
+
 }

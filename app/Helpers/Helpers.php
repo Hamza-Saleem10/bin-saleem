@@ -1098,6 +1098,15 @@ if (!function_exists('numberToWords')) {
     }
 }
 
+// In app/Helpers/helpers.php (create if doesn't exist)
+// if (!function_exists('getStorageUrl')) {
+//     function getStorageUrl($path)
+//     {
+//         $path = str_replace('\\', '/', $path);
+//         return asset('storage/' . $path);
+//     }
+// }
+
 /**
 * EMIS Code
 *

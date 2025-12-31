@@ -48,6 +48,13 @@
                         {!! Form::select('booking_by',$users, old('booking_by', $booking->booking_by ?? ''),['class' => 'form-control ' . $errors->first('booking_by', 'error'),'placeholder' => 'Select User','required']) !!}
                         {!! $errors->first('booking_by', '<label class="error">:message</label>') !!}
                     </div>
+
+                    {{-- ================= Total Amount ================= --}}
+                    {{-- <div class="form-group col-md-4">
+                        {!! Form::label('total_amount', 'Total Amount (SAR)', ['class' => 'form-label required-input']) !!}
+                        {!! Form::number('total_amount', old('total_amount', $booking->total_amount ?? ''),['class' => 'form-control ' . $errors->first('total_amount', 'error'),'placeholder' => 'Total Amount','required']) !!}
+                        {!! $errors->first('total_amount', '<label class="error">:message</label>') !!}
+                    </div> --}}
                     
                     {{-- ================= Number of Pax ================= --}}
                     <div class="form-group col-md-4">

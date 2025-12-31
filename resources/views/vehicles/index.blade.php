@@ -1,89 +1,3 @@
-{{-- @extends('layouts.admin')
-@section('title', 'Vehicles')
-
-@section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Fleet Management</h2>
-    <a href="{{ route('vehicles.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Add Vehicle
-    </a>
-</div>
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-<div class="table-responsive">
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Sr.</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Seats</th>
-                <th>Bags</th>
-                <th>Features</th>
-                <th>Status</th>
-                <th width="120">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($vehicles as $vehicle)
-                <tr>
-                    <td>{{ $vehicles->firstItem() + $loop->index }}</td>
-                    <td>
-                        <img src="{{ $vehicle->image_url }}" alt="{{ $vehicle->name }}"
-                             class="rounded" style="width: 60px; height: 40px; object-fit: cover;">
-                    </td>
-                    <td><strong>{{ $vehicle->name }}</strong></td>
-                    <td>{{ $vehicle->seats }}</td>
-                    <td>{{ $vehicle->bags }}</td>
-                    <td>
-                        @if($vehicle->features)
-                            @foreach((array) $vehicle->features as $feature)
-                                <span class="badge bg-info me-1">{{ $feature }}</span>
-                            @endforeach
-                        @else
-                            <span class="text-muted">—</span>
-                        @endif
-                    </td>
-                    <td>
-                        <span class="badge bg-{{ $vehicle->is_active ? 'success' : 'secondary' }}">
-                            {{ $vehicle->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                    <td>
-                            <a href="{{ route('vehicles.edit', $vehicle) }}"
-                               class="btn btn-sm btn-warning" title="Edit">
-                                Edit
-                            </a>
-                            <form action="{{ route('vehicles.destroy', $vehicle) }}" method="POST"
-                                  class="d-inline" onsubmit="return confirm('Delete this vehicle?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                    Delete
-                                </button>
-                            </form>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="8" class="text-center text-muted py-4">
-                        No vehicles added yet.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-{{ $vehicles->links() }}
-@endsection
-@push('scripts')
-@endpush --}}
 <x-app-layout>
     <div class="pcoded-main-container">
         <div class="pcoded-content">
@@ -125,7 +39,15 @@
                         data: 'features'
                     },
                     {
-                        data: 'vehicle_image'
+                        data: 'image_url',
+                        render: function(data, type, full, meta) {
+                            if (data) {
+                                return `<img src="${data}" alt="Vehicle Image" width="70" height="50" style="object-fit: cover; border-radius: 4px;">`;
+                            }
+                            return '<span class="text-muted">No image</span>';
+                        },
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'is_active',
