@@ -37,10 +37,11 @@
             </div>
 
             <nav>
-                <a href="#">Dashboard</a>
-                <a href="#">Book Now</a>
-                <a href="#">Fleet</a>
-                <a href="#">Contact</a>
+                <a href="#">Home</a>
+                <a href="#">Routes</a>
+                <a href="#">Pricing</a>
+                {{-- <a href="#">Fleet</a> --}}
+                <a href="#">About Us</a>
                 <a class="cta" href="#book">Book Transfer</a>
             </nav>
         </div>
@@ -110,27 +111,31 @@
             <form id="quick-book" onsubmit="return false">
                 @csrf
                 <div class="form-group">
+                    <label for="pickup">Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="Name"/>
+                </div>
+                <div class="form-group">
                     <label for="vehicle">Vehicle Type</label>
-                    <select id="vehicle" class="form-control">
-                        <option value="">— Select Vehicle —</option>
-                        <option value="camry">Toyota Camry — 4 Seats (Executive)</option>
-                        <option value="GMC">GMC Yukon — 7 Seats (Executive)</option>
-                        <option value="innova">Toyota Innova — 7 Seats (Family)</option>
-                        <option value="hiace">Toyota HiAce — 10 Seats (Group)</option>
-                        <option value="staria">Hyundai Staria — 8 Seats (Premium Van)</option>
+                    <select id="vehicle" name="vehicle_id" class="form-control">
+                        <option value="">-- Select Vehicle --</option>
+                        @foreach($vehicles as $vehicle)
+                            <option value="{{ $vehicle->id }}">
+                                {{ $vehicle->name }} — {{ $vehicle->seats }} Seats {{-- ({{ $vehicle->category }}) --}}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="pickup">Pickup Location</label>
                     <input type="text" id="pickup" class="form-control"
-                           placeholder="e.g., Jeddah King Abdulaziz Airport"/>
+                           placeholder="e.g. Jeddah King Abdulaziz Airport"/>
                 </div>
 
                 <div class="form-group">
                     <label for="dropoff">Dropoff Location</label>
                     <input type="text" id="dropoff" class="form-control"
-                           placeholder="e.g., Hilton Makkah Convention Hotel"/>
+                           placeholder="e.g. Hilton Makkah Convention Hotel"/>
                 </div>
 
                 <button type="submit" class="btn-book" id="bookBtn">Book Now</button>

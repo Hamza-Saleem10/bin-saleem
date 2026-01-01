@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 
 
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
@@ -53,7 +54,7 @@ Route::post('register', [RegisteredUserController::class, 'store'])->name('regis
 Route::get('levels_seeder', [UserController::class, 'test']);
 // =================================
 
-
+Route::resource('/', HomeController::class);
 
 
 Route::middleware(['auth'])->group(function () {
