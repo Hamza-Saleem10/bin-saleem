@@ -308,6 +308,7 @@
         // Initialize form validation
         $('#formValidation').validate();
         $('.cnic-mask').mask('00000-0000000-0');
+        // $('#academic_year_start , #academic_year_end').monthpicker({dateFormat: "MM yy"});
 
         // Initialize phone input
         var input = $('#customer_contact')[0];

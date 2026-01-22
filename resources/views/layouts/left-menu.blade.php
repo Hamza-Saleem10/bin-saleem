@@ -37,7 +37,23 @@
                         </a>
                     </li>
                 @endcan
-
+                @can(['Mart Attendance'])
+                    <li class="nav-item">
+                        <a href="{{route('attendance.markAttendance')}}" class="nav-link ">
+                            <span class="pcoded-micon"><i class="fas fa-clipboard-check"></i></span>
+                            <span class="pcoded-mtext">Mark Attendance</span>
+                        </a>
+                    </li>
+                @endcan
+                @role('Super Admin|Admin')
+                    <li class="nav-item">
+                        <a href="{{route('attendance.index')}}" class="nav-link ">
+                            <span class="pcoded-micon"><i class="fas fa-file-alt"></i></span>
+                            <span class="pcoded-mtext">Attendance Report</span>
+                        </a>
+                    </li>
+                @endrole
+                
                 {{-- @canany(['Level1 List', 'Districts List', 'Tehsils List','Villages List'])
                     <li class="nav-item pcoded-hasmenu">
                         <a href="#" class="nav-link ">

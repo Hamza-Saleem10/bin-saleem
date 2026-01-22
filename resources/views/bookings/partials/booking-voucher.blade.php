@@ -113,7 +113,7 @@
           var(--secondary-navy) 100%
         );
         color: white;
-        padding: 20px 30px 15px;
+        padding: 20px 20px 5px;
         position: relative;
         overflow: hidden;
       }
@@ -198,13 +198,13 @@
         align-items: center;
         position: relative;
         z-index: 1;
-        padding-top: 10px;
+        padding-top: 5px;
         border-top: 1px solid rgba(255, 255, 255, 0.15);
       }
 
       .voucher-title {
-        font-size: 24px;
-        font-weight: 700;
+        font-size: 18px;
+        font-weight: 600;
         color: white;
         position: relative;
         padding-left: 15px;
@@ -246,7 +246,7 @@
       /* QR Code Section */
       .qr-section {
         position: absolute;
-        top: 20px;
+        top: 15px;
         right: 30px;
         z-index: 2;
       }

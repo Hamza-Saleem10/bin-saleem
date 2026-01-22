@@ -37,7 +37,7 @@
     {!! $errors->first('role', '<label class="error">:message</label>') !!}
 </div>
 
-<div class="form-group col-md-4 division d-none">
+{{-- <div class="form-group col-md-4 division d-none">
     {!! Form::label('level_1_id', 'Division', ['class' => 'form-label required-input']) !!}
     {!! Form::select('level_1_id', $divisions, null, ['class' => 'form-select select2 ' . $errors->first('level_1_id', 'error'),  'placeholder' => 'Select Division']) !!}
     {!! $errors->first('level_1_id', '<label class="error">:message</label>') !!}
@@ -57,7 +57,7 @@
         'data-url' => route('tehsils.getDropDownOptions')
     ]) !!}
     {!! $errors->first('level_3_id', '<label class="error">:message</label>') !!}
-</div>
+</div> --}}
 
 
 @push('scripts')    
@@ -69,35 +69,35 @@
             $('.cnic-mask').mask('00000-0000000-0');
             $('.mobile-mask').mask('0000-0000000');
 
-            $('select[name=role]').on('change', function() {
-                const role = $(this).find('option:selected').text();
-                if(role == 'DEO'){
-                    $('.district, .tehsil').removeClass('d-none');
-                    $('select[name=level_2_id], select[name=level_3_id]').attr('required', true);
+            // $('select[name=role]').on('change', function() {
+            //     const role = $(this).find('option:selected').text();
+            //     if(role == 'DEO'){
+            //         $('.district, .tehsil').removeClass('d-none');
+            //         $('select[name=level_2_id], select[name=level_3_id]').attr('required', true);
 
-                    $('.division').addClass('d-none');
-                    $('select[name=level_1_id]').attr('required', false).val('').change();
-                }else if(role == 'DED'){
-                    $('.division').removeClass('d-none');
-                    $('select[name=level_1_id]').attr('required', true);
+            //         $('.division').addClass('d-none');
+            //         $('select[name=level_1_id]').attr('required', false).val('').change();
+            //     }else if(role == 'DED'){
+            //         $('.division').removeClass('d-none');
+            //         $('select[name=level_1_id]').attr('required', true);
 
-                    $('.district, .tehsil').addClass('d-none');
-                    $('select[name=level_2_id], select[name=level_3_id]').attr('required', false).val('').change();
-                }else{
-                    $('.district, .tehsil, .division').addClass('d-none');
-                    $('select[name=level_2_id], select[name=level_3_id], select[name=level_1_id]').attr('required', false).val('').change();
-                }
-            });
+            //         $('.district, .tehsil').addClass('d-none');
+            //         $('select[name=level_2_id], select[name=level_3_id]').attr('required', false).val('').change();
+            //     }else{
+            //         $('.district, .tehsil, .division').addClass('d-none');
+            //         $('select[name=level_2_id], select[name=level_3_id], select[name=level_1_id]').attr('required', false).val('').change();
+            //     }
+            // });
 
-            $('select[name=level_2_id]').on('change', function() {
-                $('select[name=level_3_id]').attr('data-otheridvalue', $(this).val());
-                loadDropdown('select[name=level_3_id]', true);
-            });
+            // $('select[name=level_2_id]').on('change', function() {
+            //     $('select[name=level_3_id]').attr('data-otheridvalue', $(this).val());
+            //     loadDropdown('select[name=level_3_id]', true);
+            // });
 
-            @if (@$user || $errors->any())
-                $('select[name=role]').change();
-                $('select[name=level_2_id]').change();
-            @endif
+            // @if (@$user || $errors->any())
+            //     $('select[name=role]').change();
+            //     $('select[name=level_2_id]').change();
+            // @endif
         });
     </script>
     @endpush

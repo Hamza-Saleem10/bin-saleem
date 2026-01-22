@@ -26,9 +26,9 @@ class User extends Authenticatable
         'password',
         'mobile',
         'otp',
-        'level_1_id',
-        'level_2_id',
-        'level_3_id',
+        // 'level_1_id',
+        // 'level_2_id',
+        // 'level_3_id',
     ];
 
     /**

@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\AttendanceController;
 
 use App\Http\Controllers\DashboardController;
 
@@ -62,6 +63,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
     Route::post('/dashboard/get-monthly-analytics', [DashboardController::class, 'getMonthlyAnalytics'])->name('dashboard.getMonthlyAnalytics');
+    // Route::post('/dashboard/get-quarterly-analytics', [DashboardController::class, 'getQuarterlyAnalytics'])->name('dashboard.getQuarterlyAnalytics');
+    // Route::post('/dashboard/get-yearly-analytics', [DashboardController::class, 'getYearlyAnalytics'])->name('dashboard.getYearlyAnalytics');
     Route::post('/dashboard/get-recent-bookings', [DashboardController::class, 'getRecentBookings'])->name('dashboard.getRecentBookings');
 
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
@@ -135,6 +138,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('reviews', ReviewController::class)->only('destroy')->middleware('permission:Delete Review');
     Route::post('reviews/datatable', [ReviewController::class, 'index'])->name('reviews.datatable')->middleware('permission:Reviews List');
     Route::get('reviews/update-status/{review}', [ReviewController::class, 'updateStatus'])->name('reviews.updateStatus')->middleware('permission:Update Review Status');
+
+
+    Route::resource('attendance', AttendanceController::class)->only('index')->middleware('role:Admin|Super Admin');
+    Route::get('/attendance/mark', function () {return view('attendance.mark-attendance');})->name('attendance.markAttendance')->middleware('permission:Mark Attendance');
+    Route::post('attendance/datatable',[AttendanceController::class, 'index'])->name('attendance.datatable')->middleware('permission:Attendance List');   
+    Route::resource('attendance', ReviewController::class)->only('destroy')->middleware('permission:Delete Attendance'); 
+    // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
+    Route::get('/attendance/today', [AttendanceController::class, 'getTodayAttendance'])->name('attendance.today');
+
 });
 
 Route::post('refresh-captcha', [UserController::class, 'refreshCaptcha'])->name('refresh-captcha');
