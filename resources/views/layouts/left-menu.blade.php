@@ -37,7 +37,7 @@
                         </a>
                     </li>
                 @endcan
-                @can(['Mart Attendance'])
+                @can(['Mark Attendance'])
                     <li class="nav-item">
                         <a href="{{route('attendance.markAttendance')}}" class="nav-link ">
                             <span class="pcoded-micon"><i class="fas fa-clipboard-check"></i></span>

@@ -37,7 +37,9 @@ class BookingController extends Controller
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time)
 
-                ->addColumn('status', fn($r) => $r->booking->status)
+                ->addColumn('status', function ($r) {
+                    return $this->formatStatusBadge($r->booking->status);
+                })
                 // ->addColumn('status', fn($r) => getStatusBadge($r->booking->is_active))
 
                 ->addColumn('action', function ($r) {
@@ -112,6 +114,38 @@ class BookingController extends Controller
 
         return view('bookings.index');
     }
+    /**
+     * Format status badge for display
+     *
+     * @param string $status
+     * @return string
+     */
+    private function formatStatusBadge($status)
+    {
+        $status = strtolower($status);
+        $badgeClass = '';
+        $statusText = ucfirst($status);
+
+        switch ($status) {
+            case 'pending':
+                $badgeClass = 'bg-warning';
+                break;
+            case 'confirmed':
+                $badgeClass = 'bg-success';
+                break;
+            case 'completed':
+                $badgeClass = 'bg-info';
+                break;
+            case 'cancelled':
+                $badgeClass = 'bg-danger';
+                break;
+            default:
+                $badgeClass = 'bg-secondary';
+        }
+
+        return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
+    }
+    
     /**
      * Show the form for creating a new resource.
      *
@@ -299,7 +333,7 @@ class BookingController extends Controller
     {
         $users = User::pluck('name', 'id');
         $vehicles = Vehicle::active()->pluck('name', 'id');
-        
+
         return view('bookings.edit', get_defined_vars());
     }
     /**
@@ -540,7 +574,7 @@ class BookingController extends Controller
                 'bookedBy',
             ])
             ->firstOrFail();
-            
+
 
         $bookingByUser = User::find($booking->booking_by);
 
@@ -563,7 +597,7 @@ class BookingController extends Controller
         $vehicles = $booking->routeDetails->map(function ($route) {
             return optional($route->vehicle)->name;
         })->filter()->unique()->implode(', ');
-        
+
 
         return view('bookings.partials.booking-voucher', get_defined_vars());
     }

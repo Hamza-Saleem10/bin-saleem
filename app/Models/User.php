@@ -86,6 +86,10 @@ class User extends Authenticatable
         return $this->attributes['mobile'] = ($this->attributes['mobile'] == null) ? null : '0' . $this->attributes['mobile'];
     }
     
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
     /**
      * boot
      */

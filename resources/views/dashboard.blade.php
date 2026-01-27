@@ -441,6 +441,7 @@
 
     @push('scripts')
         <script src="{{ asset('js/jquery.countTo.js') }}"></script>
+        <script src="{{ asset('plugins/highcharts/exporting.js') }}"></script>
 
         <script type="text/javascript">
 
@@ -825,9 +826,7 @@
                                             <td>${booking.vehicle_name}</td>
                                             <td>${formatCurrency(booking.total_amount)}</td>
                                             <td>
-                                                <span class="badge ${booking.status_badge}">
-                                                    ${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                                                </span>
+                                                ${formatStatusBadge(booking.status)}
                                             </td>
                                             <td>${booking.created_at}</td>
                                             <td>${booking.created_by_name}</td>
@@ -888,7 +887,30 @@
                 // Optional: Auto-refresh every 30 seconds
                 setInterval(loadRecentBookings, 30000);
             });
-
+            function formatStatusBadge(status) {
+                const statusLower = status.toLowerCase();
+                let badgeClass = 'bg-secondary';
+                let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+                
+                switch(statusLower) {
+                    case 'pending':
+                        badgeClass = 'bg-warning';
+                        break;
+                    case 'confirmed':
+                        badgeClass = 'bg-success';
+                        break;
+                    case 'completed':
+                        badgeClass = 'bg-info';
+                        break;
+                    case 'cancelled':
+                        badgeClass = 'bg-danger';
+                        break;
+                    default:
+                        badgeClass = 'bg-secondary';
+                }
+                
+                return `<span class="badge ${badgeClass}">${statusText}</span>`;
+            }
         </script>
     @endpush
 </x-app-layout>

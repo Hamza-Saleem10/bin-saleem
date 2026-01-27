@@ -14,71 +14,351 @@ use Yajra\DataTables\Facades\DataTables;
 class AttendanceController extends Controller
 {
     public function index(Request $request)
-    {
-        // Check if this is a datatable AJAX request
-        if ($request->ajax()) {
-            $query = Attendance::with(['user:id,name', 'location'])->get();
+{
+    if ($request->ajax()) {
+        // Get month from request or use current month
+        $month = $request->get('m', date('Y-m'));
+        $year = date('Y', strtotime($month));
+        $monthNum = date('m', strtotime($month));
+        
+        // Parse the month to get start and end dates
+        $startDate = \Carbon\Carbon::parse($month)->startOfMonth();
+        $endDate = \Carbon\Carbon::parse($month)->endOfMonth();
+        
+        // Get all users with their attendance for the selected month
+        $query = User::select('id', 'name')
+            ->with(['attendances' => function($query) use ($startDate, $endDate) {
+                $query->whereBetween('date', [$startDate, $endDate]);
+            }]);
 
-            return DataTables::of($query)
-                ->addColumn('check_in', function ($attendance) {
-                    if ($attendance->check_in) {
-                        if ($attendance->check_in instanceof \Carbon\Carbon) {
-                            return $attendance->check_in->format('h:i A');
-                        } else {
-                            return \Carbon\Carbon::parse($attendance->check_in)->format('h:i A');
-                        }
-                    }
-                    return 'N/A';
-                })
-                ->addColumn('check_out', function ($attendance) {
-                    if ($attendance->check_out) {
-                        if ($attendance->check_out instanceof \Carbon\Carbon) {
-                            return $attendance->check_out->format('h:i A');
-                        } else {
-                            return \Carbon\Carbon::parse($attendance->check_out)->format('h:i A');
-                        }
-                    }
-                    return 'N/A';
-                })
-                ->addColumn('status', function ($attendance) {
-                    $status = $attendance->status ?? 'Unmarked';
-                    $status = ucfirst($status);
-                    $badgeClass = 'badge-light';
+        return DataTables::of($query)
+            ->addColumn('check_in', function ($user) use ($month) {
+                // Get today's attendance check-in
+                $today = date('Y-m-d');
+                $todayAttendance = $user->attendances->where('date', $today)->first();
+                
+                if ($todayAttendance && $todayAttendance->check_in) {
+                    return \Carbon\Carbon::parse($todayAttendance->check_in)->format('h:i A');
+                }
+                return 'N/A';
+            })
+            ->addColumn('check_out', function ($user) use ($month) {
+                // Get today's attendance check-out
+                $today = date('Y-m-d');
+                $todayAttendance = $user->attendances->where('date', $today)->first();
+                
+                if ($todayAttendance && $todayAttendance->check_out) {
+                    return \Carbon\Carbon::parse($todayAttendance->check_out)->format('h:i A');
+                }
+                return 'N/A';
+            })
+            ->addColumn('status', function ($user) use ($month) {
+                // Get today's attendance status
+                $today = date('Y-m-d');
+                $todayAttendance = $user->attendances->where('date', $today)->first();
+                $status = $todayAttendance->status ?? 'Unmarked';
+                $status = ucfirst($status);
+                $badgeClass = 'badge-light';
 
-                    if ($status === 'Present') {
-                        $badgeClass = 'bg-success';
-                    } elseif ($status === 'Absent') {
-                        $badgeClass = 'bg-danger';
-                    } elseif ($status === 'Late') {
-                        $badgeClass = 'bg-warning';
-                    } elseif ($status === 'Halfday') {
-                        $badgeClass = 'bg-info';
-                    } elseif ($status === 'Holiday' || $status === 'Leave') {
-                        $badgeClass = 'bg-primary';
-                    }
+                if ($status === 'Present') {
+                    $badgeClass = 'bg-success';
+                } elseif ($status === 'Absent') {
+                    $badgeClass = 'bg-danger';
+                } elseif ($status === 'Late') {
+                    $badgeClass = 'bg-warning';
+                } elseif ($status === 'Halfday') {
+                    $badgeClass = 'bg-info';
+                } elseif ($status === 'Holiday' || $status === 'Leave') {
+                    $badgeClass = 'bg-primary';
+                } elseif ($status === 'Unmarked') {
+                    $badgeClass = 'bg-secondary';
+                }
 
-                    return '<span class="badge ' . $badgeClass . '">' . $status . '</span>';
-                })
-                ->addColumn('location', function ($attendance) {
-                    return $attendance->location->location_name ?? 'N/A';
-                })
-                ->addColumn('action', function ($attendance) {
-                    $actions = '<div class="overlay-edit d-flex">';
-                    
-                    if (auth()->user()->can('Delete Attendance')) {
-                        $actions .= '<a href="' . route('attendance.destroy', $attendance->uuid) . '" class="btn btn-icon btn-danger btn-delete">
+                return '<span class="badge ' . $badgeClass . '">' . $status . '</span>';
+            })
+            ->addColumn('location', function ($user) use ($month) {
+                // Get today's location
+                $today = date('Y-m-d');
+                $todayAttendance = $user->attendances->where('date', $today)->first();
+                return $todayAttendance->location->location_name ?? 'N/A';
+            })
+            ->addColumn('total_days', function ($user) use ($startDate, $endDate) {
+                // Calculate total days in the month
+                return $startDate->daysInMonth;
+            })
+            ->addColumn('holidays', function ($user) use ($startDate, $endDate) {
+                // Count Sundays in the month
+                $holidays = 0;
+                $currentDate = $startDate->copy();
+                
+                while ($currentDate <= $endDate) {
+                    if ($currentDate->isSunday()) {
+                        $holidays++;
+                    }
+                    $currentDate->addDay();
+                }
+                
+                return $holidays;
+            })
+            ->addColumn('working_days', function ($user) use ($startDate, $endDate) {
+                // Total days minus Sundays (holidays)
+                $totalDays = $startDate->daysInMonth;
+                
+                // Count Sundays
+                $holidays = 0;
+                $currentDate = $startDate->copy();
+                while ($currentDate <= $endDate) {
+                    if ($currentDate->isSunday()) {
+                        $holidays++;
+                    }
+                    $currentDate->addDay();
+                }
+                
+                return $totalDays - $holidays;
+            })
+            ->addColumn('present', function ($user) {
+                // Count present days from user's attendance records
+                return $user->attendances->where('status', 'Present')->count();
+            })
+            ->addColumn('absent', function ($user) use ($startDate, $endDate) {
+                // Calculate absent days = Working days - Present days
+                $totalDays = $startDate->daysInMonth;
+                
+                // Count Sundays
+                $holidays = 0;
+                $currentDate = $startDate->copy();
+                while ($currentDate <= $endDate) {
+                    if ($currentDate->isSunday()) {
+                        $holidays++;
+                    }
+                    $currentDate->addDay();
+                }
+                
+                $workingDays = $totalDays - $holidays;
+                $presentDays = $user->attendances->where('status', 'Present')->count();
+                $absentDays = $workingDays - $presentDays;
+                
+                return max(0, $absentDays);
+            })
+            ->addColumn('action', function ($user) {
+                $actions = '<div class="overlay-edit d-flex">';
+                
+                if (auth()->user()->can('View Attendance')) {
+                    $actions .= '<button class="btn btn-icon btn-info btn-view-attendance" 
+                        data-user-id="' . $user->id . '" 
+                        data-user-name="' . htmlspecialchars($user->name) . '"
+                        title="View Details">
+                        <i class="feather icon-eye"></i></button>';
+                }
+                
+                if (auth()->user()->can('Delete Attendance')) {
+                    $actions .= '<a href="' . route('attendance.user.destroy', $user->id) . '" 
+                        class="btn btn-icon btn-danger btn-delete ml-1"
+                        title="Delete Attendance">
                         <i class="feather icon-trash-2"></i></a>';
-                    }
-                    $actions .= '</div>';
-                    return $actions;
-                })
-                ->rawColumns(['status', 'action'])
-                ->make(true);
-        }
-
-        $users = User::select('id', 'name')->get();
-        return view('attendance.index', get_defined_vars());
+                }
+                $actions .= '</div>';
+                return $actions;
+            })
+            ->rawColumns(['status', 'action'])
+            ->make(true);
     }
+
+    $users = User::select('id', 'name')->get();
+    return view('attendance.index', get_defined_vars());
+}
+public function getUserAttendanceDetails(Request $request)
+{
+    try {
+        $userId = $request->get('user_id');
+        $month = $request->get('m', date('Y-m'));
+        
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User ID is required'
+            ], 400);
+        }
+        
+        $user = User::findOrFail($userId);
+        $startDate = \Carbon\Carbon::parse($month)->startOfMonth();
+        $endDate = \Carbon\Carbon::parse($month)->endOfMonth();
+        
+        // Get all dates in the month
+        $dates = [];
+        $currentDate = $startDate->copy();
+        
+        while ($currentDate <= $endDate) {
+            $dates[] = $currentDate->format('Y-m-d');
+            $currentDate->addDay();
+        }
+        
+        // Get attendance records for this user and month
+        $attendanceRecords = Attendance::with('location')
+            ->where('user_id', $userId)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->get()
+            ->keyBy('date');
+        
+        // Prepare attendance data for all days in month
+        $attendanceData = [];
+        $presentCount = 0;
+        $absentCount = 0;
+        $lateCount = 0;
+        $halfDayCount = 0;
+        $holidays = 0;
+        
+        foreach ($dates as $date) {
+            $carbonDate = \Carbon\Carbon::parse($date);
+            $isSunday = $carbonDate->isSunday();
+            
+            if ($isSunday) {
+                $holidays++;
+            }
+            
+            $record = $attendanceRecords->get($date);
+            
+            if ($record) {
+                $status = strtolower($record->status);
+                
+                if ($status === 'present') {
+                    $presentCount++;
+                } elseif ($status === 'absent') {
+                    $absentCount++;
+                } elseif ($status === 'late') {
+                    $lateCount++;
+                    $presentCount++; // Late is also considered present
+                } elseif ($status === 'halfday' || $status === 'half_day') {
+                    $halfDayCount++;
+                    $presentCount += 0.5;
+                }
+                
+                $attendanceData[] = [
+                    'date' => $date,
+                    'check_in' => $record->check_in,
+                    'check_out' => $record->check_out,
+                    'status' => ucfirst($record->status),
+                    'location_name' => $record->location->location_name ?? null,
+                    'is_sunday' => $isSunday
+                ];
+            } else {
+                // No attendance record for this day
+                $attendanceData[] = [
+                    'date' => $date,
+                    'check_in' => null,
+                    'check_out' => null,
+                    'status' => $isSunday ? 'Holiday' : 'Absent',
+                    'location_name' => null,
+                    'is_sunday' => $isSunday
+                ];
+                
+                if (!$isSunday) {
+                    $absentCount++;
+                }
+            }
+        }
+        
+        // Calculate summary
+        $totalDays = $startDate->daysInMonth;
+        $workingDays = $totalDays - $holidays;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'month' => $month,
+                'total_days' => $totalDays,
+                'holidays' => $holidays,
+                'working_days' => $workingDays,
+                'present_count' => $presentCount,
+                'absent_count' => $absentCount,
+                'late_count' => $lateCount,
+                'half_day_count' => $halfDayCount,
+                'attendance' => $attendanceData
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error fetching user attendance details: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load attendance details: ' . $e->getMessage()
+        ], 500);
+    }
+}
+// public function userAttendance(User $user, Request $request)
+// {
+//     $month = $request->get('m', date('Y-m'));
+//     $startDate = \Carbon\Carbon::parse($month)->startOfMonth();
+//     $endDate = \Carbon\Carbon::parse($month)->endOfMonth();
+    
+//     $attendances = Attendance::where('user_id', $user->id)
+//         ->whereBetween('date', [$startDate, $endDate])
+//         ->orderBy('date', 'desc')
+//         ->get();
+    
+//     return view('attendance.user-details', get_defined_vars());
+// }
+public static function calculateAttendanceSummary($userId, $month)
+{
+    $startDate = \Carbon\Carbon::parse($month)->startOfMonth();
+    $endDate =\Carbon\Carbon::parse($month)->endOfMonth();
+    
+    // Get user's attendance for the month
+    $attendances = Attendance::where('user_id', $userId)
+        ->whereBetween('date', [$startDate, $endDate])
+        ->get();
+    
+    // Total days in month
+    $totalDays = $startDate->daysInMonth;
+    
+    // Count Sundays
+    $holidays = 0;
+    $currentDate = $startDate->copy();
+    while ($currentDate <= $endDate) {
+        if ($currentDate->isSunday()) {
+            $holidays++;
+        }
+        $currentDate->addDay();
+    }
+    
+    // Working days
+    $workingDays = $totalDays - $holidays;
+    
+    // Present days
+    $presentDays = $attendances->where('status', 'Present')->count();
+    
+    // Absent days
+    $absentDays = $workingDays - $presentDays;
+    
+    return [
+        'total_days' => $totalDays,
+        'holidays' => $holidays,
+        'working_days' => $workingDays,
+        'present' => $presentDays,
+        'absent' => max(0, $absentDays),
+    ];
+}
+
+public static function getMonthlyHolidays($month)
+{
+    $startDate = \Carbon\Carbon::parse($month)->startOfMonth();
+    $endDate = \Carbon\Carbon::parse($month)->endOfMonth();
+    
+    $holidays = [];
+    $currentDate = $startDate->copy();
+    
+    while ($currentDate <= $endDate) {
+        if ($currentDate->isSunday()) {
+            $holidays[] = $currentDate->format('Y-m-d');
+        }
+        $currentDate->addDay();
+    }
+    
+    return $holidays;
+}
 
     public function markAttendance(Request $request)
     {
@@ -152,7 +432,7 @@ class AttendanceController extends Controller
         }
 
         // Validate location
-        $rule = AttendanceRule::where('is_active', true)->first();
+        $rule = AttendanceRule::active()->first();
         if ($rule && !$this->isWithinAllowedRadius($request->latitude, $request->longitude, $rule)) {
             return response()->json([
                 'success' => false,

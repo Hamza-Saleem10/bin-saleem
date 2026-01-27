@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasBy;
+use App\Traits\HasUuid;
 
 class AttendanceRule extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid, HasBy;
     protected $table = 'attendance_rules';
     
     protected $fillable = [
@@ -23,4 +25,9 @@ class AttendanceRule extends Model
         'allowed_locations' => 'array',
         'is_active' => 'boolean'
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
 }

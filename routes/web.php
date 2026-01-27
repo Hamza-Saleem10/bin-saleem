@@ -143,8 +143,19 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('attendance', AttendanceController::class)->only('index')->middleware('role:Admin|Super Admin');
     Route::get('/attendance/mark', function () {return view('attendance.mark-attendance');})->name('attendance.markAttendance')->middleware('permission:Mark Attendance');
     Route::post('attendance/datatable',[AttendanceController::class, 'index'])->name('attendance.datatable')->middleware('permission:Attendance List');   
-    Route::resource('attendance', ReviewController::class)->only('destroy')->middleware('permission:Delete Attendance'); 
-    // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
+// For viewing user's attendance details
+Route::get('/attendance/user/{user}', [AttendanceController::class, 'userAttendance'])
+    ->name('attendance.user.show')
+    ->middleware('permission:View Attendance');
+
+// For deleting user's attendance (optional)
+Route::delete('/attendance/user/{user}', [AttendanceController::class, 'destroyUserAttendance'])
+    ->name('attendance.user.destroy')
+    ->middleware('permission:Delete Attendance');
+    Route::get('/attendance/user-details', [AttendanceController::class, 'getUserAttendanceDetails'])
+    ->name('attendance.user.details')
+    ->middleware('permission:View Attendance');
+        // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
     Route::get('/attendance/today', [AttendanceController::class, 'getTodayAttendance'])->name('attendance.today');
 
 });

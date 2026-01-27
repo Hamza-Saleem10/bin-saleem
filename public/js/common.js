@@ -25,6 +25,29 @@ _$.ready(function(){
             yearRange: "-100:+15"
         });
     }
+
+    if (typeof $(".pastdatepicker") !== 'undefined' && $(".pastdatepicker").datepicker) {
+        $(".pastdatepicker").datepicker({
+            dateFormat: "mm/dd/yy",
+            maxDate: "0",
+            minDate: "-50y",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-100:+15"
+        });
+    }
+
+    if (typeof $(".futuredatepicker") !== 'undefined' && $(".futuredatepicker").datepicker) {
+        $(".futuredatepicker").datepicker({
+            dateFormat: "mm/dd/yy",
+            minDate: "0",
+            maxDate: "+50y",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "0:+50"
+        });
+    }
+    
     
     
     $('[data-toggle="tooltip"]').tooltip();

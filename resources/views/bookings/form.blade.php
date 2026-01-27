@@ -75,7 +75,7 @@
                         {{-- ================= Child Persons ================= --}}
                         <div class="form-group col-md-4">
                             {!! Form::label('child_person', 'Child', ['class' => 'form-label required-input']) !!}
-                            {!! Form::number('child_person', old('child_person', $booking->child_person ?? 0), ['class' => 'form-control ' . $errors->first('child_person', 'error'), 'id' => 'child_person', 'placeholder' => 'Number of children', 'min' => '0', 'required']) !!}
+                            {!! Form::number('child_person', old('child_person', $booking->child_person ?? 0), ['class' => 'form-control ' . $errors->first('child_person', 'error'), 'id' => 'child_person', 'placeholder' => 'Number of children', 'min' => '0']) !!}
                             {!! $errors->first('child_person', '<label class="error">:message</label>') !!}
                         </div>                       
                         {{-- ================= Infant Persons ================= --}}
