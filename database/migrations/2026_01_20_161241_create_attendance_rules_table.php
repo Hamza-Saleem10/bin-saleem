@@ -15,12 +15,16 @@ class CreateAttendanceRulesTable extends Migration
     {
         Schema::create('attendance_rules', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('name');
             $table->time('check_in_time')->default('09:00:00');
             $table->time('check_out_time')->default('17:00:00');
             $table->integer('late_threshold')->default(15); // minutes
             $table->integer('location_radius')->default(100); // meters
             $table->json('allowed_locations')->nullable();
             $table->boolean('is_active')->default(1)->comment('0: Inactive, 1: Active');
+            $table->bigInteger('created_by')->nullable()->unsigned();
+            $table->bigInteger('updated_by')->nullable()->unsigned();
             $table->timestamps();
         });
     }

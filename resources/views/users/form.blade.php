@@ -36,6 +36,12 @@
     {!! Form::select('role', $roles, null, ['class' => 'form-control ' . $errors->first('role', 'error'), 'placeholder' => 'Select Role', 'required']) !!}
     {!! $errors->first('role', '<label class="error">:message</label>') !!}
 </div>
+<div class="form-group col-md-4">
+    {!! Form::label('attendance_rule_id', 'Attendance Rule', ['class' => 'form-label']) !!}
+    {!! Form::select('attendance_rule_id', ['' => '-- Select Rule --'] + $rules->toArray(), isset($user) ? $user->attendance_rule_id : null, ['class' => 'form-control ' . $errors->first('attendance_rule_id', 'error')]) !!}
+    {!! $errors->first('attendance_rule_id', '<label class="error">:message</label>') !!}
+    <small class="text-muted">Optional: Assign a specific attendance rule</small>
+</div>
 
 {{-- <div class="form-group col-md-4 division d-none">
     {!! Form::label('level_1_id', 'Division', ['class' => 'form-label required-input']) !!}
@@ -69,6 +75,30 @@
             $('.cnic-mask').mask('00000-0000000-0');
             $('.mobile-mask').mask('0000-0000000');
 
+            $('#attendance_rule_id').change(function() {
+                const ruleId = $(this).val();
+                if (ruleId) {
+                    // You could fetch and display rule details here
+                    // For example:
+                    
+                    $.get('/attendance-rules/' + ruleId + '/details', function(data) {
+                        if (data.success) {
+                            $('#rule-details').remove();
+                            const details = `
+                                <div id="rule-details" class="alert alert-info mt-2">
+                                    <strong>${data.rule.name}</strong><br>
+                                    Check In: ${data.rule.check_in_time}<br>
+                                    Check Out: ${data.rule.check_out_time}<br>
+                                    Late After: ${data.rule.late_threshold} minutes<br>
+                                    Location Radius: ${data.rule.location_radius}m
+                                </div>
+                            `;
+                            $('#attendance_rule_id').closest('.form-group').append(details);
+                        }
+                    });
+                   
+                }
+            });
             // $('select[name=role]').on('change', function() {
             //     const role = $(this).find('option:selected').text();
             //     if(role == 'DEO'){

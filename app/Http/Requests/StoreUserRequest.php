@@ -32,9 +32,10 @@ class StoreUserRequest extends BaseRequest
             'mobile' => 'required',
             // 'password' => ['required', 'confirmed', Rules\Password::defaults()]
             'password' => ['required', 'confirmed', Rules\Password::min(8)->numbers()->letters()->mixedCase()->symbols()],
-            'level_1_id' => 'nullable|exists:level_1,id',
-            'level_2_id' => 'nullable|exists:level_2,id',
-            'level_3_id' => 'nullable|exists:level_3,id',
+            'attendance_rule_id' => 'required|exists:attendance_rules,id',
+            // 'level_1_id' => 'nullable|exists:level_1,id',
+            // 'level_2_id' => 'nullable|exists:level_2,id',
+            // 'level_3_id' => 'nullable|exists:level_3,id',
         ];
     }
 }

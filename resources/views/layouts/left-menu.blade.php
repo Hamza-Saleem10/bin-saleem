@@ -37,7 +37,7 @@
                         </a>
                     </li>
                 @endcan
-                @can(['Mark Attendance'])
+                {{-- @can(['Mark Attendance'])
                     <li class="nav-item">
                         <a href="{{route('attendance.markAttendance')}}" class="nav-link ">
                             <span class="pcoded-micon"><i class="fas fa-clipboard-check"></i></span>
@@ -52,8 +52,43 @@
                             <span class="pcoded-mtext">Attendance Report</span>
                         </a>
                     </li>
-                @endrole
-                
+                @endrole --}}
+                @canany(['Mark Attendance', 'Attendance List', 'Attendance Rule List'])
+                    <li class="nav-item pcoded-hasmenu {{ setActive(['attendance.*']) }}">
+                        <a href="#" class="nav-link">
+                            <span class="pcoded-micon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </span>
+                            <span class="pcoded-mtext">Attendance</span>
+                        </a>
+
+                        <ul class="pcoded-submenu">
+                            @role('Super Admin|Admin')
+                                <li>
+                                    <a href="{{ route('attendance.index') }}">
+                                        Attendance Report
+                                    </a>
+                                </li>
+                            @endrole
+                            @can('Attendance Rule List')
+                                <li>
+                                    <a href="{{ route('attendance-rules.index') }}">
+                                        Attendance Rules
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('Mark Attendance')
+                                <li>
+                                    <a href="{{ route('attendance.markAttendance') }}">
+                                        Mark Attendance
+                                    </a>
+                                </li>
+                            @endcan
+                            
+                        </ul>
+                    </li>
+                @endcanany
+
                 {{-- @canany(['Level1 List', 'Districts List', 'Tehsils List','Villages List'])
                     <li class="nav-item pcoded-hasmenu">
                         <a href="#" class="nav-link ">

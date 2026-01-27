@@ -8,6 +8,7 @@ use Session;
 use DataTables;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\AttendanceRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,6 +67,7 @@ class UserController extends Controller
      */
     public function create()
     {
+        $rules = AttendanceRule::active()->pluck('name', 'id');
         $roles = Role::active()->where('id', '>', 1)->pluck('name', 'id');
         return view('users.create', get_defined_vars());
     }
@@ -81,6 +83,7 @@ class UserController extends Controller
         $userData = $request->validated();
         $userData['mobile'] = str_replace('-', '', $request->mobile);
         $userData['password'] = Hash::make($request->password);
+        $userData['attendance_rule_id'] = $request->attendance_rule_id;
         
         $user = User::create($userData);
 
@@ -124,6 +127,7 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(User $user) {
+        $rules = AttendanceRule::active()->pluck('name', 'id');
         $roles = Role::active()->pluck('name', 'id');
 
         $role = $user->roles->first();
@@ -154,6 +158,7 @@ class UserController extends Controller
 
         $userData = $request->validated();
         $userData['mobile'] = str_replace('-', '', $request->mobile);
+        $userData['attendance_rule_id'] = $request->attendance_rule_id;
 
         $user->update($userData);
 

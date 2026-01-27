@@ -17,6 +17,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceRuleController;
 
 use App\Http\Controllers\DashboardController;
 
@@ -139,25 +140,22 @@ Route::middleware(['auth'])->group(function () {
     Route::post('reviews/datatable', [ReviewController::class, 'index'])->name('reviews.datatable')->middleware('permission:Reviews List');
     Route::get('reviews/update-status/{review}', [ReviewController::class, 'updateStatus'])->name('reviews.updateStatus')->middleware('permission:Update Review Status');
 
-
-    Route::resource('attendance', AttendanceController::class)->only('index')->middleware('role:Admin|Super Admin');
+    ############# Attendance
+    Route::resource('attendance', AttendanceController::class)->only('index')->middleware('permission:Attendance List');
     Route::get('/attendance/mark', function () {return view('attendance.mark-attendance');})->name('attendance.markAttendance')->middleware('permission:Mark Attendance');
-    Route::post('attendance/datatable',[AttendanceController::class, 'index'])->name('attendance.datatable')->middleware('permission:Attendance List');   
-// For viewing user's attendance details
-Route::get('/attendance/user/{user}', [AttendanceController::class, 'userAttendance'])
-    ->name('attendance.user.show')
-    ->middleware('permission:View Attendance');
-
-// For deleting user's attendance (optional)
-Route::delete('/attendance/user/{user}', [AttendanceController::class, 'destroyUserAttendance'])
-    ->name('attendance.user.destroy')
-    ->middleware('permission:Delete Attendance');
-    Route::get('/attendance/user-details', [AttendanceController::class, 'getUserAttendanceDetails'])
-    ->name('attendance.user.details')
-    ->middleware('permission:View Attendance');
-        // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
+    Route::post('attendance/datatable',[AttendanceController::class, 'index'])->name('attendance.datatable')->middleware('permission:Attendance List');
+    Route::delete('/attendance/user/{user}', [AttendanceController::class, 'destroyUserAttendance'])->name('attendance.user.destroy')->middleware('permission:Delete Attendance');
+    Route::get('/attendance/user-details', [AttendanceController::class, 'getUserAttendanceDetails'])->name('attendance.user.details')->middleware('permission:View Attendance');
+    // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
     Route::get('/attendance/today', [AttendanceController::class, 'getTodayAttendance'])->name('attendance.today');
-
+    
+    ############# Attendance Rule
+    Route::resource('attendance-rules', AttendanceRuleController::class)->only('index')->middleware('permission:Attendance Rule List');
+    Route::resource('attendance-rules', AttendanceRuleController::class)->only(['create', 'store'])->middleware('permission:Create Attendance Rule');
+    Route::resource('attendance-rules', AttendanceRuleController::class)->only(['edit', 'update'])->middleware('permission:Update Attendance Rule');
+    Route::resource('attendance-rules', AttendanceRuleController::class)->only('destroy')->middleware('permission:Delete Attendance Rule');
+    Route::post('attendance-rules/datatable', [AttendanceRuleController::class, 'index'])->name('attendance-rules.datatable')->middleware('permission:Attendance Rule List');
+    Route::post('attendance-rules/{uuid}/toggle-status', [AttendanceRuleController::class, 'toggleStatus'])->name('attendance-rules.toggle-status');
 });
 
 Route::post('refresh-captcha', [UserController::class, 'refreshCaptcha'])->name('refresh-captcha');

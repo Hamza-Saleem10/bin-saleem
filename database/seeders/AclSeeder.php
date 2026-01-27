@@ -37,6 +37,7 @@ class AclSeeder extends Seeder
             ['name' => 'Roles', 'order' => 6],
             ['name' => 'Permission Groups', 'order' => 7],
             ['name' => 'Permissions', 'order' => 8],
+            ['name' => 'Attendance', 'order' => 9],
         ];
 
         foreach ($permissionGroups as $group) {
@@ -88,6 +89,15 @@ class AclSeeder extends Seeder
             ['name' => 'View Permission', 'permission_group_id' => 8, 'guard_name' => 'web'],
             ['name' => 'Update Permission', 'permission_group_id' => 8, 'guard_name' => 'web'],
             ['name' => 'Delete Permission', 'permission_group_id' => 8, 'guard_name' => 'web'],
+            
+            ['name' => 'Attendance List', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Mark Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'View Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Delete Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Attendance Rule List', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Create Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Update Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Delete Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
 
             // ['name' => 'Institutions List', 'permission_group_id' => 11, 'guard_name' => 'web'],
             // ['name' => 'Create Institution', 'permission_group_id' => 11, 'guard_name' => 'web'],

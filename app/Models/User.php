@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'mobile',
+        'attendance_rule_id',
         'otp',
         // 'level_1_id',
         // 'level_2_id',
@@ -49,7 +50,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     /**
      * Scope a query to only include active users.
      *
@@ -71,35 +72,41 @@ class User extends Authenticatable
     {
         return $query->where('is_active', 1);
     }
-    
+
     /**
-    * Get the route key for the model.
-    *
-    * @return string
-    */
+     * Get the route key for the model.
+     *
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'uuid';
     }
 
-    public function getMobileAttribute() {
+    public function getMobileAttribute()
+    {
         return $this->attributes['mobile'] = ($this->attributes['mobile'] == null) ? null : '0' . $this->attributes['mobile'];
     }
-    
+
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function attendanceRule()
+    {
+        return $this->belongsTo(AttendanceRule::class);
+    }
     /**
      * boot
      */
-    protected static function boot ()
+    protected static function boot()
     {
-    	parent::boot();
+        parent::boot();
 
         static::creating(function ($model) {
             $model->uuid = getUuid();
         });
-        
+
     }
 }

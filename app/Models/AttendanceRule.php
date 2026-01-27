@@ -13,12 +13,16 @@ class AttendanceRule extends Model
     protected $table = 'attendance_rules';
     
     protected $fillable = [
+        'uuid',
+        'name',
         'check_in_time',
         'check_out_time',
         'late_threshold',
         'location_radius',
         'allowed_locations',
-        'is_active'
+        'is_active',
+        'created_by',
+        'updated_by'
     ];
     
     protected $casts = [
@@ -29,5 +33,11 @@ class AttendanceRule extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', 1);
+    }
+    
+    // Relationship with users
+    public function users()
+    {
+        return $this->hasMany(User::class, 'attendance_rule_id');
     }
 }

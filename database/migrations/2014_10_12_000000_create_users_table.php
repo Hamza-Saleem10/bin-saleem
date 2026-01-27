@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->bigInteger('cnic')->nullable();
             $table->string('email')->nullable();
             $table->bigInteger('mobile')->nullable();
+            $table->unsignedBigInteger('attendance_rule_id');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->smallInteger('otp')->nullable();
