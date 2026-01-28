@@ -5,258 +5,274 @@
             <x-breadcrumb title="Dashboard Overview" />
             <!-- [ breadcrumb ] end -->
 
+            @php
+                $user = auth()->user();
+                $permissions = $user->permissions ?? [];
+                $rolePermissions = $user->role->permissions ?? [];
+                
+                // Check specific permissions
+                $canViewStats = $user->can('View Dashboard Stats');
+                $canViewAnalytics = $user->can('View Dashboard Analytics');
+                $canViewBookings = $user->can('View Bookings Stats');
+                $canViewVehicles = $user->can('View Vehicles Stats');
+                $canViewRecentBookings = $user->can('View Recent Bookings');
+            @endphp
             <!-- Quick Stats Row -->
-            <div class="row mb-4">
-                <!-- Total Bookings -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-primary shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs fw-bold text-primary text-uppercase mb-1">
-                                        Total Bookings
+            @if($canViewStats || $user->hasRole('Admin'))
+                <div class="row mb-4">
+                    <!-- Total Bookings -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                                            Total Bookings
+                                        </div>
+                                        <div class="h5 mb-0 fw-bold stats-total-bookings">0</div>
+                                        <div class="text-xs text-muted mt-1">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <span id="stats-updated-time">Just now</span>
+                                        </div>
                                     </div>
-                                    <div class="h5 mb-0 fw-bold stats-total-bookings">0</div>
-                                    <div class="text-xs text-muted mt-1">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span id="stats-updated-time">Just now</span>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
                                     </div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Today's Revenue -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-success shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs fw-bold text-success text-uppercase mb-1">
-                                        Today's Revenue
+                    <!-- Today's Revenue -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                                            Today's Revenue
+                                        </div>
+                                        <div class="h5 mb-0 fw-bold">$<span class="stats-today-revenue">0</span></div>
+                                        <div class="text-xs text-muted mt-1">
+                                            <i class="fas fa-arrow-up text-success me-1"></i>
+                                            <span class="revenue-trend">12%</span> from yesterday
+                                        </div>
                                     </div>
-                                    <div class="h5 mb-0 fw-bold">$<span class="stats-today-revenue">0</span></div>
-                                    <div class="text-xs text-muted mt-1">
-                                        <i class="fas fa-arrow-up text-success me-1"></i>
-                                        <span class="revenue-trend">12%</span> from yesterday
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                                     </div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Active Vehicles -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-info shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs fw-bold text-info text-uppercase mb-1">
-                                        Active Vehicles
-                                    </div>
-                                    <div class="h5 mb-0 fw-bold stats-active-vehicles">0</div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col-auto">
-                                            <div class="text-xs fw-bold text-muted mt-1">
-                                                <span class="stats-available-vehicles">0</span> available
+                    <!-- Active Vehicles -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                                            Active Vehicles
+                                        </div>
+                                        <div class="h5 mb-0 fw-bold stats-active-vehicles">0</div>
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col-auto">
+                                                <div class="text-xs fw-bold text-muted mt-1">
+                                                    <span class="stats-available-vehicles">0</span> available
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-car fa-2x text-gray-300"></i>
+                                    <div class="col-auto">
+                                        <i class="fas fa-car fa-2x text-gray-300"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Monthly Revenue -->
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card border-left-warning shadow h-100 py-2">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs fw-bold text-warning text-uppercase mb-1">
-                                        Monthly Revenue
+                    <!-- Monthly Revenue -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                                            Monthly Revenue
+                                        </div>
+                                        <div class="h5 mb-0 fw-bold">$<span class="stats-monthly-revenue">0</span></div>
+                                        <div class="text-xs text-muted mt-1">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Current month
+                                        </div>
                                     </div>
-                                    <div class="h5 mb-0 fw-bold">$<span class="stats-monthly-revenue">0</span></div>
-                                    <div class="text-xs text-muted mt-1">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        Current month
+                                    <div class="col-auto">
+                                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                                     </div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Performance Analytics Section -->
-            <div class="row mb-4">
-                <div class="col-xl-8 col-lg-7">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                            <h6 class="m-0 fw-bold text-primary">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Booking Performance Analytics
-                            </h6>
-                            <div class="dropdown no-arrow">
-                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                                        id="chartTypeDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-chart-bar me-1"></i> Chart Type
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-end shadow animated--fade-in" 
-                                     aria-labelledby="chartTypeDropdown">
-                                    <a class="dropdown-item chart-type-btn active" href="#" data-type="line">
-                                        <i class="fas fa-chart-line me-2"></i> Line Chart
-                                    </a>
-                                    <a class="dropdown-item chart-type-btn" href="#" data-type="bar">
-                                        <i class="fas fa-chart-bar me-2"></i> Bar Chart
-                                    </a>
-                                    <a class="dropdown-item chart-type-btn" href="#" data-type="mixed">
-                                        <i class="fas fa-chart-area me-2"></i> Mixed Chart
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <!-- Chart Controls -->
-                            <div class="row mb-4">
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </span>
-                                        <select id="analytics-month" class="form-select form-select-sm">
-                                            @php
-                                                $months = [
-                                                    1 => 'January', 2 => 'February', 3 => 'March',
-                                                    4 => 'April', 5 => 'May', 6 => 'June',
-                                                    7 => 'July', 8 => 'August', 9 => 'September',
-                                                    10 => 'October', 11 => 'November', 12 => 'December'
-                                                ];
-                                            @endphp
-                                            @foreach($months as $key => $month)
-                                                <option value="{{ $key }}" {{ $key == date('n') ? 'selected' : '' }}>
-                                                    {{ $month }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-calendar"></i>
-                                        </span>
-                                        <select id="analytics-year" class="form-select form-select-sm">
-                                            @php
-                                                $currentYear = date('Y');
-                                                for ($year = $currentYear; $year >= $currentYear - 10; $year--) {
-                                                    echo "<option value='$year' " . ($year == $currentYear ? 'selected' : '') . ">$year</option>";
-                                                }
-                                            @endphp
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="btn-group btn-group-sm w-100" role="group">
-                                        <button type="button" class="btn btn-outline-primary active" data-period="month">
-                                            <i class="fas fa-calendar me-1"></i> Monthly
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary" data-period="quarter">
-                                            <i class="fas fa-chart-pie me-1"></i> Quarterly
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary" data-period="year">
-                                            <i class="fas fa-chart-line me-1"></i> Yearly
-                                        </button>
+            @if($canViewAnalytics)
+                <div class="row mb-4">
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 fw-bold text-primary">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Booking Performance Analytics
+                                </h6>
+                                <div class="dropdown no-arrow">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                            id="chartTypeDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-chart-bar me-1"></i> Chart Type
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end shadow animated--fade-in" 
+                                        aria-labelledby="chartTypeDropdown">
+                                        <a class="dropdown-item chart-type-btn active" href="#" data-type="line">
+                                            <i class="fas fa-chart-line me-2"></i> Line Chart
+                                        </a>
+                                        <a class="dropdown-item chart-type-btn" href="#" data-type="bar">
+                                            <i class="fas fa-chart-bar me-2"></i> Bar Chart
+                                        </a>
+                                        <a class="dropdown-item chart-type-btn" href="#" data-type="mixed">
+                                            <i class="fas fa-chart-area me-2"></i> Mixed Chart
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                            <div class="card-body">
+                                <!-- Chart Controls -->
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-calendar-alt"></i>
+                                            </span>
+                                            <select id="analytics-month" class="form-select form-select-sm">
+                                                @php
+                                                    $months = [
+                                                        1 => 'January', 2 => 'February', 3 => 'March',
+                                                        4 => 'April', 5 => 'May', 6 => 'June',
+                                                        7 => 'July', 8 => 'August', 9 => 'September',
+                                                        10 => 'October', 11 => 'November', 12 => 'December'
+                                                    ];
+                                                @endphp
+                                                @foreach($months as $key => $month)
+                                                    <option value="{{ $key }}" {{ $key == date('n') ? 'selected' : '' }}>
+                                                        {{ $month }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-calendar"></i>
+                                            </span>
+                                            <select id="analytics-year" class="form-select form-select-sm">
+                                                @php
+                                                    $currentYear = date('Y');
+                                                    for ($year = $currentYear; $year >= $currentYear - 10; $year--) {
+                                                        echo "<option value='$year' " . ($year == $currentYear ? 'selected' : '') . ">$year</option>";
+                                                    }
+                                                @endphp
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="btn-group btn-group-sm w-100" role="group">
+                                            <button type="button" class="btn btn-outline-primary active" data-period="month">
+                                                <i class="fas fa-calendar me-1"></i> Monthly
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-period="quarter">
+                                                <i class="fas fa-chart-pie me-1"></i> Quarterly
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-period="year">
+                                                <i class="fas fa-chart-line me-1"></i> Yearly
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <!-- Chart Container -->
-                            <div class="chart-container" style="position: relative; height: 320px;">
-                                <canvas id="performanceChart"></canvas>
+                                <!-- Chart Container -->
+                                <div class="chart-container" style="position: relative; height: 320px;">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Status Distribution & Summary -->
-                <div class="col-xl-4 col-lg-5">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 fw-bold text-primary">
-                                <i class="fas fa-chart-pie me-2"></i>
-                                Status Distribution
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <!-- Pie Chart -->
-                            <div class="chart-container" style="position: relative; height: 200px; margin-bottom: 20px;">
-                                <canvas id="statusPieChart"></canvas>
-                            </div>
-                            
-                            <!-- Monthly Summary -->
-                            <div class="mt-4">
-                                <h6 class="fw-bold text-dark mb-3" id="current-month-title">
-                                    {{ date('F Y') }} Summary
+                    <!-- Status Distribution & Summary -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 fw-bold text-primary">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Status Distribution
                                 </h6>
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="border-start border-3 border-primary ps-3">
-                                            <div class="small text-muted">Total Bookings</div>
-                                            <div class="fw-bold fs-5 stats-monthly-total">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="border-start border-3 border-success ps-3">
-                                            <div class="small text-muted">Revenue</div>
-                                            <div class="fw-bold fs-5">$<span class="stats-monthly-revenue-summary">0</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="border-start border-3 border-info ps-3">
-                                            <div class="small text-muted">Confirmed</div>
-                                            <div class="fw-bold fs-5 text-info stats-monthly-confirmed">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="border-start border-3 border-warning ps-3">
-                                            <div class="small text-muted">Pending</div>
-                                            <div class="fw-bold fs-5 text-warning stats-monthly-pending">0</div>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Pie Chart -->
+                                <div class="chart-container" style="position: relative; height: 200px; margin-bottom: 20px;">
+                                    <canvas id="statusPieChart"></canvas>
                                 </div>
                                 
-                                <!-- Trend Indicators -->
-                                <div class="mt-4 pt-3 border-top">
-                                    <h6 class="fw-bold text-dark mb-2">Performance Trends</h6>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="text-center">
-                                            <div class="small text-muted">Confirmed Trend</div>
-                                            <div class="fw-bold">
-                                                <span id="confirmed-trend" class="text-success">0%</span>
-                                                <i class="fas fa-arrow-up text-success ms-1"></i>
+                                <!-- Monthly Summary -->
+                                <div class="mt-4">
+                                    <h6 class="fw-bold text-dark mb-3" id="current-month-title">
+                                        {{ date('F Y') }} Summary
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="border-start border-3 border-primary ps-3">
+                                                <div class="small text-muted">Total Bookings</div>
+                                                <div class="fw-bold fs-5 stats-monthly-total">0</div>
                                             </div>
                                         </div>
-                                        <div class="text-center">
-                                            <div class="small text-muted">Revenue Trend</div>
-                                            <div class="fw-bold">
-                                                <span id="revenue-trend-summary" class="text-success">0%</span>
-                                                <i class="fas fa-arrow-up text-success ms-1"></i>
+                                        <div class="col-6">
+                                            <div class="border-start border-3 border-success ps-3">
+                                                <div class="small text-muted">Revenue</div>
+                                                <div class="fw-bold fs-5">$<span class="stats-monthly-revenue-summary">0</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="border-start border-3 border-info ps-3">
+                                                <div class="small text-muted">Confirmed</div>
+                                                <div class="fw-bold fs-5 text-info stats-monthly-confirmed">0</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="border-start border-3 border-warning ps-3">
+                                                <div class="small text-muted">Pending</div>
+                                                <div class="fw-bold fs-5 text-warning stats-monthly-pending">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Trend Indicators -->
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="fw-bold text-dark mb-2">Performance Trends</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <div class="text-center">
+                                                <div class="small text-muted">Confirmed Trend</div>
+                                                <div class="fw-bold">
+                                                    <span id="confirmed-trend" class="text-success">0%</span>
+                                                    <i class="fas fa-arrow-up text-success ms-1"></i>
+                                                </div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="small text-muted">Revenue Trend</div>
+                                                <div class="fw-bold">
+                                                    <span id="revenue-trend-summary" class="text-success">0%</span>
+                                                    <i class="fas fa-arrow-up text-success ms-1"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -265,177 +281,182 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Detailed Statistics Section -->
             <div class="row">
                 <!-- Bookings Statistics -->
-                <div class="col-xl-6 mb-4">
-                    <div class="card shadow">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 fw-bold text-primary">
-                                <i class="fas fa-bookmark me-2"></i>
-                                Bookings Statistics
-                            </h6>
-                            <span class="badge bg-primary">Real-time</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-primary bg-opacity-10">
-                                        <div class="text-primary mb-2">
-                                            <i class="fas fa-bell fa-2x"></i>
+                @if($canViewBookings)
+                    <div class="col-xl-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 fw-bold text-primary">
+                                    <i class="fas fa-bookmark me-2"></i>
+                                    Bookings Statistics
+                                </h6>
+                                <span class="badge bg-primary">Real-time</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-primary bg-opacity-10">
+                                            <div class="text-primary mb-2">
+                                                <i class="fas fa-bell fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-new-bookings">0</div>
+                                            <div class="small text-muted">New Today</div>
                                         </div>
-                                        <div class="fw-bold fs-4 stats-new-bookings">0</div>
-                                        <div class="small text-muted">New Today</div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-success bg-opacity-10">
-                                        <div class="text-success mb-2">
-                                            <i class="fas fa-check-circle fa-2x"></i>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-success bg-opacity-10">
+                                            <div class="text-success mb-2">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-confirmed-bookings">0</div>
+                                            <div class="small text-muted">Confirmed</div>
                                         </div>
-                                        <div class="fw-bold fs-4 stats-confirmed-bookings">0</div>
-                                        <div class="small text-muted">Confirmed</div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-10">
-                                        <div class="text-warning mb-2">
-                                            <i class="fas fa-clock fa-2x"></i>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-10">
+                                            <div class="text-warning mb-2">
+                                                <i class="fas fa-clock fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-pending-bookings">0</div>
+                                            <div class="small text-muted">Pending</div>
                                         </div>
-                                        <div class="fw-bold fs-4 stats-pending-bookings">0</div>
-                                        <div class="small text-muted">Pending</div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="text-center p-3 border rounded-3 bg-info bg-opacity-10">
-                                        <div class="text-info mb-2">
-                                            <i class="fas fa-flag-checkered fa-2x"></i>
+                                    <div class="col-md-6">
+                                        <div class="text-center p-3 border rounded-3 bg-info bg-opacity-10">
+                                            <div class="text-info mb-2">
+                                                <i class="fas fa-flag-checkered fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-completed-bookings">0</div>
+                                            <div class="small text-muted">Completed</div>
                                         </div>
-                                        <div class="fw-bold fs-4 stats-completed-bookings">0</div>
-                                        <div class="small text-muted">Completed</div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="text-center p-3 border rounded-3 bg-danger bg-opacity-10">
-                                        <div class="text-danger mb-2">
-                                            <i class="fas fa-times-circle fa-2x"></i>
+                                    <div class="col-md-6">
+                                        <div class="text-center p-3 border rounded-3 bg-danger bg-opacity-10">
+                                            <div class="text-danger mb-2">
+                                                <i class="fas fa-times-circle fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-cancelled-bookings">0</div>
+                                            <div class="small text-muted">Cancelled</div>
                                         </div>
-                                        <div class="fw-bold fs-4 stats-cancelled-bookings">0</div>
-                                        <div class="small text-muted">Cancelled</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
+                @endif
                 <!-- Vehicles Statistics -->
-                <div class="col-xl-6 mb-4">
-                    <div class="card shadow">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 fw-bold text-primary">
-                                <i class="fas fa-car me-2"></i>
-                                Vehicles Fleet Status
-                            </h6>
-                            <span class="badge bg-primary">Total: <span class="stats-total-vehicles">0</span></span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-success bg-opacity-25">
-                                        <div class="text-success mb-2">
-                                            <i class="fas fa-check fa-2x"></i>
-                                        </div>
-                                        <div class="fw-bold fs-4 stats-active-vehicles-detailed">0</div>
-                                        <div class="small text-muted">Active</div>
-                                        <div class="progress mt-2" style="height: 5px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 id="active-vehicles-progress" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-secondary bg-opacity-25">
-                                        <div class="text-secondary mb-2">
-                                            <i class="fas fa-pause fa-2x"></i>
-                                        </div>
-                                        <div class="fw-bold fs-4 stats-inactive-vehicles">0</div>
-                                        <div class="small text-muted">Inactive</div>
-                                        <div class="progress mt-2" style="height: 5px;">
-                                            <div class="progress-bar bg-secondary" role="progressbar" 
-                                                 id="inactive-vehicles-progress" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-25">
-                                        <div class="text-warning mb-2">
-                                            <i class="fas fa-wrench fa-2x"></i>
-                                        </div>
-                                        <div class="fw-bold fs-4 stats-under-maintenance-vehicles">0</div>
-                                        <div class="small text-muted">Maintenance</div>
-                                        <div class="progress mt-2" style="height: 5px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" 
-                                                 id="maintenance-vehicles-progress" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                @if($canViewVehicles)
+                    <div class="col-xl-6 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 fw-bold text-primary">
+                                    <i class="fas fa-car me-2"></i>
+                                    Vehicles Fleet Status
+                                </h6>
+                                <span class="badge bg-primary">Total: <span class="stats-total-vehicles">0</span></span>
                             </div>
-                            <!-- Vehicle Status Breakdown -->
-                            <div class="mt-4 pt-3 border-top">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small text-muted">Available Vehicles</span>
-                                    <span class="fw-bold stats-available-vehicles-detailed">0</span>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-success bg-opacity-25">
+                                            <div class="text-success mb-2">
+                                                <i class="fas fa-check fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-active-vehicles-detailed">0</div>
+                                            <div class="small text-muted">Active</div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                    id="active-vehicles-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-secondary bg-opacity-25">
+                                            <div class="text-secondary mb-2">
+                                                <i class="fas fa-pause fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-inactive-vehicles">0</div>
+                                            <div class="small text-muted">Inactive</div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div class="progress-bar bg-secondary" role="progressbar" 
+                                                    id="inactive-vehicles-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-25">
+                                            <div class="text-warning mb-2">
+                                                <i class="fas fa-wrench fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-under-maintenance-vehicles">0</div>
+                                            <div class="small text-muted">Maintenance</div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" 
+                                                    id="maintenance-vehicles-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-success" role="progressbar" 
-                                         id="available-vehicles-progress" style="width: 0%"></div>
+                                <!-- Vehicle Status Breakdown -->
+                                <div class="mt-4 pt-3 border-top">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small text-muted">Available Vehicles</span>
+                                        <span class="fw-bold stats-available-vehicles-detailed">0</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                            id="available-vehicles-progress" style="width: 0%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
 
             <!-- Recent Bookings Section -->
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card shadow">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="m-0 fw-bold text-primary">
-                                <i class="fas fa-history me-2"></i>
-                                Recent Bookings
-                            </h6>
-                            <button class="btn btn-sm btn-outline-primary" id="refresh-recent-bookings">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="recent-bookings-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Voucher No</th>
-                                            <th>Customer</th>
-                                            <th>Vehicle</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
-                                            <th>Booking Date</th>
-                                            <th>Created By</th>
-                                            <th>Action</th>
-                                        </tr>   
-                                    </thead>
-                                    <tbody id="recent-bookings-body">
-                                        <!-- Will be populated by JavaScript -->
-                                    </tbody>
-                                </table>
+            @if($canViewRecentBookings)
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 fw-bold text-primary">
+                                    <i class="fas fa-history me-2"></i>
+                                    Recent Bookings
+                                </h6>
+                                <button class="btn btn-sm btn-outline-primary" id="refresh-recent-bookings">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="recent-bookings-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Voucher No</th>
+                                                <th>Customer</th>
+                                                <th>Vehicle</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Booking Date</th>
+                                                <th>Created By</th>
+                                                <th>Action</th>
+                                            </tr>   
+                                        </thead>
+                                        <tbody id="recent-bookings-body">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 

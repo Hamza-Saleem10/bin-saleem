@@ -45,6 +45,13 @@ class AclSeeder extends Seeder
         }
 
         $permissions = [
+            ['name' => 'View Dashboard', 'permission_group_id' => 1, 'guard_name' => 'web'],
+            ['name' => 'View Dashboard Stats', 'permission_group_id' => 1, 'guard_name' => 'web'],
+            ['name' => 'View Dashboard Analytics', 'permission_group_id' => 1, 'guard_name' => 'web'],
+            ['name' => 'View Bookings Stats', 'permission_group_id' => 1, 'guard_name' => 'web'],
+            ['name' => 'View Vehicles Stats', 'permission_group_id' => 1, 'guard_name' => 'web'],
+            ['name' => 'View Recent Bookings', 'permission_group_id' => 1, 'guard_name' => 'web'],
+
             ['name' => 'Users List', 'permission_group_id' => 2, 'guard_name' => 'web'],
             ['name' => 'Create User', 'permission_group_id' => 2, 'guard_name' => 'web'],
             ['name' => 'View User', 'permission_group_id' => 2, 'guard_name' => 'web'],
