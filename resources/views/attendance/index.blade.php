@@ -207,8 +207,27 @@
                         const day = moment(item.date).format('ddd');
                         const isSunday = moment(item.date).day() === 0;
                         
-                        let checkIn = item.check_in ? moment(item.check_in).format('hh:mm A') : 'N/A';
-                        let checkOut = item.check_out ? moment(item.check_out).format('hh:mm A') : 'N/A';
+                        let checkIn = 'N/A';
+                        let checkOut = 'N/A';
+                        
+                        if (item.check_in) {
+                            if (item.check_in.includes(':')) {
+                                const dateTimeStr = `${item.date} ${item.check_in}`;
+                                checkIn = moment(dateTimeStr).format('hh:mm A');
+                            } else {
+                                checkIn = moment(item.check_in).format('hh:mm A');
+                            }
+                        }
+                        
+                        if (item.check_out) {
+                            if (item.check_out.includes(':')) {
+                                const dateTimeStr = `${item.date} ${item.check_out}`;
+                                checkOut = moment(dateTimeStr).format('hh:mm A');
+                            } else {
+                                checkOut = moment(item.check_out).format('hh:mm A');
+                            }
+                        }
+                        
                         let location = item.location_name || 'N/A';
                         
                         // Determine status

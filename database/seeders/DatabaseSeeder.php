@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
 
             AclSeeder::class,
             UserSeeder::class,
-            // AttendanceRulesSeeder::class,
             
         ]);
     }

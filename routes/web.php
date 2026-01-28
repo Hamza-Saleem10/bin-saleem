@@ -148,7 +148,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/user-details', [AttendanceController::class, 'getUserAttendanceDetails'])->name('attendance.user.details')->middleware('permission:View Attendance');
     // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
     Route::get('/attendance/today', [AttendanceController::class, 'getTodayAttendance'])->name('attendance.today');
-    
+    Route::get('/attendance/monthly', [AttendanceController::class, 'getMonthlyAttendance'])->name('attendance.monthly');
+
     ############# Attendance Rule
     Route::resource('attendance-rules', AttendanceRuleController::class)->only('index')->middleware('permission:Attendance Rule List');
     Route::resource('attendance-rules', AttendanceRuleController::class)->only(['create', 'store'])->middleware('permission:Create Attendance Rule');

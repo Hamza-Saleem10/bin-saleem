@@ -369,16 +369,35 @@ class AttendanceController extends Controller
     $user = Auth::user();
     $type = $request->type;
     $today = now()->toDateString();
-
+    
     // Get user's attendance rule
     $rule = $user->attendanceRule()->active()->first();
+    
+    // Initialize compliance flags
+    $isTimeCompliant = true;
+    $isLocationCompliant = true;
+    $complianceMessage = '';
+
+    // Check time compliance only for check-in
+    if ($type === 'check_in' && $rule) {
+        $ruleCheckInTime = \Carbon\Carbon::parse($today . ' ' . $rule->check_in_time);
+        $currentTime = now();
+        
+        // Time is compliant if check-in is before or exactly at scheduled time
+        if ($currentTime->greaterThan($ruleCheckInTime)) {
+            $isTimeCompliant = false;
+            $complianceMessage = 'Checked in after scheduled time';
+        }
+    }
 
     // Validate location if rule exists
     if ($rule && !$this->isWithinAllowedRadius($request->latitude, $request->longitude, $rule)) {
-        return response()->json([
-            'success' => false,
-            'message' => 'You are not within the allowed area for attendance'
-        ], 400);
+        $isLocationCompliant = false;
+        if ($complianceMessage) {
+            $complianceMessage .= ' and outside allowed area';
+        } else {
+            $complianceMessage = 'Outside allowed area';
+        }
     }
 
     // Check if attendance record exists for today
@@ -401,22 +420,18 @@ class AttendanceController extends Controller
                 'uuid' => \Illuminate\Support\Str::uuid(),
                 'user_id' => $user->id,
                 'date' => $today,
-                'status' => 'pending' // Will be updated based on rule
+                'status' => 'pending'
             ]);
         }
 
         // Update check_in time
         $attendance->update([
-            'check_in' => now()
+            'check_in' => now(),
+            'status' => 'present', // Always present
+            'is_time_compliant' => $isTimeCompliant,
+            'is_location_compliant' => $isLocationCompliant,
+            'compliance_message' => $complianceMessage
         ]);
-
-        // Determine status based on rule
-        $status = 'present';
-        if ($rule) {
-            $status = $this->determineStatus('check_in', $attendance, $rule);
-        }
-        
-        $attendance->update(['status' => $status]);
 
     } else if ($type === 'check_out') {
         // Check if check-in exists
@@ -439,13 +454,6 @@ class AttendanceController extends Controller
         $attendance->update([
             'check_out' => now()
         ]);
-
-        // Determine status based on rule (for check-out)
-        $status = $attendance->status;
-        if ($rule) {
-            $status = $this->determineStatus('check_out', $attendance, $rule);
-            $attendance->update(['status' => $status]);
-        }
     }
 
     // Get location name
@@ -476,8 +484,9 @@ class AttendanceController extends Controller
         $ruleTimes = [
             'check_in_time' => $rule->check_in_time,
             'check_out_time' => $rule->check_out_time,
-            'late_threshold' => $rule->late_threshold,
-            'is_late' => $attendance->status === 'late'
+            'is_time_compliant' => $isTimeCompliant,
+            'is_location_compliant' => $isLocationCompliant,
+            'compliance_message' => $complianceMessage
         ];
     }
 
@@ -494,35 +503,37 @@ class AttendanceController extends Controller
     ]);
 }
 
-public function getTodayAttendance()
-{
-    $user = Auth::user();
-    $today = now()->toDateString();
+    public function getTodayAttendance()
+    {
+        $user = Auth::user();
+        $today = now()->toDateString();
 
-    $attendance = Attendance::with('location')
-        ->where('user_id', $user->id)
-        ->where('date', $today)
-        ->first();
+        $attendance = Attendance::with('location')
+            ->where('user_id', $user->id)
+            ->where('date', $today)
+            ->first();
 
-    // Get user's attendance rule
-    $rule = $user->attendanceRule()->active()->first();
-    
-    $ruleInfo = null;
-    if ($rule) {
-        $ruleInfo = [
+        // Fetch user's currently active attendance rule (if any)
+        $rule = $user->attendanceRule()->active()->first();
+
+        // Limit rule payload to the fields needed on the frontend
+        $ruleData = $rule ? [
+            'id' => $rule->id,
+            'name' => $rule->name,
             'check_in_time' => $rule->check_in_time,
             'check_out_time' => $rule->check_out_time,
             'late_threshold' => $rule->late_threshold,
-            'rule_name' => $rule->name
-        ];
-    }
+            'location_radius' => $rule->location_radius,
+            'allowed_locations' => $rule->allowed_locations,
+            'is_active' => $rule->is_active,
+        ] : null;
 
-    return response()->json([
-        'success' => true,
-        'data' => $attendance,
-        'rule' => $ruleInfo
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'data' => $attendance,
+            'rule' => $ruleData,
+        ]);
+    }
 
     private function getLocationName($latitude, $longitude)
     {
@@ -600,37 +611,55 @@ public function getTodayAttendance()
         return 'present';
     }
 
-    if ($type === 'check_out') {
-        // Determine status based on check-out time
-        $checkOutTime = $attendance->check_out;
-        $ruleCheckOutTime = \Carbon\Carbon::parse($attendance->date . ' ' . $rule->check_out_time);
+    if ($type === 'check_in') {
+        $checkInTime = $attendance->check_in;
+        $ruleCheckInTime = \Carbon\Carbon::parse($attendance->date . ' ' . $rule->check_in_time);
         
-        // Calculate if leaving early
-        if ($checkOutTime->lessThan($ruleCheckOutTime)) {
-            // Check if leaving before official check-out time
-            $earlyMinutes = $ruleCheckOutTime->diffInMinutes($checkOutTime);
-            
-            // You can add a threshold for early departure if needed
-            // For now, if leaving before official time, mark as present
-            // (or you could create a new status like 'left_early')
+        // Check if check-in is before or at the scheduled time
+        if ($checkInTime->lessThanOrEqualTo($ruleCheckInTime)) {
             return 'present';
         } else {
-            return 'present'; // On time or after check-out time
+            // Even if late, we still return 'present' but with different status code
+            return 'present'; // But we'll handle the color differently in frontend
         }
     }
 
-    // For check-in
-    $checkInTime = $attendance->check_in;
-    $ruleCheckInTime = \Carbon\Carbon::parse($attendance->date . ' ' . $rule->check_in_time);
-    $lateThresholdTime = $ruleCheckInTime->copy()->addMinutes($rule->late_threshold);
-
-    // Calculate if late
-    if ($checkInTime->greaterThan($ruleCheckInTime) && $checkInTime->lessThanOrEqualTo($lateThresholdTime)) {
-        return 'present'; // Within grace period
-    } elseif ($checkInTime->greaterThan($lateThresholdTime)) {
-        return 'late'; // After grace period
+    if ($type === 'check_out') {
+        // For check-out, always return present
+        return 'present';
     }
 
-    return 'present'; // On time (before or exactly at check-in time)
+    return 'present';
+}
+public function getMonthlyAttendance(Request $request)
+{
+    $month = $request->input('month', date('n'));
+    $year = $request->input('year', date('Y'));
+    
+    // Parse month and year to get start and end dates
+    $startDate = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
+    $endDate = \Carbon\Carbon::create($year, $month, 1)->endOfMonth();
+    
+    $attendance = Attendance::where('user_id', auth()->id())
+        ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+        ->get()
+        ->keyBy(function($item) {
+            // Make sure date is in Y-m-d format
+            return $item->date;
+        })
+        ->map(function($item) {
+            return [
+                'check_in' => $item->check_in,
+                'check_out' => $item->check_out,
+                'status' => $item->status,
+                'location_in' => $item->location_in,
+                'location_out' => $item->location_out
+            ];
+        });
+    
+    return response()->json([
+        'success' => true,
+        'data' => $attendance
+    ]);
 }
 }
