@@ -1,4 +1,4 @@
-<!-- <?php -->
+<?php 
 
 // return [
 //     'reference_latitude' => env('ATTENDANCE_REF_LATITUDE', 31.476308), 

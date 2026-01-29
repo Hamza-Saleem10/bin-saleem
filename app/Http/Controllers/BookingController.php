@@ -28,11 +28,6 @@ class BookingController extends Controller
 
             return DataTables::of($routes)
 
-                ->addColumn('voucher_number', fn($r) => $r->booking->voucher_number)
-                ->addColumn('customer_name', fn($r) => $r->booking->customer_name)
-                ->addColumn('customer_contact', fn($r) => $r->booking->customer_contact)
-
-                ->addColumn('vehicle', fn($r) => optional($r->vehicle)->name)
                 ->addColumn('pick_up', fn($r) => $r->pick_up)
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time)
@@ -40,7 +35,6 @@ class BookingController extends Controller
                 ->addColumn('status', function ($r) {
                     return $this->formatStatusBadge($r->booking->status);
                 })
-                // ->addColumn('status', fn($r) => getStatusBadge($r->booking->is_active))
 
                 ->addColumn('action', function ($r) {
                     $booking = $r->booking;
@@ -50,6 +44,10 @@ class BookingController extends Controller
                     if (auth()->user()->can('Update Booking')) {
                         $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1">
                         <i class="feather icon-edit-2"></i></a>';
+                    }
+                    if (auth()->user()->can('Update Booking Status')) {
+                        $actions .= '<button type="button" class="btn btn-icon btn-warning me-1 btn-change-status" data-booking-uuid="' . $booking->uuid . '" data-current-status="' . $booking->status . '" title="Change Status">
+                        <i class="feather icon-refresh-ccw"></i></button>';
                     }
 
                     if (auth()->user()->can('View Booking Voucher')) {
@@ -65,49 +63,49 @@ class BookingController extends Controller
                     $actions .= '</div>';
                     return $actions;
                 })
-                ->filter(function ($query) use ($request) {
-                    if ($request->has('search') && $request->search['value'] != '') {
-                        $search = $request->search['value'];
+                // ->filter(function ($query) use ($request) {
+                //     if ($request->has('search') && $request->search['value'] != '') {
+                //         $search = $request->search['value'];
 
-                        $query->where(function ($q) use ($search) {
-                            // Search in main table columns
-                            $q->orWhere('pick_up', 'LIKE', "%{$search}%")
-                                ->orWhere('pickup_date', 'LIKE', "%{$search}%")
-                                ->orWhere('pickup_time', 'LIKE', "%{$search}%");
+                //         $query->where(function ($q) use ($search) {
+                //             // Search in main table columns
+                //             $q->orWhere('pick_up', 'LIKE', "%{$search}%")
+                //                 ->orWhere('pickup_date', 'LIKE', "%{$search}%")
+                //                 ->orWhere('pickup_time', 'LIKE', "%{$search}%");
 
-                            // Search in booking relationship
-                            $q->orWhereHas('booking', function ($bookingQuery) use ($search) {
-                                $bookingQuery->where('voucher_number', 'LIKE', "%{$search}%")
-                                    ->orWhere('customer_name', 'LIKE', "%{$search}%")
-                                    ->orWhere('customer_contact', 'LIKE', "%{$search}%")
-                                    ->orWhere('status', 'LIKE', "%{$search}%");
-                            });
+                //             // Search in booking relationship
+                //             $q->orWhereHas('booking', function ($bookingQuery) use ($search) {
+                //                 $bookingQuery->where('voucher_number', 'LIKE', "%{$search}%")
+                //                     ->orWhere('customer_name', 'LIKE', "%{$search}%")
+                //                     ->orWhere('customer_contact', 'LIKE', "%{$search}%")
+                //                     ->orWhere('status', 'LIKE', "%{$search}%");
+                //             });
 
-                            // Search in vehicle relationship
-                            $q->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
-                                $vehicleQuery->where('name', 'LIKE', "%{$search}%");
-                            });
-                        });
-                    }
-                })
-                ->orderColumn('pickup_date', function ($query, $order) {
-                    $query->orderBy('pickup_date', $order);
-                })
-                ->orderColumn('voucher_number', function ($query, $order) {
-                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                        ->orderBy('bookings.voucher_number', $order)
-                        ->select('bookings_route_details.*');
-                })
-                ->orderColumn('customer_name', function ($query, $order) {
-                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                        ->orderBy('bookings.customer_name', $order)
-                        ->select('bookings_route_details.*');
-                })
-                ->orderColumn('status', function ($query, $order) {
-                    $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                        ->orderBy('bookings.status', $order)
-                        ->select('bookings_route_details.*');
-                })
+                //             // Search in vehicle relationship
+                //             $q->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
+                //                 $vehicleQuery->where('name', 'LIKE', "%{$search}%");
+                //             });
+                //         });
+                //     }
+                // })
+                // ->orderColumn('pickup_date', function ($query, $order) {
+                //     $query->orderBy('pickup_date', $order);
+                // })
+                // ->orderColumn('voucher_number', function ($query, $order) {
+                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                //         ->orderBy('bookings.voucher_number', $order)
+                //         ->select('bookings_route_details.*');
+                // })
+                // ->orderColumn('customer_name', function ($query, $order) {
+                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                //         ->orderBy('bookings.customer_name', $order)
+                //         ->select('bookings_route_details.*');
+                // })
+                // ->orderColumn('status', function ($query, $order) {
+                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
+                //         ->orderBy('bookings.status', $order)
+                //         ->select('bookings_route_details.*');
+                // })
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
@@ -145,7 +143,7 @@ class BookingController extends Controller
 
         return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
     }
-    
+
     /**
      * Show the form for creating a new resource.
      *
@@ -544,17 +542,47 @@ class BookingController extends Controller
         }
     }
 
-    public function updateStatus($uuid)
+    /**
+     * Update the specified resource from storage.
+     *
+     * @param  string  $uuid
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request, $uuid)
     {
-        $booking = Booking::uuid($uuid)->first();
+        $request->validate([
+            'status' => 'required|in:Pending,Confirmed,Completed,Cancelled'
+        ]);
 
-        if ($booking) {
-            $booking->is_active = !$booking->is_active;
+        try {
+            $booking = Booking::where('uuid', $uuid)->firstOrFail();
+
+            // Check permission
+            if (!auth()->user()->can('Update Booking Status')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to update booking status.'
+                ], 403);
+            }
+
+            $oldStatus = $booking->status;
+            $booking->status = $request->status;
             $booking->save();
 
-            return $this->sendResponse(true, __('messages.booking_update'));
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking status updated successfully!',
+                'new_status' => $booking->status,
+                'status_badge' => $this->formatStatusBadge($booking->status)
+            ]);
+            // return $this->sendResponse(true, __('messages.booking_update'));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating status: ' . $e->getMessage()
+            ], 500);
         }
-        return $this->sendResponse(false, __('messages.booking_not_found'), [], 404);
     }
 
     /**
