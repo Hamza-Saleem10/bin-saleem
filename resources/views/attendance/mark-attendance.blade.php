@@ -394,91 +394,128 @@
         }
 
         renderCalendar(attendanceData, month, year) {
-            const firstDay = new Date(year, month - 1, 1);
-            const lastDay = new Date(year, month, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDay = firstDay.getDay();
-            
-            let html = '';
-            
-            // Empty cells for days before the first day of month
-            for (let i = 0; i < startingDay; i++) {
-                html += '<div class="calendar-day empty"></div>';
-            }
-            
-            // Days of the month
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayAttendance = attendanceData[dateStr] || {};
-                const currentDate = new Date(year, month - 1, day);
-                const isToday = new Date().toDateString() === currentDate.toDateString();
-                const isSunday = currentDate.getDay() === 0;
-                
-                let dayClass = 'calendar-day';
-                let statusIcon = '';
-                let tooltip = '';
-                let checkInTime = '--:--';
-                let checkOutTime = '--:--';
-                
-                // Format check-in and check-out times
-                if (dayAttendance.check_in) {
-                    checkInTime = this.formatTimeOnly(dayAttendance.check_in);
-                }
-                if (dayAttendance.check_out) {
-                    checkOutTime = this.formatTimeOnly(dayAttendance.check_out);
-                }
-                
-                // Determine day status
-                if (isSunday) {
-                    dayClass += ' holiday';
-                    statusIcon = '<i class="fas fa-glass-cheers"></i>';
-                    tooltip = 'Holiday (Sunday)';
-                } else if (dayAttendance.check_in && dayAttendance.check_out) {
-                    dayClass += ' present';
-                    statusIcon = '<i class="fas fa-check-circle"></i>';
-                    tooltip = `Present\nCheck In: ${checkInTime}\nCheck Out: ${checkOutTime}`;
-                } else if (dayAttendance.check_in && !dayAttendance.check_out) {
-                    dayClass += ' partial';
-                    statusIcon = '<i class="fas fa-exclamation-circle"></i>';
-                    tooltip = `Partial Attendance\nCheck In: ${checkInTime}\nCheck Out: --:--`;
-                } else if (dayAttendance.status === 'leave' || dayAttendance.status === 'Leave') {
-                    dayClass += ' leave';
-                    statusIcon = '<i class="fas fa-umbrella-beach"></i>';
-                    tooltip = 'On Leave';
-                } else if (dayAttendance.status === 'holiday') {
-                    dayClass += ' holiday';
-                    statusIcon = '<i class="fas fa-glass-cheers"></i>';
-                    tooltip = 'Holiday';
-                } else if (isToday && !dayAttendance.check_in) {
-                    dayClass += ' today';
-                    statusIcon = '<i class="fas fa-calendar-day"></i>';
-                    tooltip = 'Today';
-                } else {
-                    dayClass += ' absent';
-                    statusIcon = '<i class="fas fa-times-circle"></i>';
-                    tooltip = 'Absent';
-                }
-                
-                if (isToday) dayClass += ' today';
-                
-                html += `
-                    <div class="${dayClass}" data-date="${dateStr}" title="${tooltip}">
-                        <div class="day-number">${day}</div>
-                        <div class="day-status">${statusIcon}</div>
-                        <div class="day-times">
-                            <div class="check-in-time">
-                                <small><i class="fas fa-sign-in-alt"></i> ${checkInTime}</small>
-                            </div>
-                            <div class="check-out-time">
-                                <small><i class="fas fa-sign-out-alt"></i> ${checkOutTime}</small>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            $('#calendarGrid').html(html);
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    
+    let html = '';
+    
+    // Empty cells for days before the first day of month
+    for (let i = 0; i < startingDay; i++) {
+        html += '<div class="calendar-day empty"></div>';
+    }
+    
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayAttendance = attendanceData[dateStr] || {};
+        const currentDate = new Date(year, month - 1, day);
+        const isToday = new Date().toDateString() === currentDate.toDateString();
+        const isSunday = currentDate.getDay() === 0;
+        
+        let dayClass = 'calendar-day';
+        let statusIcon = '';
+        let tooltip = `Date: ${dateStr}\n`;
+        let checkInTime = '--:--';
+        let checkOutTime = '--:--';
+        
+        // Format check-in and check-out times
+        if (dayAttendance.check_in) {
+            checkInTime = this.formatTimeForDisplay(dayAttendance.check_in);
         }
+        if (dayAttendance.check_out) {
+            checkOutTime = this.formatTimeForDisplay(dayAttendance.check_out);
+        }
+        
+        // Build tooltip
+        tooltip += `Check In: ${checkInTime}\nCheck Out: ${checkOutTime}`;
+        
+        // Determine day status
+        if (isSunday) {
+            dayClass += ' holiday';
+            statusIcon = '<i class="fas fa-glass-cheers"></i>';
+            tooltip = 'Holiday (Sunday)\n' + tooltip;
+        } else if (dayAttendance.check_in && dayAttendance.check_out) {
+            dayClass += ' present';
+            statusIcon = '<i class="fas fa-check-circle"></i>';
+            tooltip = 'Present\n' + tooltip;
+        } else if (dayAttendance.check_in && !dayAttendance.check_out) {
+            dayClass += ' partial';
+            statusIcon = '<i class="fas fa-exclamation-circle"></i>';
+            tooltip = 'Partial Attendance (No Check Out)\n' + tooltip;
+        } else if (dayAttendance.status === 'leave' || dayAttendance.status === 'Leave') {
+            dayClass += ' leave';
+            statusIcon = '<i class="fas fa-umbrella-beach"></i>';
+            tooltip = 'On Leave\n' + tooltip;
+        } else if (dayAttendance.status === 'holiday') {
+            dayClass += ' holiday';
+            statusIcon = '<i class="fas fa-glass-cheers"></i>';
+            tooltip = 'Holiday\n' + tooltip;
+        } else if (isToday && !dayAttendance.check_in) {
+            dayClass += ' today';
+            statusIcon = '<i class="fas fa-calendar-day"></i>';
+            tooltip = 'Today\n' + tooltip;
+        } else {
+            dayClass += ' absent';
+            statusIcon = '<i class="fas fa-times-circle"></i>';
+            tooltip = 'Absent\n' + tooltip;
+        }
+        
+        if (isToday) dayClass += ' today';
+        
+        html += `
+            <div class="${dayClass}" data-date="${dateStr}" title="${tooltip}">
+                <div class="day-number">${day}</div>
+                <div class="day-status">${statusIcon}</div>
+                <div class="day-times">
+                    <div class="check-in-time">
+                        <small><i class="fas fa-sign-in-alt"></i> ${checkInTime}</small>
+                    </div>
+                    <div class="check-out-time">
+                        <small><i class="fas fa-sign-out-alt"></i> ${checkOutTime}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    $('#calendarGrid').html(html);
+}
+
+// Add this new method to format time for display
+formatTimeForDisplay(timeStr) {
+    if (!timeStr) return '--:--';
+    
+    try {
+        // If time is already in HH:MM:SS format
+        if (typeof timeStr === 'string' && timeStr.includes(':')) {
+            const parts = timeStr.split(':');
+            if (parts.length >= 2) {
+                const hours = parseInt(parts[0]);
+                const minutes = parseInt(parts[1]);
+                
+                // Format to 12-hour or 24-hour format
+                const formattedHours = hours % 12 || 12;
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                // Return in 12-hour format (e.g., 09:30 AM)
+                // Or you can use 24-hour format: return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                return `${String(formattedHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`;
+            }
+        }
+        
+        // Try to parse as Date object
+        const date = new Date(timeStr);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        return '--:--';
+    } catch {
+        return '--:--';
+    }
+}
 
         updateMonthlyStats(attendanceData, month, year) {
             let presentDays = 0;
@@ -741,34 +778,53 @@
         right: 5px; 
         font-size: 12px;
     }
-    .calendar-day.present .day-status i { color: #48bb78; }
-    .calendar-day.partial .day-status i { color: #ed8936; }
-    .calendar-day.leave .day-status i { color: #9f7aea; }
-    .calendar-day.holiday .day-status i { color: #f56565; }
-    .calendar-day.absent .day-status i { color: #c53030; }
-    .calendar-day.today .day-status i { color: #ed8936; }
+    .calendar-day.present .day-times {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .calendar-day.partial .day-times {
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .calendar-day.absent .day-times,
+    .calendar-day.holiday .day-times,
+    .calendar-day.leave .day-times {
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .calendar-day.today .day-times {
+        background: rgba(255, 255, 255, 0.9);
+    }
     
     .day-times {
         margin-top: auto;
-        font-size: 9px;
+        font-size: 15px;
         line-height: 1.2;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 4px;
+        padding: 2px;
+        backdrop-filter: blur(2px);
     }
     .check-in-time, .check-out-time {
         display: flex;
         align-items: center;
         gap: 3px;
+        justify-content: center;
     }
     .check-in-time i {
         color: #48bb78;
-        font-size: 8px;
+        font-size: 15px;
     }
+
     .check-out-time i {
         color: #ed8936;
-        font-size: 8px;
+        font-size: 15px;
     }
+
     .check-in-time small, .check-out-time small {
-        color: #4a5568;
-        font-weight: 500;
+        color: #2d3748;
+        font-weight: 600;
+        white-space: nowrap;
     }
     .calendar-day.absent .check-in-time small,
     .calendar-day.absent .check-out-time small,
