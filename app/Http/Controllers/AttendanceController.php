@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -119,11 +120,9 @@ class AttendanceController extends Controller
                     return $totalDays - $holidays;
                 })
                 ->addColumn('present', function ($user) {
-                    // Count present days from user's attendance records
                     return $user->attendances->where('status', 'Present')->count();
                 })
                 ->addColumn('absent', function ($user) use ($startDate, $endDate) {
-                    // Calculate absent days = Working days - Present days
                     $totalDays = $startDate->daysInMonth;
 
                     // Count Sundays
@@ -146,18 +145,11 @@ class AttendanceController extends Controller
                     $actions = '<div class="overlay-edit d-flex">';
 
                     if (auth()->user()->can('View Attendance')) {
-                        $actions .= '<button class="btn btn-icon btn-info btn-view-attendance" 
-                        data-user-id="' . $user->id . '" 
-                        data-user-name="' . htmlspecialchars($user->name) . '"
-                        title="View Details">
-                        <i class="feather icon-eye"></i></button>';
+                        $actions .= '<button class="btn btn-icon btn-info btn-view-attendance" data-user-id="' . $user->id . '" data-user-name="' . htmlspecialchars($user->name) . '" title="View Details"><i class="feather icon-eye"></i></button>';
                     }
 
                     if (auth()->user()->can('Delete Attendance')) {
-                        $actions .= '<a href="' . route('attendance.user.destroy', $user->id) . '" 
-                        class="btn btn-icon btn-danger btn-delete ml-1"
-                        title="Delete Attendance">
-                        <i class="feather icon-trash-2"></i></a>';
+                        $actions .= '<a href="' . route('attendance.user.destroy', $user->id) . '" class="btn btn-icon btn-danger btn-delete ml-1" title="Delete Attendance"><i class="feather icon-trash-2"></i></a>';
                     }
                     $actions .= '</div>';
                     return $actions;
@@ -632,36 +624,239 @@ class AttendanceController extends Controller
         return 'present';
     }
     public function getMonthlyAttendance(Request $request)
-{
-    $month = $request->input('month', date('n'));
-    $year = $request->input('year', date('Y'));
+    {
+        $month = $request->input('month', date('n'));
+        $year = $request->input('year', date('Y'));
 
-    // Parse month and year to get start and end dates
-    $startDate = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
-    $endDate = \Carbon\Carbon::create($year, $month, 1)->endOfMonth();
+        // Parse month and year to get start and end dates
+        $startDate = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = \Carbon\Carbon::create($year, $month, 1)->endOfMonth();
 
-    $attendance = Attendance::where('user_id', auth()->id())
-        ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-        ->get()
-        ->mapWithKeys(function ($item) {
-            // Use the date as key
-            $dateKey = \Carbon\Carbon::parse($item->date)->format('Y-m-d');
-            
-            return [
-                $dateKey => [
-                    'check_in' => $item->check_in ? \Carbon\Carbon::parse($item->check_in)->format('H:i:s') : null,
-                    'check_out' => $item->check_out ? \Carbon\Carbon::parse($item->check_out)->format('H:i:s') : null,
-                    'status' => $item->status,
-                    'location_in' => $item->location_in,
-                    'location_out' => $item->location_out,
-                    'date' => $dateKey
-                ]
-            ];
-        });
+        $attendance = Attendance::where('user_id', auth()->id())
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get()
+            ->mapWithKeys(function ($item) {
+                // Use the date as key
+                $dateKey = \Carbon\Carbon::parse($item->date)->format('Y-m-d');
 
-    return response()->json([
-        'success' => true,
-        'data' => $attendance
-    ]);
-}
+                return [
+                    $dateKey => [
+                        'check_in' => $item->check_in ? \Carbon\Carbon::parse($item->check_in)->format('H:i:s') : null,
+                        'check_out' => $item->check_out ? \Carbon\Carbon::parse($item->check_out)->format('H:i:s') : null,
+                        'status' => $item->status,
+                        'location_in' => $item->location_in,
+                        'location_out' => $item->location_out,
+                        'date' => $dateKey
+                    ]
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $attendance
+        ]);
+    }
+
+    /**
+     * Get all active users for bulk attendance
+     */
+    public function getActiveUsers(Request $request)
+    {
+        try {
+            $users = User::where('is_active', '1')
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'users' => $users
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load users: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get existing attendance for a specific date
+     */
+    public function getExistingAttendance(Request $request)
+    {
+        try {
+            $request->validate([
+                'date' => 'required|date'
+            ]);
+
+            $date = $request->input('date');
+
+            // Get attendance for the date
+            $attendance = Attendance::with('user')
+                ->whereDate('date', $date)
+                ->get()
+                ->keyBy('user_id')
+                ->map(function ($att) {
+                    return [
+                        'id' => $att->id,
+                        'user_id' => $att->user_id,
+                        'date' => $att->date,
+                        'check_in' => $att->check_in,
+                        'check_out' => $att->check_out,
+                        'status' => $att->status,
+                        'location' => $att->location
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'attendance' => $attendance,
+                'date' => $date
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load attendance: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Save bulk attendance
+     */
+    public function bulkSave(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $request->validate([
+                'attendance' => 'required|array',
+                'attendance.*.user_id' => 'required|exists:users,id',
+                'attendance.*.date' => 'required|date',
+                'attendance.*.status' => 'required|string|max:10'
+            ]);
+
+            $savedCount = 0;
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($request->attendance as $index => $data) {
+                try {
+                    // Validate individual record
+                    $validated = validator($data, [
+                        'user_id' => 'required|exists:users,id',
+                        'date' => 'required|date',
+                        'check_in' => 'nullable|date_format:H:i',
+                        'check_out' => 'nullable|date_format:H:i',
+                        'status' => 'required|string|max:10',
+                    ])->validate();
+
+                    // Check if attendance already exists for this user and date
+                    $attendance = Attendance::where('user_id', $validated['user_id'])
+                        ->whereDate('date', $validated['date'])
+                        ->first();
+
+                    if ($attendance) {
+                        // Update existing record
+                        $attendance->update([
+                            'check_in' => $validated['check_in'] ?? $attendance->check_in,
+                            'check_out' => $validated['check_out'] ?? $attendance->check_out,
+                            'status' => $validated['status'],
+
+                        ]);
+                        $updatedCount++;
+                    } else {
+                        // Create new record
+                        Attendance::create([
+                            'user_id' => $validated['user_id'],
+                            'date' => $validated['date'],
+                            'check_in' => $validated['check_in'] ?? null,
+                            'check_out' => $validated['check_out'] ?? null,
+                            'status' => $validated['status'],
+                        ]);
+                        $savedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $user = User::find($data['user_id'] ?? null);
+                    $errors[] = [
+                        'user' => $user ? $user->name : 'Unknown User',
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Attendance saved successfully. New: {$savedCount}, Updated: {$updatedCount}",
+                'saved_count' => $savedCount,
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save attendance: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete bulk attendance
+     */
+    public function bulkDelete(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $request->validate([
+                'delete_data' => 'required|array',
+                'delete_data.*.attendance_id' => 'required|exists:attendance,id',
+                'delete_data.*.user_id' => 'required|exists:users,id',
+                'delete_data.*.date' => 'required|date'
+            ]);
+
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($request->delete_data as $data) {
+                try {
+                    $attendance = Attendance::find($data['attendance_id']);
+
+                    if ($attendance && $attendance->user_id == $data['user_id']) {
+                        $attendance->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = [
+                        'attendance_id' => $data['attendance_id'],
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$deletedCount} attendance record(s) deleted successfully",
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete attendance: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

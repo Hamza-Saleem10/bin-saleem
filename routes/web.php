@@ -157,6 +157,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('attendance-rules', AttendanceRuleController::class)->only('destroy')->middleware('permission:Delete Attendance Rule');
     Route::post('attendance-rules/datatable', [AttendanceRuleController::class, 'index'])->name('attendance-rules.datatable')->middleware('permission:Attendance Rule List');
     Route::post('attendance-rules/{uuid}/toggle-status', [AttendanceRuleController::class, 'toggleStatus'])->name('attendance-rules.toggle-status');
+    
+    Route::get('/attendance/active-users', [AttendanceController::class, 'getActiveUsers'])->name('attendance.get.active.users');
+    Route::get('/attendance/existing', [AttendanceController::class, 'getExistingAttendance'])->name('attendance.get.existing');
+    Route::post('/attendance/bulk-save', [AttendanceController::class, 'bulkSave'])->name('attendance.bulk.save');
+    Route::post('/attendance/bulk-delete', [AttendanceController::class, 'bulkDelete'])->name('attendance.bulk.delete');
 });
 
 Route::post('refresh-captcha', [UserController::class, 'refreshCaptcha'])->name('refresh-captcha');

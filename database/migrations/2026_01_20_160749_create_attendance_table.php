@@ -20,8 +20,7 @@ class CreateAttendanceTable extends Migration
             $table->date('date');
             $table->time('check_in')->nullable();
             $table->time('check_out')->nullable();
-            $table->integer('total_working_days')->default(0);
-            $table->enum('status', ['Present', 'Absent', 'Late', 'Half_day', 'Unmarked', 'Holiday'])->default('Unmarked');
+            $table->enum('status', ['Present', 'Absent', 'Late', 'Half Day', 'Unmarked', 'Holiday'])->default('Unmarked');
             $table->bigInteger('created_by')->nullable()->unsigned();
             $table->bigInteger('updated_by')->nullable()->unsigned();
             $table->timestamps();

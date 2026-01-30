@@ -98,6 +98,7 @@ class AclSeeder extends Seeder
             ['name' => 'Delete Permission', 'permission_group_id' => 8, 'guard_name' => 'web'],
             
             ['name' => 'Attendance List', 'permission_group_id' => 9, 'guard_name' => 'web'],
+            ['name' => 'Create Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
             ['name' => 'Mark Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
             ['name' => 'View Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],
             ['name' => 'Delete Attendance', 'permission_group_id' => 9, 'guard_name' => 'web'],

@@ -17,6 +17,7 @@ class CreateAttedanceLocation extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->unsignedBigInteger('attendance_id');
+            // $table->enum('type', ['Check In','Check Out']);
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
             $table->string('location_name')->nullable();
