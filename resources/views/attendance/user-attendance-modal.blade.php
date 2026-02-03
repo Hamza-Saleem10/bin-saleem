@@ -39,48 +39,48 @@
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-primary text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Working Days</h6>
-                                                <h4 id="summaryWorkingDays" class="mb-0">0</h4>
+                                                <h6 class="text-white">Working Days</h6>
+                                                <h4 id="summaryWorkingDays" class="text-white">0</h4>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-success text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Present</h6>
-                                                <h4 id="summaryPresent" class="mb-0">0</h4>
+                                                <h6 class="text-white">Present</h6>
+                                                <h4 id="summaryPresent" class="text-white">0</h4>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-danger text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Absent</h6>
-                                                <h4 id="summaryAbsent" class="mb-0">0</h4>
+                                                <h6 class="text-white">Absent</h6>
+                                                <h4 id="summaryAbsent" class="text-white">0</h4>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>  
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-info text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Late</h6>
-                                                <h4 id="summaryLate" class="mb-0">0</h4>
+                                                <h6 class="text-white">Late</h6>
+                                                <h4 id="summaryLate" class="text-white">0</h4>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-warning text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Half Day</h6>
-                                                <h4 id="summaryHalfDay" class="mb-0">0</h4>
+                                                <h6 class="text-white">Half Day</h6>
+                                                <h4 id="summaryHalfDay" class="text-white">0</h4>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-2 mb-3">
                                         <div class="card bg-secondary text-white">
                                             <div class="card-body p-2">
-                                                <h6 class="mb-1">Holidays</h6>
-                                                <h4 id="summaryHolidays" class="mb-0">0</h4>
+                                                <h6 class="text-white">Holidays</h6>
+                                                <h4 id="summaryHolidays" class="text-white">0</h4>
                                             </div>
                                         </div>
                                     </div>

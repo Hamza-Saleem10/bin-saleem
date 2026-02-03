@@ -596,9 +596,9 @@ class BookingController extends Controller
         // Find booking with UUID and eager load all related details
         $booking = Booking::where('uuid', $uuid)
             ->with([
-                'hotelDetails', // All hotel details
-                'flightDetails', // All flight details  
-                'routeDetails.vehicle', // All route details with vehicle info
+                'hotelDetails',
+                'flightDetails',  
+                'routeDetails.vehicle',
                 'bookedBy',
             ])
             ->firstOrFail();

@@ -11,17 +11,6 @@
                 <!-- Search and Filter Section -->
                 <div class="row align-items-center mb-3">
                     <div class="col-md-3">
-                        <div class="input-group">
-                            <input type="text" id="bulkSearch" class="form-control" placeholder="Search by Code, Name...">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
-                                    <i class="feather icon-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <div class="col-md-3">
                         <input type="date" id="bulkDate" class="form-control">
                     </div>
                 
@@ -32,10 +21,20 @@
                     <div class="col-md-3">
                         <input type="time" id="bulkCheckOutTime" class="form-control">
                     </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" id="bulkSearch" class="form-control" placeholder="Search by Code, Name...">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                                    <i class="feather icon-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                
                 <!-- Status Options -->
-                {{-- <div class="row mb-3">
+                <div class="row mb-3">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label class="font-weight-bold mb-3">Status <small class="text-muted">(Select to apply to all checked users)</small></label>
@@ -67,8 +66,8 @@
                             </div>
                         </div>
                     </div>
-                </div> --}}
-                <div class="row mb-3">
+                </div>
+                {{-- <div class="row mb-3">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Status (Select to apply to all checked users)</label>
@@ -100,7 +99,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 
                 <!-- Select All Checkbox -->
                 <div class="row mb-2">
