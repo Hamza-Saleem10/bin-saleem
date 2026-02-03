@@ -149,21 +149,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('routes/datatable', [RouteController::class, 'index'])->name('routes.datatable')->middleware('permission:Routes List');
     Route::get('routes/update-status/{route}', [RouteController::class, 'updateStatus'])->name('routes.updateStatus')->middleware('permission:Update Route Status');
 
-    // Additional custom routes
-// Route::post('/routes/{route}/toggle-status', [RouteController::class, 'toggleStatus'])
-//     ->name('routes.toggle-status');
-
-// Route::get('/active-routes', [RouteController::class, 'getActiveRoutes'])
-//     ->name('routes.active');
     ############# Attendance
     Route::resource('attendance', AttendanceController::class)->only('index')->middleware('permission:Attendance List');
     Route::get('/attendance/mark', function () {return view('attendance.mark-attendance');})->name('attendance.markAttendance')->middleware('permission:Mark Attendance');
     Route::post('attendance/datatable',[AttendanceController::class, 'index'])->name('attendance.datatable')->middleware('permission:Attendance List');
     Route::delete('/attendance/user/{user}', [AttendanceController::class, 'destroyUserAttendance'])->name('attendance.user.destroy')->middleware('permission:Delete Attendance');
     Route::get('/attendance/user-details', [AttendanceController::class, 'getUserAttendanceDetails'])->name('attendance.user.details')->middleware('permission:View Attendance');
-    // Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance'])->name('attendance.mark');
     Route::get('/attendance/today', [AttendanceController::class, 'getTodayAttendance'])->name('attendance.today');
     Route::get('/attendance/monthly', [AttendanceController::class, 'getMonthlyAttendance'])->name('attendance.monthly');
+
+    Route::get('/attendance/active-users', [AttendanceController::class, 'getActiveUsers'])->name('attendance.get.active.users');
+    Route::get('/attendance/existing', [AttendanceController::class, 'getExistingAttendance'])->name('attendance.get.existing');
+    Route::post('/attendance/bulk-save', [AttendanceController::class, 'bulkSave'])->name('attendance.bulk.save');
+    Route::post('/attendance/bulk-delete', [AttendanceController::class, 'bulkDelete'])->name('attendance.bulk.delete');
 
     ############# Attendance Rule
     Route::resource('attendance-rules', AttendanceRuleController::class)->only('index')->middleware('permission:Attendance Rule List');
@@ -173,10 +171,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('attendance-rules/datatable', [AttendanceRuleController::class, 'index'])->name('attendance-rules.datatable')->middleware('permission:Attendance Rule List');
     Route::post('attendance-rules/{uuid}/toggle-status', [AttendanceRuleController::class, 'toggleStatus'])->name('attendance-rules.toggle-status');
     
-    Route::get('/attendance/active-users', [AttendanceController::class, 'getActiveUsers'])->name('attendance.get.active.users');
-    Route::get('/attendance/existing', [AttendanceController::class, 'getExistingAttendance'])->name('attendance.get.existing');
-    Route::post('/attendance/bulk-save', [AttendanceController::class, 'bulkSave'])->name('attendance.bulk.save');
-    Route::post('/attendance/bulk-delete', [AttendanceController::class, 'bulkDelete'])->name('attendance.bulk.delete');
 });
 
 Route::post('refresh-captcha', [UserController::class, 'refreshCaptcha'])->name('refresh-captcha');

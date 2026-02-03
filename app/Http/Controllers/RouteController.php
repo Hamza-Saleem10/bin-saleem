@@ -158,23 +158,4 @@ class RouteController extends Controller
         return $this->sendResponse(false, __('messages.route_not_found'), [], 404);
     }
 
-    /**
-     * Toggle active status
-     */
-    // public function toggleStatus(Route $route)
-    // {
-    //     $route->update(['is_active' => !$route->is_active]);
-
-    //     return back()->with('success', 'Route status updated successfully.');
-    // }
-
-    /**
-     * Get active routes (for API or dropdowns)
-     */
-    // public function getActiveRoutes()
-    // {
-    //     $routes = Route::active()->orderBy('from_location')->get();
-        
-    //     return response()->json($routes);
-    // }
 }
