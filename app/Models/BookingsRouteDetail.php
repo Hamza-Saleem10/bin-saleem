@@ -14,7 +14,7 @@ class BookingsRouteDetail extends Model
     protected $fillable = [
         'uuid',
         'booking_id',
-        'pick_up',
+        'route_id',
         'pickup_date',
         'pickup_time',
         'vehicle_id',
@@ -25,6 +25,15 @@ class BookingsRouteDetail extends Model
         'pickup_date' => 'date',
     ];
     
+    public function getRouteNameAttribute()
+    {
+        if ($this->route) {
+            return $this->route->from_location . ' To ' . $this->route->to_location;
+        }
+
+        return 'N/A';
+    }
+
     // Relationship back to Booking
     public function booking()
     {
@@ -32,5 +41,9 @@ class BookingsRouteDetail extends Model
     }
     public function vehicle(){
         return $this->belongsTo(Vehicle::class,'vehicle_id');
+    }
+    public function route()
+    {
+        return $this->belongsTo(Route::class, 'route_id');
     }
 }

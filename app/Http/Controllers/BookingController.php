@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Vehicle;
+use App\Models\Route;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -23,12 +24,18 @@ class BookingController extends Controller
 
             $routes = BookingsRouteDetail::with([
                 'booking:id,uuid,voucher_number,customer_name,customer_contact,status,is_active',
-                'vehicle:id,name'
+                'vehicle:id,name',
+                'route:id,from_location,to_location'
             ]);
 
             return DataTables::of($routes)
 
-                ->addColumn('pick_up', fn($r) => $r->pick_up)
+                ->addColumn('route_id', function($r) {
+                    if ($r->route && $r->route->from_location && $r->route->to_location) {
+                        return $r->route->from_location . ' To ' . $r->route->to_location;
+                    }
+                    return $r->route_id;
+                })
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time)
 
@@ -152,6 +159,11 @@ class BookingController extends Controller
     public function create()
     {
         $users = User::pluck('name', 'id');
+        $routeOptions = Route::active()->get()
+            ->mapWithKeys(function ($route) {
+                $displayName = $route->from_location . ' To ' . $route->to_location;
+                return [$route->id => $displayName];
+            });
         $vehicles = Vehicle::active()->pluck('name', 'id');
 
         return view('bookings.create', get_defined_vars());
@@ -206,8 +218,8 @@ class BookingController extends Controller
             'arrival_time.*' => 'nullable|date_format:H:i|after:departure_time.*',
 
             // ARRAY VALIDATION for route details
-            'pick_up' => 'required|array|min:1',
-            'pick_up.*' => 'required|string|max:191',
+            'route_id'   => 'required|array|min:1',
+            'route_id.*' => 'required|integer|exists:routes,id',
             'pickup_date' => 'required|array|min:1',
             'pickup_date.*' => 'required|date|after_or_equal:today',
             'pickup_time' => 'required|array|min:1',
@@ -294,10 +306,10 @@ class BookingController extends Controller
             }
 
             // Create Route Details Records (Multiple)
-            foreach ($validated['pick_up'] as $index => $pickUp) {
+            foreach ($validated['route_id'] as $index => $pickUp) {
                 BookingsRouteDetail::create([
                     'booking_id' => $booking->id,
-                    'pick_up' => $pickUp,
+                    'route_id' => $pickUp,
                     'pickup_date' => $validated['pickup_date'][$index],
                     'pickup_time' => $validated['pickup_time'][$index],
                     'vehicle_id' => $validated['vehicle_id'][$index]
@@ -330,6 +342,11 @@ class BookingController extends Controller
     public function edit(Booking $booking)
     {
         $users = User::pluck('name', 'id');
+        $routeOptions = Route::active()->get()
+            ->mapWithKeys(function ($route) {
+                $displayName = $route->from_location . ' To ' . $route->to_location;
+                return [$route->id => $displayName];
+            });
         $vehicles = Vehicle::active()->pluck('name', 'id');
 
         return view('bookings.edit', get_defined_vars());
@@ -381,8 +398,8 @@ class BookingController extends Controller
             'arrival_time.*' => 'nullable|date_format:H:i|after:departure_time.*',
 
             // ARRAY VALIDATION for route details
-            'pick_up' => 'required|array|min:1',
-            'pick_up.*' => 'required|string|max:191',
+            'route_id'   => 'required|array|min:1',
+            'route_id.*' => 'required|integer|exists:routes,id',
             'pickup_date' => 'required|array|min:1',
             'pickup_date.*' => 'required|date',
             'pickup_time' => 'required|array|min:1',
@@ -472,10 +489,10 @@ class BookingController extends Controller
             }
 
             // Create Route Details Records (Multiple)
-            foreach ($validated['pick_up'] as $index => $pickUp) {
+            foreach ($validated['route_id'] as $index => $pickUp) {
                 BookingsRouteDetail::create([
                     'booking_id' => $booking->id,
-                    'pick_up' => $pickUp,
+                    'route_id' => $pickUp,
                     'pickup_date' => $validated['pickup_date'][$index],
                     'pickup_time' => $validated['pickup_time'][$index],
                     'vehicle_id' => $validated['vehicle_id'][$index]
@@ -597,7 +614,7 @@ class BookingController extends Controller
         $booking = Booking::where('uuid', $uuid)
             ->with([
                 'hotelDetails',
-                'flightDetails',  
+                'flightDetails',
                 'routeDetails.vehicle',
                 'bookedBy',
             ])

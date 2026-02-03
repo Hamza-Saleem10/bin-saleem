@@ -1036,10 +1036,10 @@
                     <tbody>
                         @foreach($booking->routeDetails as $route)
                         <tr>
-                            <td>{{ $route->pick_up }}</td>
-                            <td>{{ Carbon\Carbon::parse($route->pickup_date)->format('d M, Y') }}</td>
-                            <td>{{ $route->pickup_time }}</td>
-                            <td>{{ optional($route->vehicle)->name ?? 'N/A' }}</td>
+                          <td>{{ $route->route_name }}</td>
+                          <td>{{ Carbon\Carbon::parse($route->pickup_date)->format('d M, Y') }}</td>
+                          <td>{{ $route->pickup_time }}</td>
+                          <td>{{ optional($route->vehicle)->name ?? 'N/A' }}</td>
                         </tr>
                         @endforeach
                     </tbody>

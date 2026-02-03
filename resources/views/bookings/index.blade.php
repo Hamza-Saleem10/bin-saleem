@@ -72,7 +72,7 @@
                         data: 'vehicle.name'
                     },
                     {
-                        data: 'pick_up'
+                        data: 'route_id'
                     },
                     {
                         data: 'pickup_date'

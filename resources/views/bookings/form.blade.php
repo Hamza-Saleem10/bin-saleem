@@ -16,7 +16,7 @@
 
                     {{-- ================= Customer Name ================= --}}
                     <div class="form-group col-md-4">
-                        {!! Form::label('customer_name', 'Name', ['class' => 'form-label required-input']) !!}
+                        {!! Form::label('customer_name', 'Name', ['for' => 'customer_name','class' => 'form-label required-input']) !!}
                         <div class="d-flex gap-2">
                             {{-- Title Dropdown --}}
                             {!! Form::select('title', ['Mr.' => 'Mr.', 'Mrs.' => 'Mrs.'], old('title', isset($booking) && str_starts_with($booking->customer_name, 'Mrs.') ? 'Mrs.' : 'Mr.'), ['class' => 'form-select', 'style' => 'width: 90px;', 'required']) !!}
@@ -28,24 +28,24 @@
                     
                     {{-- ================= Customer Email ================= --}}
                     <div class="form-group col-md-4">
-                        {!! Form::label('customer_email', 'Email', ['class' => 'form-label required-input']) !!}
-                        {!! Form::email('customer_email', old('customer_email', $booking->customer_email ?? ''), ['class' => 'form-control ' . $errors->first('customer_email', 'error'),'placeholder' => 'Email Address','maxlength' => '64','required']) !!}
+                        {!! Form::label('customer_email', 'Email', ['for' => 'customer_email','class' => 'form-label required-input']) !!}
+                        {!! Form::email('customer_email', old('customer_email', $booking->customer_email ?? null), ['class' => 'form-control ' . $errors->first('customer_email', 'error'),'placeholder' => 'Email Address','maxlength' => '64','required']) !!}
                         {!! $errors->first('customer_email', '<label class="error">:message</label>') !!}
                     </div>
                     
                     {{-- ================= Customer Contact ================= --}}
                     <div class="form-group col-md-4">
-                        {!! Form::label('customer_contact', 'Contact Number', ['class' => 'form-label required-input']) !!}
-                        {!! Form::text('customer_contact', old('customer_contact', $booking->customer_contact ?? ''), ['id' => 'customer_contact', 'class' => 'form-control ' . $errors->first('customer_contact', 'error'),'placeholder' => 'Mobile Number','maxlength' => '15','required']) !!}
+                        {!! Form::label('customer_contact', 'Contact Number', ['for' => 'customer_contact','class' => 'form-label required-input']) !!}
+                        {!! Form::text('customer_contact', old('customer_contact', $booking->customer_contact ?? null), ['id' => 'customer_contact', 'class' => 'form-control ' . $errors->first('customer_contact', 'error'),'placeholder' => 'Mobile Number','maxlength' => '15','required']) !!}
                         {{-- Hidden full phone (with country code) --}}
-                        {!! Form::hidden('customer_contact_full', old('customer_contact_full', $booking->customer_contact_full ?? ''), ['id' => 'customer_contact_full']) !!}
+                        {!! Form::hidden('customer_contact_full', old('customer_contact_full', $booking->customer_contact_full ?? null), ['id' => 'customer_contact_full']) !!}
                         {!! $errors->first('customer_contact', '<label class="error">:message</label>') !!}
                     </div>
 
                     {{-- ================= Booking By ================= --}}
                     <div class="form-group col-md-4">
-                        {!! Form::label('booking_by', 'Booking By', ['class' => 'form-label required-input']) !!}
-                        {!! Form::select('booking_by',$users, old('booking_by', $booking->booking_by ?? ''),['class' => 'form-control ' . $errors->first('booking_by', 'error'),'placeholder' => 'Select User','required']) !!}
+                        {!! Form::label('booking_by', 'Booking By', ['for' => 'booking_by','class' => 'form-label required-input']) !!}
+                        {!! Form::select('booking_by',$users, old('booking_by', $booking->booking_by ?? null),['class' => 'form-control ' . $errors->first('booking_by', 'error'),'placeholder' => 'Select User','required']) !!}
                         {!! $errors->first('booking_by', '<label class="error">:message</label>') !!}
                     </div>
 
@@ -58,8 +58,8 @@
                     
                     {{-- ================= Number of Pax ================= --}}
                     <div class="form-group col-md-4">
-                        {!! Form::label('number_of_pax', 'Number of Pax', ['class' => 'form-label required-input']) !!}
-                        {!! Form::number('number_of_pax', old('number_of_pax', $booking->number_of_pax ?? ''), ['class' => 'form-control ' . $errors->first('number_of_pax', 'error'), 'id' => 'number_of_pax', 'placeholder' => 'Enter total number of persons', 'min' => '1', 'max' => '50', 'required']) !!}
+                        {!! Form::label('number_of_pax', 'Number of Pax', ['for' => 'number_of_pax','class' => 'form-label required-input']) !!}
+                        {!! Form::number('number_of_pax', old('number_of_pax', $booking->number_of_pax ?? null), ['class' => 'form-control ' . $errors->first('number_of_pax', 'error'), 'id' => 'number_of_pax', 'placeholder' => 'Enter total number of persons', 'min' => '1', 'max' => '50', 'required']) !!}
                         {!! $errors->first('number_of_pax', '<label class="error">:message</label>') !!}
                     </div>
                     
@@ -68,19 +68,19 @@
                         <h5>Persons Details</h5>
                         {{-- ================= Adult Persons ================= --}}
                         <div class="form-group col-md-4">
-                            {!! Form::label('adult_person', 'Adult', ['class' => 'form-label required-input']) !!}
+                            {!! Form::label('adult_person', 'Adult', ['for' => 'adult_person','class' => 'form-label required-input']) !!}
                             {!! Form::number('adult_person', old('adult_person', $booking->adult_person ?? 0), ['class' => 'form-control ' . $errors->first('adult_person', 'error'), 'id' => 'adult_person', 'placeholder' => 'Number of adults', 'min' => '0', 'required']) !!}
                             {!! $errors->first('adult_person', '<label class="error">:message</label>') !!}
                         </div>
                         {{-- ================= Child Persons ================= --}}
                         <div class="form-group col-md-4">
-                            {!! Form::label('child_person', 'Child', ['class' => 'form-label required-input']) !!}
+                            {!! Form::label('child_person', 'Child', ['for' => 'child_person','class' => 'form-label required-input']) !!}
                             {!! Form::number('child_person', old('child_person', $booking->child_person ?? 0), ['class' => 'form-control ' . $errors->first('child_person', 'error'), 'id' => 'child_person', 'placeholder' => 'Number of children', 'min' => '0']) !!}
                             {!! $errors->first('child_person', '<label class="error">:message</label>') !!}
                         </div>                       
                         {{-- ================= Infant Persons ================= --}}
                         <div class="form-group col-md-4">
-                            {!! Form::label('infant_person', 'Infant', ['class' => 'form-label']) !!}
+                            {!! Form::label('infant_person', 'Infant', ['for' => 'infant_person','class' => 'form-label']) !!}
                             {!! Form::number('infant_person', old('infant_person', $booking->infant_person ?? 0), ['class' => 'form-control ' . $errors->first('infant_person', 'error'), 'id' => 'infant_person', 'placeholder' => 'Number of infants', 'min' => '0']) !!}
                             {!! $errors->first('infant_person', '<label class="error">:message</label>') !!}
                         </div>
@@ -120,28 +120,33 @@
                             
                             {{-- ================= Hotel City ================= --}}
                             <div class="form-group col-md-2">
-                                {!! Form::label('city[]', 'City', ['class' => 'form-label required-input']) !!}
-                                {!! Form::text('city[]', old("city.$index", $accommodation->city ?? ''), ['class' => 'form-control accommodation-city', 'placeholder' => 'Makkah/Madinah','maxlength' => '191','required']) !!}
+                                {!! Form::label('city[]', 'City', ['for' => 'city','class' => 'form-label required-input']) !!}
+                                {!! Form::text('city[]', old("city.$index", $accommodation->city ?? null), ['class' => 'form-control accommodation-city' . $errors->first('city', 'error'), 'placeholder' => 'Makkah/Madinah','maxlength' => '191','required']) !!}
+                                {!! $errors->first('city', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Hotel Name ================= --}}
                             <div class="form-group col-md-3">
-                                {!! Form::label('hotel_name[]', 'Hotel Name', ['class' => 'form-label required-input']) !!}
-                                {!! Form::text('hotel_name[]', old("hotel_name.$index", $accommodation->hotel_name ?? ''), ['class' => 'form-control accommodation-hotel', 'placeholder' => 'Hotel Name','maxlength' => '191','required']) !!}
+                                {!! Form::label('hotel_name[]', 'Hotel Name', ['for' => 'hotel_name','class' => 'form-label required-input']) !!}
+                                {!! Form::text('hotel_name[]', old("hotel_name.$index", $accommodation->hotel_name ?? null), ['class' => 'form-control accommodation-hotel' . $errors->first('hotel_name', 'error'), 'placeholder' => 'Hotel Name','maxlength' => '191','required']) !!}
+                                {!! $errors->first('hotel_name', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Check-In Date ================= --}}
                             <div class="form-group col-md-2">
-                                {!! Form::label('check_in_date[]', 'Check In Date', ['class' => 'form-label required-input']) !!}
-                                {!! Form::date('check_in_date[]', old("check_in_date.$index", $accommodation->check_in_date ?? ''), ['class' => 'form-control accommodation-checkin', 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! Form::label('check_in_date[]', 'Check In Date', ['for' => 'check_in_date','class' => 'form-label required-input']) !!}
+                                {!! Form::date('check_in_date[]', old("check_in_date.$index", $accommodation->check_in_date ?? null), ['class' => 'form-control accommodation-checkin' . $errors->first('check_in_date', 'error'), 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! $errors->first('check_in_date', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Check-Out Date ================= --}}
                             <div class="form-group col-md-2">
-                                {!! Form::label('check_out_date[]', 'Check Out Date', ['class' => 'form-label required-input']) !!}
-                                {!! Form::date('check_out_date[]', old("check_out_date.$index", $accommodation->check_out_date ?? ''), ['class' => 'form-control accommodation-checkout', 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! Form::label('check_out_date[]', 'Check Out Date', ['for' => 'check_out_date','class' => 'form-label required-input']) !!}
+                                {!! Form::date('check_out_date[]', old("check_out_date.$index", $accommodation->check_out_date ?? null), ['class' => 'form-control accommodation-checkout' . $errors->first('check_out_date', 'error'), 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! $errors->first('check_out_date', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Duration (Nights) ================= --}}
                             <div class="form-group col-md-2">
-                                {!! Form::label('duration[]', 'Nights', ['class' => 'form-label']) !!}
-                                {!! Form::text('duration[]', old("duration.$index", $accommodation->duration ?? ''), ['class' => 'form-control accommodation-duration', 'placeholder' => 'Nights','readonly' => true]) !!}
+                                {!! Form::label('duration[]', 'Nights', ['for' => 'duration','class' => 'form-label']) !!}
+                                {!! Form::text('duration[]', old("duration.$index", $accommodation->duration ?? null), ['class' => 'form-control accommodation-duration' . $errors->first('duration', 'error'), 'placeholder' => 'Nights','readonly' => true]) !!}
+                                {!! $errors->first('duration', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Remove Button ================= --}}
                             <div class="form-group col-md-1 align-self-end">
@@ -186,32 +191,38 @@
                             {{-- ================= Flight Code ================= --}} 
                             <div class="form-group col-md-3">
                                 {!! Form::label('flight_code[]', 'Flight Code', ['class' => 'form-label required-input']) !!}
-                                {!! Form::text('flight_code[]', old("flight_code.$index", $flight->flight_code ?? ''), ['class' => 'form-control flight-code', 'placeholder' => 'PK-301','maxlength' => '10','required']) !!}
+                                {!! Form::text('flight_code[]', old("flight_code.$index", $flight->flight_code ?? ''), ['class' => 'form-control flight-code' . $errors->first('flight_code', 'error'), 'placeholder' => 'PK-301','maxlength' => '10','required']) !!}
+                                {!! $errors->first('flight_code', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Flight From ================= --}} 
                             <div class="form-group col-md-1">
                                 {!! Form::label('flight_from[]', 'From', ['class' => 'form-label required-input']) !!}
-                                {!! Form::text('flight_from[]', old("flight_from.$index", $flight->flight_from ?? ''), ['class' => 'form-control flight-from', 'placeholder' => 'FCO','maxlength' => '10','required']) !!}
+                                {!! Form::text('flight_from[]', old("flight_from.$index", $flight->flight_from ?? ''), ['class' => 'form-control flight-from' . $errors->first('flight_from', 'error'), 'placeholder' => 'FCO','maxlength' => '10','required']) !!}
+                                {!! $errors->first('flight_from', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Flight To ================= --}} 
                             <div class="form-group col-md-1">
                                 {!! Form::label('flight_to[]', 'To', ['class' => 'form-label required-input']) !!}
-                                {!! Form::text('flight_to[]', old("flight_to.$index", $flight->flight_to ?? ''), ['class' => 'form-control flight-to', 'placeholder' => 'JED','maxlength' => '10','required']) !!}
+                                {!! Form::text('flight_to[]', old("flight_to.$index", $flight->flight_to ?? ''), ['class' => 'form-control flight-to' . $errors->first('flight_to', 'error'), 'placeholder' => 'JED','maxlength' => '10','required']) !!}
+                                {!! $errors->first('flight_to', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Flight Date ================= --}}
                             <div class="form-group col-md-2">
                                 {!! Form::label('flight_date[]', 'Flight Date', ['class' => 'form-label required-input']) !!}
-                                {!! Form::date('flight_date[]', old("flight_date.$index", $flight->flight_date ?? ''), ['class' => 'form-control flight-date', 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! Form::date('flight_date[]', old("flight_date.$index", $flight->flight_date ?? ''), ['class' => 'form-control flight-date' . $errors->first('flight_date', 'error'), 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! $errors->first('flight_date', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= DEPARTURE Time ================= --}}
                             <div class="form-group col-md-2">
                                 {!! Form::label('departure_time[]', 'Departure Time', ['class' => 'form-label required-input']) !!}
-                                {!! Form::time('departure_time[]', old("departure_time.$index", $flight->departure_time ?? ''), ['class' => 'form-control flight-departure', 'placeholder' => 'Select Time', 'required']) !!}
+                                {!! Form::time('departure_time[]', old("departure_time.$index", $flight->departure_time ?? ''), ['class' => 'form-control flight-departure' . $errors->first('departure_time', 'error'), 'placeholder' => 'Select Time', 'required']) !!}
+                                {!! $errors->first('departure_time', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Arrival Time ================= --}}
                             <div class="form-group col-md-2">
                                 {!! Form::label('arrival_time[]', 'Arrival Time', ['class' => 'form-label required-input']) !!}
-                                {!! Form::time('arrival_time[]', old("arrival_time.$index", $flight->arrival_time ?? ''), ['class' => 'form-control flight-arrival', 'placeholder' => 'Select Time', 'required']) !!}
+                                {!! Form::time('arrival_time[]', old("arrival_time.$index", $flight->arrival_time ?? ''), ['class' => 'form-control flight-arrival' . $errors->first('arrival_time', 'error'), 'placeholder' => 'Select Time', 'required']) !!}
+                                {!! $errors->first('arrival_time', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Remove Button ================= --}}
                             <div class="form-group col-1 align-self-end">
@@ -237,13 +248,13 @@
                             <i class="fas fa-plus me-1"></i> Add More
                         </button>
                     </div>
-                    
+
                     {{-- Routes Container --}}
                     <div id="route_container">
                         @php
-                            $routes = $booking->routes ?? collect([]);
-                            $hasRoutes = $routes->isNotEmpty();
-                            $routeData = $hasRoutes ? $routes : [null];
+                            $bookingRoutes = $booking->routes ?? collect([]);
+                            $hasRoutes = $bookingRoutes->isNotEmpty();
+                            $routeData = $hasRoutes ? $bookingRoutes : [null];
                         @endphp
                         
                         @foreach($routeData as $index => $route)
@@ -255,23 +266,27 @@
                             
                             {{-- ================= Pick & Drop ================= --}}
                             <div class="form-group col-md-3">
-                                {!! Form::label('pick_up[]', 'Pick & Drop', ['class' => 'form-label required-input']) !!}
-                                {!! Form::select('pick_up[]',['' => 'Select Route','Jeddah Airport To Makkah Hotel' => 'Jeddah Airport To Makkah Hotel','Makkah Hotel To Madinah Hotel' => 'Makkah Hotel To Madinah Hotel','Madinah Hotel To Jeddah Airport' => 'Madinah Hotel To Jedddah Airport','Madinah Hotel To Madinah Airport' => 'Madinah Hotel To Madinah Airport','Madinah Hotel To Makkah Hotel' => 'Madinah Hotel To Makkah Hotel', 'Makkah Hotel To Madinah Airport' => 'Makkah Hotel To Madinah Airport', 'Makkah Hotel to Jeddah Airport' => 'Makkah Hotel to Jeddah Airport','Makkah Hotel To Makkah Ziyarat' => 'Makkah Hotel To Makkah Ziyarat','Madinah Hotel To Madinah Ziyarat' => 'Madinah Hotel To Madinah Ziyarat'], old("pick_up.$index", $route->pick_up ?? ''), ['class' => 'form-control pick-up','maxlength' => '191','required']) !!}
+                                {!! Form::label('route_id[]', 'Pick & Drop', ['class' => 'form-label required-input']) !!}
+                                {!! Form::select('route_id[]', ['' => 'Select Route'] + $routeOptions->toArray(),old("route_id.$index", $route->route_id ?? ($route->id ?? '')),['class' => 'form-control pick-up', 'maxlength' => '191', 'required']) !!}
+                                {!! $errors->first('route_id', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Date Field ================= --}}
-                            <div class="form-group col-md-3 pickup-date-field" style="{{ old("pick_up.$index", $route->pick_up ?? '') ? '' : 'display: none;' }}">
+                            <div class="form-group col-md-3 pickup-date-field" style="{{ old("route_id.$index", $route->route_id ?? ($route->id ?? '')) ? '' : 'display: none;' }}">
                                 {!! Form::label('pickup_date[]', 'Pick-up Date', ['class' => 'form-label required-input']) !!}
                                 {!! Form::date('pickup_date[]', old("pickup_date.$index", $route->pickup_date ?? ''), ['class' => 'form-control pickup-date', 'placeholder' => 'Select Date', 'required']) !!}
+                                {!! $errors->first('pickup_date', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Time Field ================= --}}
-                            <div class="form-group col-md-2 pickup-time-field" style="{{ old("pick_up.$index", $route->pick_up ?? '') ? '' : 'display: none;' }}">
+                            <div class="form-group col-md-2 pickup-time-field" style="{{ old("route_id.$index", $route->route_id ?? ($route->id ?? '')) ? '' : 'display: none;' }}">
                                 {!! Form::label('pickup_time[]', 'Pick-up Time', ['class' => 'form-label required-input']) !!}
                                 {!! Form::time('pickup_time[]', old("pickup_time.$index", $route->pickup_time ?? ''), ['class' => 'form-control pickup-time', 'placeholder' => 'Select Time', 'required']) !!}
+                                {!! $errors->first('pickup_time', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Vehicle Selection ================= --}}
                             <div class="form-group col-md-3 vehicle-id-field">
                                 {!! Form::label('vehicle_id[]', 'Select Vehicle', ['for' => 'vehicle_id', 'class' => 'form-label required-input']) !!}
                                 {!! Form::select('vehicle_id[]', ['' => 'Select Vehicle'] + ($vehicles->toArray() ?? []), old("vehicle_id.$index", $route->vehicle_id ?? ''), ['class' => 'form-control ' . ($errors->has('vehicle_id') ? 'error' : ''), 'id' => 'vehicle_id','required']) !!}
+                                {!! $errors->first('vehicle_id', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Remove Button ================= --}}
                             <div class="form-group col-1 align-self-end">
@@ -349,7 +364,7 @@
             $(this).attr('min', today);
         });
 
-        // Show date and time fields when pick_up field has data
+        // Show date and time fields when route_id field has data
         $(document).on('change', '.pick-up', function() {
             var $row = $(this).closest('.route-row');
             var pickUpValue = $(this).val().trim();
@@ -472,7 +487,7 @@
             
             // Update names for array indexing
             newRow.find('input[name="route_id[]"]').attr('name', 'route_id[' + rowIndex + ']');
-            newRow.find('select[name="pick_up[]"]').attr('name', 'pick_up[' + rowIndex + ']');
+            // newRow.find('select[name="pick_up[]"]').attr('name', 'pick_up[' + rowIndex + ']');
             newRow.find('input[name="pickup_date[]"]').attr('name', 'pickup_date[' + rowIndex + ']');
             newRow.find('input[name="pickup_time[]"]').attr('name', 'pickup_time[' + rowIndex + ']');
             newRow.find('select[name="vehicle_id[]"]').attr('name', 'vehicle_id[' + rowIndex + ']');
@@ -556,7 +571,7 @@
                     $(this).find('input[name^="arrival_time["]').attr('name', 'arrival_time[' + index + ']');
                 } else if (containerSelector === '#route_container') {
                     $(this).find('input[name^="route_id["]').attr('name', 'route_id[' + index + ']');
-                    $(this).find('select[name^="pick_up["]').attr('name', 'pick_up[' + index + ']');
+                    // $(this).find('select[name^="pick_up["]').attr('name', 'pick_up[' + index + ']');
                     $(this).find('input[name^="pickup_date["]').attr('name', 'pickup_date[' + index + ']');
                     $(this).find('input[name^="pickup_time["]').attr('name', 'pickup_time[' + index + ']');
                     $(this).find('select[name^="vehicle_id["]').attr('name', 'vehicle_id[' + index + ']');
