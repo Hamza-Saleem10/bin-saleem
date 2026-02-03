@@ -111,4 +111,22 @@ class ReviewController extends Controller
 
         return back()->with('success', 'Review deleted.');
     }
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Review $review
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Review $review) {
+
+        if($review) {
+
+            $review->is_active = !$review->is_active;
+            $review->save();
+
+            return $this->sendResponse(true, __('messages.review_updated'));
+        }
+
+        return $this->sendResponse(false, __('messages.review_not_found'), [], 404);
+    }
 }

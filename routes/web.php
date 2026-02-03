@@ -16,6 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RouteController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceRuleController;
 
@@ -140,6 +141,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('reviews/datatable', [ReviewController::class, 'index'])->name('reviews.datatable')->middleware('permission:Reviews List');
     Route::get('reviews/update-status/{review}', [ReviewController::class, 'updateStatus'])->name('reviews.updateStatus')->middleware('permission:Update Review Status');
 
+    ############# Routes
+    Route::resource('routes', RouteController::class)->only('index')->middleware('permission:Routes List');
+    Route::resource('routes', RouteController::class)->only(['create', 'store'])->middleware('permission:Create Route');
+    Route::resource('routes', RouteController::class)->only(['edit', 'update'])->middleware('permission:Update Route');
+    Route::resource('routes', RouteController::class)->only('destroy')->middleware('permission:Delete Route');
+    Route::post('routes/datatable', [RouteController::class, 'index'])->name('routes.datatable')->middleware('permission:Routes List');
+    Route::get('routes/update-status/{route}', [RouteController::class, 'updateStatus'])->name('routes.updateStatus')->middleware('permission:Update Route Status');
+
+    // Additional custom routes
+// Route::post('/routes/{route}/toggle-status', [RouteController::class, 'toggleStatus'])
+//     ->name('routes.toggle-status');
+
+// Route::get('/active-routes', [RouteController::class, 'getActiveRoutes'])
+//     ->name('routes.active');
     ############# Attendance
     Route::resource('attendance', AttendanceController::class)->only('index')->middleware('permission:Attendance List');
     Route::get('/attendance/mark', function () {return view('attendance.mark-attendance');})->name('attendance.markAttendance')->middleware('permission:Mark Attendance');

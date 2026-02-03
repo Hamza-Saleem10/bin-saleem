@@ -78,6 +78,7 @@ class AclSeeder extends Seeder
             ['name' => 'View Review', 'permission_group_id' => 5, 'guard_name' => 'web'],
             ['name' => 'Update Review', 'permission_group_id' => 5, 'guard_name' => 'web'],
             ['name' => 'Delete Review', 'permission_group_id' => 5, 'guard_name' => 'web'],
+            ['name' => 'Update Review Status', 'permission_group_id' => 5, 'guard_name' => 'web'],
 
             ['name' => 'Roles List', 'permission_group_id' => 6, 'guard_name' => 'web'],
             ['name' => 'Create Role', 'permission_group_id' => 6, 'guard_name' => 'web'],
@@ -106,6 +107,13 @@ class AclSeeder extends Seeder
             ['name' => 'Create Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
             ['name' => 'Update Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
             ['name' => 'Delete Attendance Rule', 'permission_group_id' => 9, 'guard_name' => 'web'],
+
+            ['name' => 'Routes List', 'permission_group_id' => 10, 'guard_name' => 'web'],
+            ['name' => 'Create Route', 'permission_group_id' => 10, 'guard_name' => 'web'],
+            ['name' => 'View Route', 'permission_group_id' => 10, 'guard_name' => 'web'],
+            ['name' => 'Update Route', 'permission_group_id' => 10, 'guard_name' => 'web'],
+            ['name' => 'Delete Route', 'permission_group_id' => 10, 'guard_name' => 'web'],
+            ['name' => 'Update Route Status', 'permission_group_id' => 10, 'guard_name' => 'web'],
 
             // ['name' => 'Institutions List', 'permission_group_id' => 11, 'guard_name' => 'web'],
             // ['name' => 'Create Institution', 'permission_group_id' => 11, 'guard_name' => 'web'],

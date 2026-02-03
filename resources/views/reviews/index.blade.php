@@ -69,7 +69,7 @@
                 <div class="col-xl-12 col-md-12">
                     <div class="card user-profile-list">
                         <div class="card-body-dd theme-tbl">
-                            <x-table :keys="['Author', 'Location',  'Rating', 'Booking Reference','Route Detail', 'Travel Date','Comment','']"></x-table>
+                            <x-table :keys="['Author', 'Location',  'Rating', 'Booking Reference','Route Detail', 'Travel Date','Comment', 'Status','']"></x-table>
                         </div>
                     </div>
                 </div>
@@ -104,11 +104,11 @@
                     {
                         data: 'comment'
                     },
-                    // {
-                    //     data: 'status',
-                    //     orderable: false,
-                    //     searchable: false
-                    // },
+                    {
+                        data: 'is_active',
+                        orderable: false,
+                        searchable: false
+                    },
                     {
                         data: 'action',
                         width: '10%',

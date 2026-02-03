@@ -37,6 +37,14 @@
                         </a>
                     </li>
                 @endcan
+                @can(['Routes List'])
+                    <li class="nav-item">
+                        <a href="{{route('routes.index')}}" class="nav-link ">
+                            <span class="pcoded-micon"><i class="fas fa-road"></i></span>
+                            <span class="pcoded-mtext">Routes</span>
+                        </a>
+                    </li>
+                @endcan
                 {{-- @can(['Mark Attendance'])
                     <li class="nav-item">
                         <a href="{{route('attendance.markAttendance')}}" class="nav-link ">
