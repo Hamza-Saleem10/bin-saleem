@@ -7,7 +7,8 @@
     <title>{{ config('app.name', 'PEPRIS GB') }}</title>
     <link rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
     {{-- <link rel="stylesheet" href="{{asset('css/style.css')}}"> --}}
-
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('public_theme/css/bootstrap.min.css') }}">
     {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css" rel="stylesheet" /> --}}
     <link href="{{ asset('public_theme/css/line-awesome.min.css') }}" rel="stylesheet" type="text/css" />

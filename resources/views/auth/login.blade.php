@@ -33,11 +33,14 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <div class="form-group p-relative mb-3">
+                                    <div class="form-group position-relative mb-3">
                                         <input id="password"
                                             class="form-control  pwd-hide-show_input @error('password') is-invalid @enderror"
                                             type="password" name="password" autocomplete="current-password"
-                                            placeholder="Password" />
+                                            placeholder="Password" style="padding-right: 40px;"/>
+                                            <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y" id="togglePassword" style="z-index: 10; color: #6c757d; background: none; border: none; outline: none;">
+                                                <i class='bx bx-hide'></i>
+                                            </button>
                                         @error('password')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -105,6 +108,25 @@
                     success: function(html) {
                         $("#captch-container").find('img').attr('src', html);
                     }
+                });
+            });
+
+            // Add show/hide password functionality
+            $(document).ready(function() {
+                const $toggleBtn = $('#togglePassword');
+                const $passwordInput = $('#password');
+                const $icon = $toggleBtn.find('i');
+                
+                $toggleBtn.on('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Toggle password visibility
+                    const isPassword = $passwordInput.attr('type') === 'password';
+                    $passwordInput.attr('type', isPassword ? 'text' : 'password');
+                    
+                    // Toggle eye icon
+                    $icon.toggleClass('bx-show bx-hide');
+                    $passwordInput.trigger('focus');
                 });
             });
         </script>
