@@ -134,7 +134,7 @@ class VehicleController extends Controller
         // Remove vehicle_image from data array before updating
         unset($data['vehicle_image']);
 
-        $data['is_active'] = $request->has('is_active');
+        // $data['is_active'] = $request->has('is_active');
         $vehicle->update($data);
 
         return redirect()->route('vehicles.index')->with('success', 'Vehicle updated successfully.');
