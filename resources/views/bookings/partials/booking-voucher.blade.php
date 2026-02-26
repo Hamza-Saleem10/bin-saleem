@@ -913,7 +913,12 @@
                         <i class="fas fa-map-marker-alt"></i> Pick-up Location
                     </div>
                     <div class="info-value">
-                        {{ optional($booking)->pick_up ?? 'FCO Airport, Rome' }}
+                      {{ $booking->routeDetails->first()?->route?->from_location ?? 'N/A' }}
+                      {{-- @foreach($booking->routeDetails as $detail)
+                        <div class="info-value">
+                            {{ $detail->route?->from_location }}
+                        </div>
+                      @endforeach --}}
                     </div>
                 </div>
             </div>
