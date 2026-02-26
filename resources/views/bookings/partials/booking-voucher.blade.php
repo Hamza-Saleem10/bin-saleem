@@ -919,6 +919,13 @@
                             {{ $detail->route?->from_location }}
                         </div>
                       @endforeach --}}
+                      
+                      {{-- Get multiple route in Comma seprated --}}
+                      {{-- {{ $booking->routeDetails
+                        ->map(fn($d) => $d->route?->from_location)
+                        ->filter()
+                        ->join(', ')
+                      }} --}}
                     </div>
                 </div>
             </div>
