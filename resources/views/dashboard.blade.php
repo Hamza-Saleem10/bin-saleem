@@ -149,7 +149,8 @@
                             <div class="card-body">
                                 <!-- Chart Controls -->
                                 <div class="row mb-4">
-                                    <div class="col-md-3">
+                                    <!-- Month Selector (Visible for monthly only) -->
+                                    <div class="col-md-3 monthly-selector">
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text">
                                                 <i class="fas fa-calendar-alt"></i>
@@ -171,6 +172,32 @@
                                             </select>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Quarter Selector (Visible for quarterly only) -->
+                                    <div class="col-md-3 quarterly-selector" style="display: none;">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-calendar-alt"></i>
+                                            </span>
+                                            <select id="analytics-quarter" class="form-select form-select-sm">
+                                                @php
+                                                    $quarters = [
+                                                        1 => 'Q1 (Jan-Mar)',
+                                                        2 => 'Q2 (Apr-Jun)',
+                                                        3 => 'Q3 (Jul-Sep)',
+                                                        4 => 'Q4 (Oct-Dec)'
+                                                    ];
+                                                @endphp
+                                                @foreach($quarters as $key => $quarter)
+                                                    <option value="{{ $key }}" {{ $key == ceil(date('n') / 3) ? 'selected' : '' }}>
+                                                        {{ $quarter }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Year Selector -->
                                     <div class="col-md-3">
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text">
@@ -188,13 +215,13 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="btn-group btn-group-sm w-100" role="group">
-                                            <button type="button" class="btn btn-outline-primary active" data-period="month">
+                                            <button type="button" class="btn btn-outline-primary active period-btn" data-period="month">
                                                 <i class="fas fa-calendar me-1"></i> Monthly
                                             </button>
-                                            <button type="button" class="btn btn-outline-primary" data-period="quarter">
+                                            <button type="button" class="btn btn-outline-primary period-btn" data-period="quarter">
                                                 <i class="fas fa-chart-pie me-1"></i> Quarterly
                                             </button>
-                                            <button type="button" class="btn btn-outline-primary" data-period="year">
+                                            <button type="button" class="btn btn-outline-primary period-btn" data-period="year">
                                                 <i class="fas fa-chart-line me-1"></i> Yearly
                                             </button>
                                         </div>
@@ -224,34 +251,34 @@
                                     <canvas id="statusPieChart"></canvas>
                                 </div>
                                 
-                                <!-- Monthly Summary -->
+                                <!-- Period Summary -->
                                 <div class="mt-4">
-                                    <h6 class="fw-bold text-dark mb-3" id="current-month-title">
+                                    <h6 class="fw-bold text-dark mb-3" id="current-period-title">
                                         {{ date('F Y') }} Summary
                                     </h6>
                                     <div class="row g-3">
                                         <div class="col-6">
                                             <div class="border-start border-3 border-primary ps-3">
                                                 <div class="small text-muted">Total Bookings</div>
-                                                <div class="fw-bold fs-5 stats-monthly-total">0</div>
+                                                <div class="fw-bold fs-5 stats-period-total">0</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="border-start border-3 border-success ps-3">
                                                 <div class="small text-muted">Revenue</div>
-                                                <div class="fw-bold fs-5">$<span class="stats-monthly-revenue-summary">0</span></div>
+                                                <div class="fw-bold fs-5">$<span class="stats-period-revenue-summary">0</span></div>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="border-start border-3 border-info ps-3">
                                                 <div class="small text-muted">Confirmed</div>
-                                                <div class="fw-bold fs-5 text-info stats-monthly-confirmed">0</div>
+                                                <div class="fw-bold fs-5 text-info stats-period-confirmed">0</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="border-start border-3 border-warning ps-3">
                                                 <div class="small text-muted">Pending</div>
-                                                <div class="fw-bold fs-5 text-warning stats-monthly-pending">0</div>
+                                                <div class="fw-bold fs-5 text-warning stats-period-pending">0</div>
                                             </div>
                                         </div>
                                     </div>
@@ -465,14 +492,11 @@
         <script src="{{ asset('plugins/highcharts/exporting.js') }}"></script>
 
         <script type="text/javascript">
-
             // Global variables
             let performanceChart = null;
             let statusPieChart = null;
             let currentChartType = 'line';
-
-            // Check if Chart.js is loaded
-            console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+            let currentPeriod = 'month'; // month, quarter, year
 
             $(document).ready(function () {
                 console.log('Dashboard loaded, initializing charts...');
@@ -483,7 +507,7 @@
                 
                 // Initial data load
                 getStats();
-                getMonthlyAnalytics();
+                getAnalytics();
                 
                 // Set up intervals for real-time updates
                 setInterval(getStats, 15000);
@@ -498,17 +522,38 @@
                 });
                 
                 // Period buttons
-                $('[data-period]').on('click', function() {
-                    $('[data-period]').removeClass('active');
+                $('.period-btn').on('click', function() {
+                    $('.period-btn').removeClass('active');
                     $(this).addClass('active');
-                    getMonthlyAnalytics();
+                    currentPeriod = $(this).data('period');
+                    updatePeriodSelector();
+                    getAnalytics();
                 });
 
-                // Month/year change listeners
-                $('#analytics-month, #analytics-year').on('change', function() {
-                    getMonthlyAnalytics();
+                // Month/Quarter/Year change listeners
+                $('#analytics-month, #analytics-quarter, #analytics-year').on('change', function() {
+                    getAnalytics();
                 });
             });
+
+            /**
+             * Update period selector visibility
+             */
+            function updatePeriodSelector() {
+                console.log('Updating period selector for:', currentPeriod);
+                
+                // Hide all selectors first
+                $('.monthly-selector').hide();
+                $('.quarterly-selector').hide();
+                
+                // Show appropriate selector
+                if (currentPeriod === 'month') {
+                    $('.monthly-selector').show();
+                } else if (currentPeriod === 'quarter') {
+                    $('.quarterly-selector').show();
+                }
+                // Yearly doesn't need additional selector beyond year
+            }
 
             /**
              * Get Dashboard Statistics
@@ -535,22 +580,36 @@
             }
 
             /**
-            * Get Monthly Analytics
+            * Get Analytics based on current period
             */
-            function getMonthlyAnalytics() {
-                const month = $('#analytics-month').val();
+            function getAnalytics() {
                 const year = $('#analytics-year').val();
-                
-                console.log('Fetching analytics for month:', month, 'year:', year);
-                
+                let url = '';
+                let data = {
+                    year: year,
+                    _token: '{{ csrf_token() }}'
+                };
+
+                // Set URL and additional data based on period
+                if (currentPeriod === 'month') {
+                    const month = $('#analytics-month').val();
+                    url = '{{ route("dashboard.getMonthlyAnalytics") }}';
+                    data.month = month;
+                    console.log('Fetching monthly analytics for month:', month, 'year:', year);
+                } else if (currentPeriod === 'quarter') {
+                    const quarter = $('#analytics-quarter').val();
+                    url = '{{ route("dashboard.getQuarterlyAnalytics") }}';
+                    data.quarter = quarter;
+                    console.log('Fetching quarterly analytics for quarter:', quarter, 'year:', year);
+                } else if (currentPeriod === 'year') {
+                    url = '{{ route("dashboard.getYearlyAnalytics") }}';
+                    console.log('Fetching yearly analytics for year:', year);
+                }
+
                 $.ajax({
-                    url: '{{ route("dashboard.getMonthlyAnalytics") }}',
+                    url: url,
                     method: 'POST',
-                    data: {
-                        month: month,
-                        year: year,
-                        _token: '{{ csrf_token() }}'
-                    },
+                    data: data,
                     success: function(response) {
                         console.log('Analytics response:', response);
                         updateAnalytics(response);
@@ -601,8 +660,8 @@
                     const data = response.data;
                     console.log('Analytics data:', data);
                     
-                    // Update month title
-                    $('#current-month-title').text(data.month_name || 'Summary');
+                    // Update period title
+                    $('#current-period-title').text(data.period_name || 'Summary');
                     
                     // Update performance chart
                     updatePerformanceChart(data);
@@ -644,7 +703,7 @@
                     performanceChart = new Chart(ctx, {
                         type: currentChartType === 'bar' ? 'bar' : 'line',
                         data: {
-                            labels: data.dates.map((d, i) => `Day ${d}`),
+                            labels: data.dates,
                             datasets: [
                                 {
                                     label: 'Confirmed',
@@ -771,10 +830,10 @@
                 console.log('Updating summary stats:', summary);
                 
                 // Update summary elements
-                $('.stats-monthly-total').text(summary.total || 0);
-                $('.stats-monthly-revenue-summary').text(summary.revenue || 0);
-                $('.stats-monthly-confirmed').text(summary.confirmed || 0);
-                $('.stats-monthly-pending').text(summary.pending || 0);
+                $('.stats-period-total').text(summary.total || 0);
+                $('.stats-period-revenue-summary').text(summary.revenue || 0);
+                $('.stats-period-confirmed').text(summary.confirmed || 0);
+                $('.stats-period-pending').text(summary.pending || 0);
             }
 
             /**
@@ -811,7 +870,7 @@
             function updateChartType() {
                 console.log('Updating chart type to:', currentChartType);
                 if (performanceChart) {
-                    getMonthlyAnalytics();
+                    getAnalytics();
                 }
             }
             
@@ -908,6 +967,7 @@
                 // Optional: Auto-refresh every 30 seconds
                 setInterval(loadRecentBookings, 30000);
             });
+            
             function formatStatusBadge(status) {
                 const statusLower = status.toLowerCase();
                 let badgeClass = 'bg-secondary';

@@ -65,8 +65,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/get-stats', [DashboardController::class, 'getStats'])->name('dashboard.getStats');
     Route::post('/dashboard/get-monthly-analytics', [DashboardController::class, 'getMonthlyAnalytics'])->name('dashboard.getMonthlyAnalytics');
-    // Route::post('/dashboard/get-quarterly-analytics', [DashboardController::class, 'getQuarterlyAnalytics'])->name('dashboard.getQuarterlyAnalytics');
-    // Route::post('/dashboard/get-yearly-analytics', [DashboardController::class, 'getYearlyAnalytics'])->name('dashboard.getYearlyAnalytics');
+    Route::post('/dashboard/get-quarterly-analytics', [DashboardController::class, 'getQuarterlyAnalytics'])->name('dashboard.getQuarterlyAnalytics');
+    Route::post('/dashboard/get-yearly-analytics', [DashboardController::class, 'getYearlyAnalytics'])->name('dashboard.getYearlyAnalytics');
     Route::post('/dashboard/get-recent-bookings', [DashboardController::class, 'getRecentBookings'])->name('dashboard.getRecentBookings');
 
     Route::get('profile', [UserController::class, 'profile'])->name('profile');
@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('bookings/datatable', [BookingController::class, 'index'])->name('bookings.datatable')->middleware('permission:Bookings List');
     Route::post('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status')->middleware('permission:Update Booking Status');
     Route::get('bookings-voucher/{booking}', [BookingController::class, 'bookingvoucher'])->name('bookings.bookingvoucher')->middleware('permission:View Booking Voucher');
+    Route::get('bookings-voucher/{uuid}', [BookingController::class, 'downloadBookingVoucher'])->name('bookings.download-booking-voucher');
 
     ############# Vehicles
     Route::resource('vehicles', VehicleController::class)->only('index')->middleware('permission:Vehicles List');
