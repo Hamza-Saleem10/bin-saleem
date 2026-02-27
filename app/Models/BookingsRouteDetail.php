@@ -23,6 +23,7 @@ class BookingsRouteDetail extends Model
     ];
     protected $casts = [
         'pickup_date' => 'date',
+        'pickup_time' => 'datetime',
     ];
     
     public function getRouteNameAttribute()

@@ -37,7 +37,7 @@ class BookingController extends Controller
                     return $r->route_id;
                 })
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
-                ->addColumn('pickup_time', fn($r) => $r->pickup_time)
+                ->addColumn('pickup_time', fn($r) => $r->pickup_time ? $r->pickup_time->format('h:i A') : '')
 
                 ->addColumn('status', function ($r) {
                     return $this->formatStatusBadge($r->booking->status);
@@ -70,49 +70,7 @@ class BookingController extends Controller
                     $actions .= '</div>';
                     return $actions;
                 })
-                // ->filter(function ($query) use ($request) {
-                //     if ($request->has('search') && $request->search['value'] != '') {
-                //         $search = $request->search['value'];
-
-                //         $query->where(function ($q) use ($search) {
-                //             // Search in main table columns
-                //             $q->orWhere('pick_up', 'LIKE', "%{$search}%")
-                //                 ->orWhere('pickup_date', 'LIKE', "%{$search}%")
-                //                 ->orWhere('pickup_time', 'LIKE', "%{$search}%");
-
-                //             // Search in booking relationship
-                //             $q->orWhereHas('booking', function ($bookingQuery) use ($search) {
-                //                 $bookingQuery->where('voucher_number', 'LIKE', "%{$search}%")
-                //                     ->orWhere('customer_name', 'LIKE', "%{$search}%")
-                //                     ->orWhere('customer_contact', 'LIKE', "%{$search}%")
-                //                     ->orWhere('status', 'LIKE', "%{$search}%");
-                //             });
-
-                //             // Search in vehicle relationship
-                //             $q->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
-                //                 $vehicleQuery->where('name', 'LIKE', "%{$search}%");
-                //             });
-                //         });
-                //     }
-                // })
-                // ->orderColumn('pickup_date', function ($query, $order) {
-                //     $query->orderBy('pickup_date', $order);
-                // })
-                // ->orderColumn('voucher_number', function ($query, $order) {
-                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                //         ->orderBy('bookings.voucher_number', $order)
-                //         ->select('bookings_route_details.*');
-                // })
-                // ->orderColumn('customer_name', function ($query, $order) {
-                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                //         ->orderBy('bookings.customer_name', $order)
-                //         ->select('bookings_route_details.*');
-                // })
-                // ->orderColumn('status', function ($query, $order) {
-                //     $query->join('bookings', 'bookings.id', '=', 'bookings_route_details.booking_id')
-                //         ->orderBy('bookings.status', $order)
-                //         ->select('bookings_route_details.*');
-                // })
+                
                 ->rawColumns(['status', 'action'])
                 ->make(true);
         }
