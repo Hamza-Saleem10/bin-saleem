@@ -27,6 +27,25 @@ class VehicleController extends Controller
                 ->addColumn('image_url', function ($vehicle) {
                     return $vehicle->getImageUrlAttribute();
                 })
+                ->addColumn('features', function ($vehicle) {
+                    // Decode the features JSON and format it for display
+                    $features = $vehicle->features;
+
+                    if (is_string($features)) {
+                        $features = json_decode($features, true);
+                    }
+
+                    if (is_array($features) && count($features) > 0) {
+                        // Create badges for each feature
+                        $badges = '';
+                        foreach ($features as $feature) {
+                            $badges .= '<span class="badge bg-primary me-1 mb-1">' . htmlspecialchars($feature) . '</span>';
+                        }
+                        return $badges;
+                    }
+
+                    return '<span class="text-muted">No features</span>';
+                })
                 ->addColumn('action', function ($vehicle) {
                     $actions = '<div class="overlay-edit d-flex">';
 
@@ -43,7 +62,7 @@ class VehicleController extends Controller
                     $actions .= '</div>';
                     return $actions;
                 })
-                ->rawColumns(['is_active', 'action'])
+                ->rawColumns(['is_active', 'features', 'action'])
                 ->make(true);
         }
         return view('vehicles.index');
