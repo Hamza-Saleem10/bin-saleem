@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BookingsHotelDetail;
 use App\Models\BookingsRouteDetail;
 use App\Models\BookingsFlightDetail;
+use App\Http\Requests\StoreBookingRequest;
+use App\Http\Requests\UpdateBookingRequest;
 
 
 class BookingController extends Controller
@@ -23,7 +25,7 @@ class BookingController extends Controller
         if ($request->ajax()) {
 
             $routes = BookingsRouteDetail::with([
-                'booking:id,uuid,voucher_number,customer_name,customer_contact,status,is_active',
+                'booking:id,uuid,voucher_number,customer_name,customer_contact,status',
                 'vehicle:id,name',
                 'route:id,from_location,to_location'
             ]);
@@ -77,6 +79,7 @@ class BookingController extends Controller
 
         return view('bookings.index');
     }
+
     /**
      * Format status badge for display
      *
@@ -126,171 +129,122 @@ class BookingController extends Controller
 
         return view('bookings.create', get_defined_vars());
     }
+
     /**
      * Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreBookingRequest $request)
     {
-        // dd($request->all());
-        // Validate all input data
-        $validated = $request->validate([
-            // Basic fields remain the same
-            'title' => 'required|in:Mr.,Mrs.',
-            'customer_name' => 'required|string|max:191',
-            'customer_email' => 'nullable|email|max:191',
-            'customer_contact_full' => 'required|regex:/^\+[1-9]\d{1,14}$/',
-            'booking_by' => 'required|exists:users,id',
-            'adult_person' => 'nullable|integer|min:0',
-            'child_person' => 'nullable|integer|min:0',
-            'infant_person' => 'nullable|integer|min:0',
-            'number_of_pax' => 'required|integer|min:0',
-            // 'date_field_name' => 'required|date',
-            'status' => 'sometimes|in:pending,confirmed,completed,cancelled',
+        $validated = $request->validated();
 
-            // ARRAY VALIDATION for hotel details
-            'city' => 'required|array|min:1',
-            'city.*' => 'required|string|max:191',
-            'hotel_name' => 'required|array|min:1',
-            'hotel_name.*' => 'required|string|max:255',
-            'check_in_date' => 'required|array|min:1',
-            'check_in_date.*' => 'nullable|date|after_or_equal:today',
-            'check_out_date' => 'required|array|min:1',
-            'check_out_date.*' => 'nullable|date|after:check_in_date.*',
-            'duration' => 'nullable|array',
-            'duration.*' => 'nullable|string',
+        // Calculate number of pax automatically if not provided
+        if (empty($validated['number_of_pax'])) {
+            $validated['number_of_pax'] = ($validated['adult_person'] ?? 0) +
+                                          ($validated['child_person'] ?? 0) +
+                                          ($validated['infant_person'] ?? 0);
+        }
 
-            // ARRAY VALIDATION for flight details
-            'flight_code' => 'nullable|array',
-            'flight_code.*' => 'nullable|string|max:50',
-            'flight_from' => 'nullable|array',
-            'flight_from.*' => 'nullable|string|max:20',
-            'flight_to' => 'nullable|array',
-            'flight_to.*' => 'nullable|string|max:20',
-            'flight_date' => 'nullable|array',
-            'flight_date.*' => 'nullable|date|after_or_equal:today',
-            'departure_time' => 'nullable|array',
-            'departure_time.*' => 'nullable|date_format:H:i',
-            'arrival_time' => 'nullable|array',
-            'arrival_time.*' => 'nullable|date_format:H:i|after:departure_time.*',
-
-            // ARRAY VALIDATION for route details
-            'route_id'   => 'required|array|min:1',
-            'route_id.*' => 'required|integer|exists:routes,id',
-            'pickup_date' => 'required|array|min:1',
-            'pickup_date.*' => 'required|date|after_or_equal:today',
-            'pickup_time' => 'required|array|min:1',
-            'pickup_time.*' => 'required|date_format:H:i',
-            'vehicle_id' => 'required|array|min:1',
-            'vehicle_id.*' => 'required|exists:vehicles,id',
-        ]);
-
-        // Start database transaction
-        DB::beginTransaction();
-
-        try {
-
-            // Calculate number of pax automatically if not provided
-            if (empty($validated['number_of_pax'])) {
-                $validated['number_of_pax'] =
-                    ($validated['adult_person'] ?? 0) +
-                    ($validated['child_person'] ?? 0) +
-                    ($validated['infant_person'] ?? 0);
-            }
-
-            // Set default status if not provided
-            if (!isset($validated['status'])) {
-                $validated['status'] = 'pending';
-            }
-            $fullContactNumber = $request->input('customer_contact_full');
+        // Set default status if not provided
+        if (!isset($validated['status'])) {
+            $validated['status'] = 'Pending';
+        }
+        $fullContactNumber = $request->input('customer_contact_full');
             if (empty($fullContactNumber)) {
                 return back()->withErrors(['customer_contact' => 'Please enter a valid contact number.'])->withInput();
             }
 
-            // Extract main booking data (non-array fields)
-            $bookingData = [
-                'customer_name' => trim($validated['title'] . ' ' . $validated['customer_name']),
-                'customer_email' => $validated['customer_email'] ?? null,
-                'customer_contact' => $fullContactNumber,
-                'booking_by' => $validated['booking_by'] ?? auth()->id(),
-                'adult_person' => $validated['adult_person'] ?? 0,
-                'child_person' => $validated['child_person'] ?? 0,
-                'infant_person' => $validated['infant_person'] ?? 0,
-                'number_of_pax' => $validated['number_of_pax'],
-                // 'date_field_name' => $validated['date_field_name'],
-                'status' => $validated['status'],
-            ];
+        // Extract main booking data (non-array fields)
+        $bookingData = [
+            'customer_name' => trim($validated['title'] . ' ' . $validated['customer_name']),
+            'customer_email' => $validated['customer_email'] ?? null,
+            'customer_contact' => $fullContactNumber,
+            'booking_by' => $validated['booking_by'] ?? auth()->id(),
+            'adult_person' => $validated['adult_person'] ?? 0,
+            'child_person' => $validated['child_person'] ?? 0,
+            'infant_person' => $validated['infant_person'] ?? 0,
+            'number_of_pax' => $validated['number_of_pax'],
+            'status' => $validated['status'],
+        ];
 
-            // Create the main booking record
-            $booking = Booking::create($bookingData);
+        // Create the main booking record
+        $booking = Booking::create($bookingData);
 
-            // Create Hotel Details Records (Multiple)
-            foreach ($validated['city'] as $index => $city) {
-                // Calculate duration if not provided
-                $duration = $validated['duration'][$index] ?? null;
-                if (empty($duration) && isset($validated['check_in_date'][$index]) && isset($validated['check_out_date'][$index])) {
-                    $checkIn = Carbon::parse($validated['check_in_date'][$index]);
-                    $checkOut = Carbon::parse($validated['check_out_date'][$index]);
-                    $duration = $checkOut->diffInDays($checkIn);
-                }
-
-                BookingsHotelDetail::create([
-                    'booking_id' => $booking->id,
-                    'city' => $city,
-                    'hotel_name' => $validated['hotel_name'][$index],
-                    'check_in_date' => $validated['check_in_date'][$index] ?? null,
-                    'check_out_date' => $validated['check_out_date'][$index] ?? null,
-                    'duration' => $duration,
-                ]);
+        // Create Hotel Details Records (Multiple)
+        foreach ($validated['city'] as $index => $city) {
+            // Calculate duration if not provided
+            $duration = $validated['duration'][$index] ?? null;
+            if (empty($duration) && isset($validated['check_in_date'][$index]) && isset($validated['check_out_date'][$index])) {
+                $checkIn = Carbon::parse($validated['check_in_date'][$index]);
+                $checkOut = Carbon::parse($validated['check_out_date'][$index]);
+                $duration = $checkOut->diffInDays($checkIn);
             }
 
-            // Create Flight Details Records (Multiple - if provided)
-            if (isset($validated['flight_code']) && count($validated['flight_code']) > 0) {
-                foreach ($validated['flight_code'] as $index => $flightCode) {
-                    // Only create if at least one flight field is provided
-                    if (!empty($flightCode) || !empty($validated['flight_from'][$index]) || !empty($validated['flight_to'][$index])) {
-                        BookingsFlightDetail::create([
-                            'booking_id' => $booking->id,
-                            'flight_code' => $flightCode ?? null,
-                            'flight_from' => $validated['flight_from'][$index] ?? null,
-                            'flight_to' => $validated['flight_to'][$index] ?? null,
-                            'flight_date' => $validated['flight_date'][$index] ?? null,
-                            'departure_time' => $validated['departure_time'][$index] ?? null,
-                            'arrival_time' => $validated['arrival_time'][$index] ?? null,
-                        ]);
-                    }
-                }
-            }
-
-            // Create Route Details Records (Multiple)
-            foreach ($validated['route_id'] as $index => $pickUp) {
-                BookingsRouteDetail::create([
-                    'booking_id' => $booking->id,
-                    'route_id' => $pickUp,
-                    'pickup_date' => $validated['pickup_date'][$index],
-                    'pickup_time' => $validated['pickup_time'][$index],
-                    'vehicle_id' => $validated['vehicle_id'][$index]
-                ]);
-            }
-
-            // Commit transaction
-            DB::commit();
-
-            return redirect()->route('bookings.index')
-                ->with('success', 'Booking created successfully!');
-
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            // For debugging, show the actual error
-            // return back()->withInput()->with('error', 'Failed to create booking: ' . $e->getMessage());
-
-            return back()
-                ->withInput()
-                ->with('error', 'Failed to create booking. Please try again.');
+            BookingsHotelDetail::create([
+                'booking_id' => $booking->id,
+                'city' => $city,
+                'hotel_name' => $validated['hotel_name'][$index],
+                'check_in_date' => $validated['check_in_date'][$index] ?? null,
+                'check_out_date' => $validated['check_out_date'][$index] ?? null,
+                'duration' => $duration,
+            ]);
         }
+
+        // Create Flight Details Records (Multiple - if provided)
+        if (isset($validated['flight_code']) && count($validated['flight_code']) > 0) {
+            foreach ($validated['flight_code'] as $index => $flightCode) {
+                // Only create if at least one flight field is provided
+                if (!empty($flightCode) || !empty($validated['flight_from'][$index]) || !empty($validated['flight_to'][$index])) {
+                    BookingsFlightDetail::create([
+                        'booking_id' => $booking->id,
+                        'flight_code' => $flightCode ?? null,
+                        'flight_from' => $validated['flight_from'][$index] ?? null,
+                        'flight_to' => $validated['flight_to'][$index] ?? null,
+                        'flight_date' => $validated['flight_date'][$index] ?? null,
+                        'departure_time' => $validated['departure_time'][$index] ?? null,
+                        'arrival_time' => $validated['arrival_time'][$index] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // Create Route Details Records (Multiple)
+        foreach ($validated['route_id'] as $index => $pickUp) {
+            BookingsRouteDetail::create([
+                'booking_id' => $booking->id,
+                'route_id' => $pickUp,
+                'pickup_date' => $validated['pickup_date'][$index],
+                'pickup_time' => $validated['pickup_time'][$index],
+                'vehicle_id' => $validated['vehicle_id'][$index]
+            ]);
+        }
+
+        return redirect()->route('bookings.index')->with('success', 'Booking created successfully!');
+        // For debugging, show the actual error
+        // return back()->withInput()->with('error', 'Failed to create booking: ' . $e->getMessage());
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Booking  $booking
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Booking $booking)
+    {
+        $booking->load('hotelDetails', 'flightDetails', 'routeDetails');
+        $users = User::pluck('name', 'id');
+        $routeOptions = Route::active()->get()
+            ->mapWithKeys(function ($route) {
+                $displayName = $route->from_location . ' To ' . $route->to_location;
+                return [$route->id => $displayName];
+            });
+        $vehicles = Vehicle::active()->pluck('name', 'id');
+
+        return view('bookings.view', get_defined_vars());
+    }
+    
     /**
      * Show the form for editing the specified resource.
      *
@@ -299,6 +253,7 @@ class BookingController extends Controller
      */
     public function edit(Booking $booking)
     {
+        $booking->load('hotelDetails', 'flightDetails', 'routeDetails');
         $users = User::pluck('name', 'id');
         $routeOptions = Route::active()->get()
             ->mapWithKeys(function ($route) {
@@ -309,170 +264,105 @@ class BookingController extends Controller
 
         return view('bookings.edit', get_defined_vars());
     }
+
     /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateBookingRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Booking $booking)
+    public function update(UpdateBookingRequest $request, Booking $booking)
     {
-        // Validate all input data (same as store)
-        $validated = $request->validate([
-            // Basic fields
-            'customer_name' => 'required|string|max:191',
-            'customer_email' => 'nullable|email|max:191',
-            'customer_contact_full' => 'required|regex:/^\+[1-9]\d{1,14}$/',
-            'adult_person' => 'nullable|integer|min:0',
-            'child_person' => 'nullable|integer|min:0',
-            'infant_person' => 'nullable|integer|min:0',
-            'number_of_pax' => 'required|integer|min:0',
-            'status' => 'sometimes|in:pending,confirmed,completed,cancelled',
-
-            // ARRAY VALIDATION for hotel details
-            'city' => 'required|array|min:1',
-            'city.*' => 'required|string|max:191',
-            'hotel_name' => 'required|array|min:1',
-            'hotel_name.*' => 'required|string|max:255',
-            'check_in_date' => 'required|array|min:1',
-            'check_in_date.*' => 'nullable|date',
-            'check_out_date' => 'required|array|min:1',
-            'check_out_date.*' => 'nullable|date|after:check_in_date.*',
-            'duration' => 'nullable|array',
-            'duration.*' => 'nullable|string',
-
-            // ARRAY VALIDATION for flight details
-            'flight_code' => 'nullable|array',
-            'flight_code.*' => 'nullable|string|max:50',
-            'flight_from' => 'nullable|array',
-            'flight_from.*' => 'nullable|string|max:20',
-            'flight_to' => 'nullable|array',
-            'flight_to.*' => 'nullable|string|max:20',
-            'flight_date' => 'nullable|array',
-            'flight_date.*' => 'nullable|date',
-            'departure_time' => 'nullable|array',
-            'departure_time.*' => 'nullable|date_format:H:i',
-            'arrival_time' => 'nullable|array',
-            'arrival_time.*' => 'nullable|date_format:H:i|after:departure_time.*',
-
-            // ARRAY VALIDATION for route details
-            'route_id'   => 'required|array|min:1',
-            'route_id.*' => 'required|integer|exists:routes,id',
-            'pickup_date' => 'required|array|min:1',
-            'pickup_date.*' => 'required|date',
-            'pickup_time' => 'required|array|min:1',
-            'pickup_time.*' => 'required|date_format:H:i',
-            'vehicle_id' => 'required|array|min:1',
-            'vehicle_id.*' => 'required|exists:vehicles,id',
-        ]);
-
-        // Start database transaction
-        DB::beginTransaction();
-
-        try {
-            // Calculate number of pax automatically if not provided
-            if (empty($validated['number_of_pax'])) {
-                $validated['number_of_pax'] =
-                    ($validated['adult_person'] ?? 0) +
-                    ($validated['child_person'] ?? 0) +
-                    ($validated['infant_person'] ?? 0);
-            }
-
-            // Set default status if not provided
-            if (!isset($validated['status'])) {
-                $validated['status'] = $booking->status; // Keep existing status
-            }
-
-            $fullContactNumber = $request->input('customer_contact_full');
-            if (empty($fullContactNumber)) {
-                return back()->withErrors(['customer_contact' => 'Please enter a valid contact number.'])->withInput();
-            }
-
-            // Extract main booking data
-            $bookingData = [
-                'customer_name' => $validated['customer_name'],
-                'customer_email' => $validated['customer_email'] ?? null,
-                'customer_contact' => $fullContactNumber,
-                'adult_person' => $validated['adult_person'] ?? 0,
-                'child_person' => $validated['child_person'] ?? 0,
-                'infant_person' => $validated['infant_person'] ?? 0,
-                'number_of_pax' => $validated['number_of_pax'],
-                'status' => $validated['status'],
-            ];
-
-            // Update the main booking record
-            $booking->update($bookingData);
-
-            // Delete existing related records
-            $booking->hotelDetails()->delete();
-            $booking->flightDetails()->delete();
-            $booking->routeDetails()->delete();
-
-            // Create Hotel Details Records (Multiple)
-            foreach ($validated['city'] as $index => $city) {
-                // Calculate duration if not provided
-                $duration = $validated['duration'][$index] ?? null;
-                if (empty($duration) && isset($validated['check_in_date'][$index]) && isset($validated['check_out_date'][$index])) {
-                    $checkIn = Carbon::parse($validated['check_in_date'][$index]);
-                    $checkOut = Carbon::parse($validated['check_out_date'][$index]);
-                    $duration = $checkOut->diffInDays($checkIn);
-                }
-
-                BookingsHotelDetail::create([
-                    'booking_id' => $booking->id,
-                    'city' => $city,
-                    'hotel_name' => $validated['hotel_name'][$index],
-                    'check_in_date' => $validated['check_in_date'][$index] ?? null,
-                    'check_out_date' => $validated['check_out_date'][$index] ?? null,
-                    'duration' => $duration,
-                ]);
-            }
-
-            // Create Flight Details Records (Multiple - if provided)
-            if (isset($validated['flight_code']) && count($validated['flight_code']) > 0) {
-                foreach ($validated['flight_code'] as $index => $flightCode) {
-                    // Only create if at least one flight field is provided
-                    if (!empty($flightCode) || !empty($validated['flight_from'][$index]) || !empty($validated['flight_to'][$index])) {
-                        BookingsFlightDetail::create([
-                            'booking_id' => $booking->id,
-                            'flight_code' => $flightCode ?? null,
-                            'flight_from' => $validated['flight_from'][$index] ?? null,
-                            'flight_to' => $validated['flight_to'][$index] ?? null,
-                            'flight_date' => $validated['flight_date'][$index] ?? null,
-                            'departure_time' => $validated['departure_time'][$index] ?? null,
-                            'arrival_time' => $validated['arrival_time'][$index] ?? null,
-                        ]);
-                    }
-                }
-            }
-
-            // Create Route Details Records (Multiple)
-            foreach ($validated['route_id'] as $index => $pickUp) {
-                BookingsRouteDetail::create([
-                    'booking_id' => $booking->id,
-                    'route_id' => $pickUp,
-                    'pickup_date' => $validated['pickup_date'][$index],
-                    'pickup_time' => $validated['pickup_time'][$index],
-                    'vehicle_id' => $validated['vehicle_id'][$index]
-                ]);
-            }
-
-            // Commit transaction
-            DB::commit();
-
-            return redirect()->route('bookings.index')
-                ->with('success', 'Booking updated successfully!');
-
-        } catch (\Exception $e) {
-            DB::rollback();
-
-            // For debugging
-            // return back()->withInput()->with('error', 'Failed to update booking: ' . $e->getMessage());
-
-            return back()
-                ->withInput()
-                ->with('error', 'Failed to update booking. Please try again.');
+        $validated = $request->validated();
+        // Calculate number of pax automatically if not provided
+        if (empty($validated['number_of_pax'])) {
+            $validated['number_of_pax'] = ($validated['adult_person'] ?? 0) +
+                                          ($validated['child_person'] ?? 0) +
+                                          ($validated['infant_person'] ?? 0);
         }
+
+        // Set default status if not provided
+        if (!isset($validated['status'])) {
+            $validated['status'] = $booking->status; // Keep existing status
+        }
+
+        $fullContactNumber = $request->input('customer_contact_full');
+        if (empty($fullContactNumber)) {
+            return back()->withErrors(['customer_contact' => 'Please enter a valid contact number.'])->withInput();
+        }
+
+         // Extract main booking data
+        $bookingData = [
+            'customer_name' => trim($validated['title'] . ' ' . $validated['customer_name']),
+            'customer_email' => $validated['customer_email'] ?? null,
+            'customer_contact' => $fullContactNumber,
+            'adult_person' => $validated['adult_person'] ?? 0,
+            'child_person' => $validated['child_person'] ?? 0,
+            'infant_person' => $validated['infant_person'] ?? 0,
+            'number_of_pax' => $validated['number_of_pax'],
+            'status' => $validated['status'],
+        ];
+
+        // Update the main booking record
+        $booking->update($bookingData);
+
+        // Delete existing related records
+        $booking->hotelDetails()->delete();
+        $booking->flightDetails()->delete();
+        $booking->routeDetails()->delete();
+
+        // Create Hotel Details Records (Multiple)
+        foreach ($validated['city'] as $index => $city) {
+            // Calculate duration if not provided
+            $duration = $validated['duration'][$index] ?? null;
+            if (empty($duration) && isset($validated['check_in_date'][$index]) && isset($validated['check_out_date'][$index])) {
+                $checkIn = Carbon::parse($validated['check_in_date'][$index]);
+                $checkOut = Carbon::parse($validated['check_out_date'][$index]);
+                $duration = $checkOut->diffInDays($checkIn);
+            }
+
+            BookingsHotelDetail::create([
+                'booking_id' => $booking->id,
+                'city' => $city,
+                'hotel_name' => $validated['hotel_name'][$index],
+                'check_in_date' => $validated['check_in_date'][$index] ?? null,
+                'check_out_date' => $validated['check_out_date'][$index] ?? null,
+                'duration' => $duration,
+            ]);
+        }
+
+        // Create Flight Details Records (Multiple - if provided)
+        if (isset($validated['flight_code']) && count($validated['flight_code']) > 0) {
+            foreach ($validated['flight_code'] as $index => $flightCode) {
+                // Only create if at least one flight field is provided
+                if (!empty($flightCode) || !empty($validated['flight_from'][$index]) || !empty($validated['flight_to'][$index])) {
+                    BookingsFlightDetail::create([
+                        'booking_id' => $booking->id,
+                        'flight_code' => $flightCode ?? null,
+                        'flight_from' => $validated['flight_from'][$index] ?? null,
+                        'flight_to' => $validated['flight_to'][$index] ?? null,
+                        'flight_date' => $validated['flight_date'][$index] ?? null,
+                        'departure_time' => $validated['departure_time'][$index] ?? null,
+                        'arrival_time' => $validated['arrival_time'][$index] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // Create Route Details Records (Multiple)
+        foreach ($validated['route_id'] as $index => $pickUp) {
+            BookingsRouteDetail::create([
+                'booking_id' => $booking->id,
+                'route_id' => $pickUp,
+                'pickup_date' => $validated['pickup_date'][$index],
+                'pickup_time' => $validated['pickup_time'][$index],
+                'vehicle_id' => $validated['vehicle_id'][$index]
+            ]);
+        }
+
+        return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
+        // For debugging
+        // return back()->withInput()->with('error', 'Failed to update booking: ' . $e->getMessage());
     }
 
     /**
@@ -503,17 +393,11 @@ class BookingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('bookings.index')
-                ->with('success', 'Booking deleted successfully!');
+            return redirect()->route('bookings.index')->with('success', 'Booking deleted successfully!');
 
         } catch (\Exception $e) {
             DB::rollback();
-
-            // Log the error for debugging
-            // \Log::error('Failed to delete booking: ' . $e->getMessage());
-
-            return redirect()->route('bookings.index')
-                ->with('error', 'Failed to delete booking. Please try again.');
+            return redirect()->route('bookings.index')->with('error', 'Failed to delete booking. Please try again.');
         }
     }
 

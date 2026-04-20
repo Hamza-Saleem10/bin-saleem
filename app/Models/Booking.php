@@ -21,7 +21,6 @@ class Booking extends Model
         'child_person',
         'infant_person',
         'number_of_pax',
-        // 'date_field_name',
         'status',
         'is_active',
         'created_by',

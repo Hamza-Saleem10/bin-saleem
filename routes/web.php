@@ -118,6 +118,7 @@ Route::middleware(['auth'])->group(function () {
     ############# Bookings
     Route::resource('bookings', BookingController::class)->only('index')->middleware('permission:Bookings List');
     Route::resource('bookings', BookingController::class)->only(['create', 'store'])->middleware('permission:Create Booking');
+    Route::resource('bookings', BookingController::class)->only('show')->middleware('permission:View Booking');
     Route::resource('bookings', BookingController::class)->only(['edit', 'update'])->middleware('permission:Update Booking');
     // Route::resource('bookings', BookingController::class)->only('destroy')->middleware('permission:Delete Booking');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy')->middleware('permission:Update Booking');

@@ -17,11 +17,15 @@
                     {{-- ================= Customer Name ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('customer_name', 'Name', ['for' => 'customer_name','class' => 'form-label required-input']) !!}
-                        <div class="d-flex gap-2">
-                            {{-- Title Dropdown --}}
-                            {!! Form::select('title', ['Mr.' => 'Mr.', 'Mrs.' => 'Mrs.'], old('title', isset($booking) && str_starts_with($booking->customer_name, 'Mrs.') ? 'Mrs.' : 'Mr.'), ['class' => 'form-select', 'style' => 'width: 90px;', 'required']) !!}
-                            {{-- Customer Name --}}
-                            {!! Form::text('customer_name', old('customer_name', isset($booking) ? trim(str_replace(['Mr.', 'Mrs.'], '', $booking->customer_name)) : ''), ['class' => 'form-control ' . $errors->first('customer_name', 'error'), 'placeholder' => 'Customer Name', 'maxlength' => '191', 'required']) !!}
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                {{-- Title Dropdown --}}
+                                {!! Form::select('title', ['Mr.' => 'Mr.', 'Mrs.' => 'Mrs.'], old('title', isset($booking) && str_starts_with($booking->customer_name, 'Mrs.') ? 'Mrs.' : 'Mr.'), ['class' => 'form-select', 'style' => 'width: 90px;', 'required']) !!}
+                            </div>
+                            <div class="col">
+                                {{-- Customer Name --}}
+                                {!! Form::text('customer_name', old('customer_name', isset($booking) ? trim(str_replace(['Mr.', 'Mrs.'], '', $booking->customer_name)) : ''), ['class' => 'form-control ' . $errors->first('customer_name', 'error'), 'placeholder' => 'Customer Name', 'maxlength' => '191', 'required']) !!}
+                            </div>
                         </div>
                         {!! $errors->first('customer_name', '<label class="error">:message</label>') !!}
                     </div>                    
@@ -36,7 +40,7 @@
                     {{-- ================= Customer Contact ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('customer_contact', 'Contact Number', ['for' => 'customer_contact','class' => 'form-label required-input']) !!}
-                        {!! Form::text('customer_contact', old('customer_contact', $booking->customer_contact ?? null), ['id' => 'customer_contact', 'class' => 'form-control ' . $errors->first('customer_contact', 'error'),'placeholder' => 'Mobile Number','maxlength' => '15','required']) !!}
+                        {!! Form::text('customer_contact', old('customer_contact', $booking->customer_contact ?? null), ['id' => 'customer_contact', 'class' => 'form-control ' . $errors->first('customer_contact', 'error'),'placeholder' => 'Mobile Number','maxlength' => '20','required']) !!}
                         {{-- Hidden full phone (with country code) --}}
                         {!! Form::hidden('customer_contact_full', old('customer_contact_full', $booking->customer_contact_full ?? null), ['id' => 'customer_contact_full']) !!}
                         {!! $errors->first('customer_contact', '<label class="error">:message</label>') !!}
@@ -106,7 +110,7 @@
                     {{-- Accommodation Container --}}
                     <div id="accommodation_container">
                         @php
-                            $accommodations = $booking->accommodations ?? collect([]);
+                            $accommodations = $booking->hotelDetails ?? collect([]);
                             $hasAccommodations = $accommodations->isNotEmpty();
                             $accommodationData = $hasAccommodations ? $accommodations : [null];
                         @endphp
@@ -176,7 +180,7 @@
                     {{-- Flight Container --}}
                     <div id="flight_container">
                         @php
-                            $flights = $booking->flights ?? collect([]);
+                            $flights = $booking->flightDetails ?? collect([]);
                             $hasFlights = $flights->isNotEmpty();
                             $flightData = $hasFlights ? $flights : [null];
                         @endphp
@@ -252,7 +256,7 @@
                     {{-- Routes Container --}}
                     <div id="route_container">
                         @php
-                            $bookingRoutes = $booking->routes ?? collect([]);
+                            $bookingRoutes = $booking->routeDetails ?? collect([]);
                             $hasRoutes = $bookingRoutes->isNotEmpty();
                             $routeData = $hasRoutes ? $bookingRoutes : [null];
                         @endphp
@@ -320,9 +324,88 @@
         let flightCounter = {{ count($flightData ?? []) }};
         let routeCounter = {{ count($routeData ?? []) }};
         
-        // Initialize form validation
-        $('#formValidation').validate();
+        // Add custom validation rule for person sum check
+        $.validator.addMethod("personSumCheck", function(value, element) {
+            var totalPersons = parseInt($('#number_of_pax').val()) || 0;
+            var adultPersons = parseInt($('#adult_person').val()) || 0;
+            var childPersons = parseInt($('#child_person').val()) || 0;
+            var infantPersons = parseInt($('#infant_person').val()) || 0;
+            var sum = adultPersons + childPersons + infantPersons;
+            
+            return sum === totalPersons;
+        }, "Total persons must equal Adult + Child + Infant");
+        
+        // Initialize form validation with custom behavior AND person rules
+        $('#formValidation').validate({
+            errorPlacement: function(error, element) {
+                // Only show error if field is empty
+                if (!element.val() || element.val().trim() === '') {
+                    error.insertAfter(element);
+                }
+            },
+            success: function(label, element) {
+                // Remove error label when field is valid
+                label.remove();
+            },
+            onfocusout: function(element) {
+                // Validate only on blur if field is empty
+                if (!element.value || element.value.trim() === '') {
+                    $(element).valid();
+                } else {
+                    // Remove error from filled field
+                    $(element).removeClass('error');
+                    $(element).next('label.error').remove();
+                }
+            },
+            onkeyup: function(element) {
+                // Validate only on keyup if field is empty
+                if (!element.value || element.value.trim() === '') {
+                    $(element).valid();
+                } else {
+                    $(element).removeClass('error');
+                    $(element).next('label.error').remove();
+                }
+            },
+            rules: {
+                adult_person: {
+                    required: {
+                        depends: function() {
+                            return $('#number_of_pax').val() && $('#number_of_pax').val() > 0;
+                        }
+                    },
+                    personSumCheck: true
+                },
+                child_person: {
+                    required: {
+                        depends: function() {
+                            return $('#number_of_pax').val() && $('#number_of_pax').val() > 0;
+                        }
+                    },
+                    personSumCheck: true
+                }
+            }
+        });
+        
+        // Clear errors when field gets value
+        $(document).on('change keyup', 'input, select, textarea', function() {
+            if ($(this).val() && $(this).val().trim() !== '') {
+                $(this).removeClass('error');
+                $(this).next('label.error').remove();
+            }
+        });
+        
+        // Function to initialize validation for dynamically added rows
+        function initializeValidationForNewRow(row) {
+            row.find('input, select, textarea').on('change keyup', function() {
+                if ($(this).val() && $(this).val().trim() !== '') {
+                    $(this).removeClass('error');
+                    $(this).next('label.error').remove();
+                }
+            });
+        }
+        
         $('.cnic-mask').mask('00000-0000000-0');
+        $('.mobile-mask').mask('0000-0000000');
         // $('#academic_year_start , #academic_year_end').monthpicker({dateFormat: "MM yy"});
 
         // Initialize phone input
@@ -340,23 +423,39 @@
             }
         });
 
-        // Set the phone number if editing
-        @if(isset($booking) && $booking->customer_contact)
-            iti.setNumber("{{ $booking->customer_contact }}");
-        @endif
-
         // Function to update full number
         function updateFullNumber() {
             var fullNumber = iti.getNumber();
             $('#customer_contact_full').val(fullNumber);
         }
 
+        // Function to set phone number and preserve country code after page reload
+        function setPhoneNumberWithCountry() {
+            var oldFullNumber = $('#customer_contact_full').val();
+            var oldContactNumber = $('#customer_contact').val();
+            
+            if (oldFullNumber) {
+                // If we have the full number with country code, use it
+                iti.setNumber(oldFullNumber);
+            } else if (oldContactNumber) {
+                // If only the local number is available, try to set it
+                iti.setNumber(oldContactNumber);
+            }
+            
+            updateFullNumber();
+        }
+
         // Trigger on input or country change
         $(input).on('input change', updateFullNumber);
         input.addEventListener('countrychange', updateFullNumber);
 
-        // Initialize on load
-        updateFullNumber();
+        // Set the phone number after initialization
+        setPhoneNumberWithCountry();
+
+        // Also set when the page is fully loaded (for cases where old values come from Laravel)
+        $(window).on('load', function() {
+            setPhoneNumberWithCountry();
+        });
 
         // Set minimum date to today for all date inputs
         var today = new Date().toISOString().split('T')[0];
@@ -664,172 +763,6 @@
                 $('#adult_person, #child_person, #infant_person').addClass('error');
             }
         }
-
-        // Add custom validation rule for form submission
-        $.validator.addMethod("personSumCheck", function(value, element) {
-            var totalPersons = parseInt($('#number_of_pax').val()) || 0;
-            var adultPersons = parseInt($('#adult_person').val()) || 0;
-            var childPersons = parseInt($('#child_person').val()) || 0;
-            var infantPersons = parseInt($('#infant_person').val()) || 0;
-            var sum = adultPersons + childPersons + infantPersons;
-            
-            return sum === totalPersons;
-        }, "Total persons must equal Adult + Child + Infant");
-
-        // Function to initialize validation for new rows
-        function initializeValidationForNewRow(row) {
-            const validator = $('#formValidation').validate();
-            
-            // Accommodation fields validation
-            row.find('.accommodation-city').rules('add', {
-                required: true,
-                messages: {
-                    required: "City is required"
-                }
-            });
-            
-            row.find('.accommodation-hotel').rules('add', {
-                required: true,
-                messages: {
-                    required: "Hotel name is required"
-                }
-            });
-            
-            row.find('.accommodation-checkin').rules('add', {
-                required: true,
-                messages: {
-                    required: "Check-in date is required"
-                }
-            });
-            
-            row.find('.accommodation-checkout').rules('add', {
-                required: true,
-                messages: {
-                    required: "Check-out date is required"
-                }
-            });
-
-            // Flight fields validation
-            row.find('.flight-code').rules('add', {
-                required: true,
-                messages: {
-                    required: "Flight code is required"
-                }
-            });
-            
-            row.find('.flight-from').rules('add', {
-                required: true,
-                messages: {
-                    required: "Flight from is required"
-                }
-            });
-            
-            row.find('.flight-to').rules('add', {
-                required: true,
-                messages: {
-                    required: "Flight to is required"
-                }
-            });
-            
-            row.find('.flight-date').rules('add', {
-                required: true,
-                messages: {
-                    required: "Flight date is required"
-                }
-            });
-            
-            row.find('.flight-departure').rules('add', {
-                required: true,
-                messages: {
-                    required: "Departure time is required"
-                }
-            });
-            
-            row.find('.flight-arrival').rules('add', {
-                required: true,
-                messages: {
-                    required: "Arrival time is required"
-                }
-            });
-
-            // Route fields validation
-            row.find('.pick-up').rules('add', {
-                required: true,
-                messages: {
-                    required: "Pick-up location is required"
-                }
-            });
-            
-            row.find('.pickup-date').rules('add', {
-                required: true,
-                messages: {
-                    required: "Pickup date is required"
-                }
-            });
-            
-            row.find('.pickup-time').rules('add', {
-                required: true,
-                messages: {
-                    required: "Pickup time is required"
-                }
-            });
-            
-            row.find('select[name^="vehicle_id"]').rules('add', {
-                required: true,
-                messages: {
-                    required: "Vehicle selection is required"
-                }
-            });
-        }
-
-        // Initialize validation for existing rows on page load
-        $('.accommodation-row, .flight-row, .route-row').each(function() {
-            initializeValidationForNewRow($(this));
-        });
-
-        // Update form validation rules
-        $('#formValidation').validate({
-            rules: {
-                adult_person: {
-                    required: {
-                        depends: function() {
-                            return $('#number_of_pax').val() && $('#number_of_pax').val() > 0;
-                        }
-                    },
-                    personSumCheck: true
-                },
-                child_person: {
-                    required: {
-                        depends: function() {
-                            return $('#number_of_pax').val() && $('#number_of_pax').val() > 0;
-                        }
-                    },
-                    personSumCheck: true
-                }
-            },
-            errorPlacement: function(error, element) {
-                // Handle error placement for dynamic rows
-                if (element.hasClass('accommodation-city') || 
-                    element.hasClass('accommodation-hotel') ||
-                    element.hasClass('accommodation-checkin') ||
-                    element.hasClass('accommodation-checkout') ||
-                    element.hasClass('flight-code') ||
-                    element.hasClass('flight-from') ||
-                    element.hasClass('flight-to') ||
-                    element.hasClass('flight-date') ||
-                    element.hasClass('flight-departure') ||
-                    element.hasClass('flight-arrival') ||
-                    element.hasClass('pick-up') ||
-                    element.hasClass('pickup-date') ||
-                    element.hasClass('pickup-time') ||   
-                    element.attr('name') === 'vehicle_id[]') {
-                    
-                    error.insertAfter(element.closest('.form-group'));
-                } else {
-                    error.insertAfter(element);
-                }
-            }
-        });
 
         // Trigger number_of_pax change on page load if it has value
         @if(isset($booking) && $booking->number_of_pax)

@@ -27,15 +27,6 @@
                     <div class="tagline">Luxury Transfers • Saudi Arabia</div>
                 </div>
             </div>
-
-            <div class="header-right">
-                <button class="theme-toggle" aria-label="Toggle Theme">
-                    <span class="sun"><i class="bi bi-brightness-high-fill"></i></span>
-                    <span class="moon"><i class="bi bi-moon-stars-fill"></i></span>
-                </button>
-                <button onclick="window.location.href='{{ route('login') }}'" class="admin-login">Admin</button>
-            </div>
-
             <nav>
                 <a href="#">Home</a>
                 <a href="#">Routes</a>
@@ -44,6 +35,13 @@
                 <a href="#">About Us</a>
                 <a class="cta" href="#book">Book Transfer</a>
             </nav>
+            <div class="header-right">
+                <button onclick="window.location.href='{{ route('login') }}'" class="admin-login">Admin</button>
+                <button class="theme-toggle" aria-label="Toggle Theme">
+                    <span class="sun"><i class="bi bi-brightness-high-fill"></i></span>
+                    <span class="moon"><i class="bi bi-moon-stars-fill"></i></span>
+                </button>
+            </div>
         </div>
     </header>
 
