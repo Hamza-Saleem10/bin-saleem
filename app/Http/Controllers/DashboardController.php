@@ -32,10 +32,9 @@ class DashboardController extends Controller
             $vehiclesStats = $this->getVehiclesStats();
 
             return response()->json([
-                'status' => true,
+                'status'=> true,
                 'stats' => array_merge($bookingsStats, $vehiclesStats)
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -168,7 +167,6 @@ class DashboardController extends Controller
                     'month_name' => Carbon::create($year, $month)->format('F Y')
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -202,7 +200,7 @@ class DashboardController extends Controller
 
             $monthsInQuarter = $quarterMonths[$quarter];
             $dates = ['Month 1', 'Month 2', 'Month 3'];
-            
+
             // Prepare monthly data arrays
             $monthlyData = [
                 'confirmed' => array_fill(0, 3, 0),
@@ -220,10 +218,10 @@ class DashboardController extends Controller
             foreach ($bookings as $booking) {
                 $month = (int) $booking->created_at->format('n');
                 $status = strtolower($booking->status);
-                
+
                 // Find which month in the quarter this belongs to
                 $monthIndex = array_search($month, $monthsInQuarter);
-                
+
                 if ($monthIndex !== false && isset($monthlyData[$status][$monthIndex])) {
                     $monthlyData[$status][$monthIndex]++;
                 }
@@ -263,7 +261,6 @@ class DashboardController extends Controller
                     'period_name' => "Q{$quarter} {$year} (" . implode(', ', $monthNames) . ")"
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -285,14 +282,26 @@ class DashboardController extends Controller
         $year = $request->input('year');
 
         try {
-            $dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
+            $dates = [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec'
+            ];
+
             // Prepare monthly data arrays
             $monthlyData = [
                 'confirmed' => array_fill(0, 12, 0),
                 'completed' => array_fill(0, 12, 0),
-                'pending' => array_fill(0, 12, 0),
+                'pending'   => array_fill(0, 12, 0),
                 'cancelled' => array_fill(0, 12, 0)
             ];
 
@@ -336,7 +345,6 @@ class DashboardController extends Controller
                     'period_name' => "Year {$year}"
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -400,7 +408,7 @@ class DashboardController extends Controller
         ];
 
         $months = $quarterMonths[$quarter];
-        
+
         // Create start and end dates for the quarter
         $startDate = Carbon::create($year, $months[0], 1)->startOfMonth();
         $endDate = Carbon::create($year, $months[2], 1)->endOfMonth();
@@ -495,15 +503,17 @@ class DashboardController extends Controller
     {
         $limit = $request->input('limit', 10);
 
-        $bookings = Booking::with(['vehicle:id,name','user:id,name'])
+        $bookings = Booking::with(['routeDetails.vehicle:id,name', 'user:id,name'])
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
-            ->map(function ($booking) { 
+            ->map(function ($booking) {
+                $vehicle = $booking->routeDetails->first()?->vehicle;
                 return [
+                    'id' => $booking->uuid,
                     'voucher_number' => $booking->voucher_number,
                     'customer_name' => $booking->customer_name ?? 'N/A',
-                    'vehicle_name' => optional($booking->vehicle)->name ?? 'N/A',
+                    'vehicle_name' => optional($vehicle)->name ?? 'N/A',
                     'total_amount' => $booking->total_amount,
                     'status' => $booking->status,
                     'created_at' => $booking->created_at->format('M d, Y H:i'),
