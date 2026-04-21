@@ -10,7 +10,7 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Change Booking Status</h5>
+                            <h5 class="modal-title">Change Travel Status</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -23,7 +23,6 @@
                                     {!! Form::select('status',
                                         [
                                             'Pending'   => 'Pending',
-                                            'Confirmed' => 'Confirmed',
                                             'Completed' => 'Completed',
                                             'Cancelled' => 'Cancelled',
                                         ],old('status'),['class' => 'form-control ' . $errors->first('status', 'error'), 'id' => 'status', 'required']) !!}
@@ -102,10 +101,10 @@
                 const table = create_datatables(datatable_url, datatable_columns);
                 // Handle Status Change Button Click
                 $(document).on('click', '.btn-change-status', function() {
-                    const bookingUuid = $(this).data('booking-uuid');
+                    const routeUuid = $(this).data('route-uuid');
                     const currentStatus = $(this).data('current-status');
                     
-                    $('#booking_uuid').val(bookingUuid);
+                    $('#booking_uuid').val(routeUuid);
                     $('#status').val(currentStatus);
                     
                     $('#statusChangeModal').modal('show');
@@ -125,7 +124,7 @@
                     $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
                     
                     $.ajax({
-                        url: route('bookings.update-status', uuid),
+                        url: route('bookings.route-detail.update-status', uuid),
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',

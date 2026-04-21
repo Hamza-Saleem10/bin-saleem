@@ -70,7 +70,7 @@ class BookingController extends Controller
                     }
 
                     if (auth()->user()->can('Update Booking Status')) {
-                        $actions .= '<button type="button" class="btn btn-icon btn-warning me-1 btn-change-status" data-booking-uuid="' . $booking->uuid . '" data-current-status="' . $booking->status . '" title="Change Status">
+                        $actions .= '<button type="button" class="btn btn-icon btn-warning me-1 btn-change-status" data-route-uuid="' . $r->uuid . '" data-current-status="' . $r->status . '" title="Change Route Status">
                         <i class="feather icon-refresh-ccw"></i></button>';
                     }
 
@@ -473,6 +473,47 @@ class BookingController extends Controller
                 'status_badge' => $this->formatStatusBadge($booking->status)
             ]);
             // return $this->sendResponse(true, __('messages.booking_update'));
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the status of a specific route detail record.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $uuid
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateRouteStatus(Request $request, $uuid)
+    {
+        $request->validate([
+            'status' => 'required|in:Pending,Completed,Cancelled'
+        ]);
+
+        try {
+            $routeDetail = BookingsRouteDetail::where('uuid', $uuid)->firstOrFail();
+
+            if (!auth()->user()->can('Update Route Status')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to update route status.'
+                ], 403);
+            }
+
+            $routeDetail->status = $request->status;
+            $routeDetail->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Route status updated successfully!',
+                'new_status' => $routeDetail->status,
+                'status_badge' => $this->formatStatusBadge($routeDetail->status)
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([

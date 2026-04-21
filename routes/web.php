@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('bookings', BookingController::class)->only('destroy')->middleware('permission:Delete Booking');
     Route::post('bookings/datatable', [BookingController::class, 'index'])->name('bookings.datatable')->middleware('permission:Bookings List');
     Route::post('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status')->middleware('permission:Update Booking Status');
+    Route::post('/bookings/route-detail/{uuid}/update-status', [BookingController::class, 'updateRouteStatus'])->name('bookings.route-detail.update-status')->middleware('permission:Update Route Status');
     Route::get('bookings-voucher/{booking}', [BookingController::class, 'bookingvoucher'])->name('bookings.bookingvoucher')->middleware('permission:View Booking Voucher');
 
     ############# Vehicles
