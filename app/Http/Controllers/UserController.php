@@ -117,7 +117,8 @@ class UserController extends Controller
     public function profile()
     {
         // dd(auth()->user());
-        return view('users.profile');
+        $lastLogin = DB::table('user_logs')->where('user_id', Auth::id())->where('type', 'login')->latest('created_at')->first();
+        return view('users.profile', get_defined_vars());
     }
 
     /**
