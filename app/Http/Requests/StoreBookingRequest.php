@@ -58,9 +58,9 @@ class StoreBookingRequest extends FormRequest
             'flight_date'           => 'required|array',
             'flight_date.*'         => 'required|date|after_or_equal:today',
             'departure_time'        => 'required|array',
-            'departure_time.*'      => 'required|date_format:H:i',
+            'departure_time.*'      => 'required|date_format:H:i:s,H:i',
             'arrival_time'          => 'required|array',
-            'arrival_time.*'        => 'required|date_format:H:i|after:departure_time.*',
+            'arrival_time.*'        => 'required|date_format:H:i:s,H:i',
 
             // Route details
             'route_id'              => 'required|array|min:1',

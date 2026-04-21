@@ -28,15 +28,15 @@
                             </div>
                         </div>
                         {!! $errors->first('customer_name', '<label class="error">:message</label>') !!}
-                    </div>                    
-                    
+                    </div>
+
                     {{-- ================= Customer Email ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('customer_email', 'Email', ['for' => 'customer_email','class' => 'form-label required-input']) !!}
                         {!! Form::email('customer_email', old('customer_email', $booking->customer_email ?? null), ['class' => 'form-control ' . $errors->first('customer_email', 'error'),'placeholder' => 'Email Address','maxlength' => '64','required']) !!}
                         {!! $errors->first('customer_email', '<label class="error">:message</label>') !!}
                     </div>
-                    
+
                     {{-- ================= Customer Contact ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('customer_contact', 'Contact Number', ['for' => 'customer_contact','class' => 'form-label required-input']) !!}
@@ -59,14 +59,14 @@
                         {!! Form::number('total_amount', old('total_amount', $booking->total_amount ?? ''),['class' => 'form-control ' . $errors->first('total_amount', 'error'),'placeholder' => 'Total Amount','required']) !!}
                         {!! $errors->first('total_amount', '<label class="error">:message</label>') !!}
                     </div> --}}
-                    
+
                     {{-- ================= Number of Pax ================= --}}
                     <div class="form-group col-md-4">
                         {!! Form::label('number_of_pax', 'Number of Pax', ['for' => 'number_of_pax','class' => 'form-label required-input']) !!}
                         {!! Form::number('number_of_pax', old('number_of_pax', $booking->number_of_pax ?? null), ['class' => 'form-control ' . $errors->first('number_of_pax', 'error'), 'id' => 'number_of_pax', 'placeholder' => 'Enter total number of persons', 'min' => '1', 'max' => '50', 'required']) !!}
                         {!! $errors->first('number_of_pax', '<label class="error">:message</label>') !!}
                     </div>
-                    
+
                     {{-- ================= Person Details ================= --}}
                     <div class="row g-3" id="person_details_section" style="{{ old('number_of_pax', $booking->number_of_pax ?? '') ? '' : 'display: none;' }}">
                         <h5>Persons Details</h5>
@@ -81,14 +81,14 @@
                             {!! Form::label('child_person', 'Child', ['for' => 'child_person','class' => 'form-label required-input']) !!}
                             {!! Form::number('child_person', old('child_person', $booking->child_person ?? 0), ['class' => 'form-control ' . $errors->first('child_person', 'error'), 'id' => 'child_person', 'placeholder' => 'Number of children', 'min' => '0']) !!}
                             {!! $errors->first('child_person', '<label class="error">:message</label>') !!}
-                        </div>                       
+                        </div>
                         {{-- ================= Infant Persons ================= --}}
                         <div class="form-group col-md-4">
                             {!! Form::label('infant_person', 'Infant', ['for' => 'infant_person','class' => 'form-label']) !!}
                             {!! Form::number('infant_person', old('infant_person', $booking->infant_person ?? 0), ['class' => 'form-control ' . $errors->first('infant_person', 'error'), 'id' => 'infant_person', 'placeholder' => 'Number of infants', 'min' => '0']) !!}
                             {!! $errors->first('infant_person', '<label class="error">:message</label>') !!}
                         </div>
-                        
+
                         {{-- Validation Message --}}
                         <div class="col-12">
                             <div class="alert alert-warning py-2" id="person_sum_alert" style="display: none;">
@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     {{-- ================= Accommodation Details ================= --}}
                     <hr>
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -106,22 +106,22 @@
                             <i class="fas fa-plus me-1"></i> Add More
                         </button>
                     </div>
-                    
+
                     {{-- Accommodation Container --}}
                     <div id="accommodation_container">
                         @php
-                            $accommodations = $booking->hotelDetails ?? collect([]);
-                            $hasAccommodations = $accommodations->isNotEmpty();
-                            $accommodationData = $hasAccommodations ? $accommodations : [null];
+                        $accommodations = $booking->hotelDetails ?? collect([]);
+                        $hasAccommodations = $accommodations->isNotEmpty();
+                        $accommodationData = $hasAccommodations ? $accommodations : [null];
                         @endphp
-                        
+
                         @foreach($accommodationData as $index => $accommodation)
                         <div class="row g-3 accommodation-row" data-row-index="{{ $index }}">
                             {{-- Hidden accommodation ID for editing --}}
                             @if($accommodation && $accommodation->id)
                             {!! Form::hidden('accommodation_id[]', $accommodation->id) !!}
                             @endif
-                            
+
                             {{-- ================= Hotel City ================= --}}
                             <div class="form-group col-md-2">
                                 {!! Form::label('city[]', 'City', ['for' => 'city','class' => 'form-label required-input']) !!}
@@ -167,8 +167,8 @@
                         </div>
                         @endforeach
                     </div>
-                    
-                    {{-- ================= Flight Schedule ================= --}}  
+
+                    {{-- ================= Flight Schedule ================= --}}
                     <hr>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">Flight Schedule</h5>
@@ -176,35 +176,35 @@
                             <i class="fas fa-plus me-1"></i> Add More
                         </button>
                     </div>
-                    
+
                     {{-- Flight Container --}}
                     <div id="flight_container">
                         @php
-                            $flights = $booking->flightDetails ?? collect([]);
-                            $hasFlights = $flights->isNotEmpty();
-                            $flightData = $hasFlights ? $flights : [null];
+                        $flights = $booking->flightDetails ?? collect([]);
+                        $hasFlights = $flights->isNotEmpty();
+                        $flightData = $hasFlights ? $flights : [null];
                         @endphp
-                        
+
                         @foreach($flightData as $index => $flight)
                         <div class="row g-3 flight-row" data-row-index="{{ $index }}">
                             {{-- Hidden flight ID for editing --}}
                             @if($flight && $flight->id)
                             {!! Form::hidden('flight_id[]', $flight->id) !!}
                             @endif
-                            
-                            {{-- ================= Flight Code ================= --}} 
+
+                            {{-- ================= Flight Code ================= --}}
                             <div class="form-group col-md-3">
                                 {!! Form::label('flight_code[]', 'Flight Code', ['class' => 'form-label required-input']) !!}
                                 {!! Form::text('flight_code[]', old("flight_code.$index", $flight->flight_code ?? ''), ['class' => 'form-control flight-code' . $errors->first('flight_code', 'error'), 'placeholder' => 'PK-301','maxlength' => '10','required']) !!}
                                 {!! $errors->first('flight_code', '<label class="error">:message</label>') !!}
                             </div>
-                            {{-- ================= Flight From ================= --}} 
+                            {{-- ================= Flight From ================= --}}
                             <div class="form-group col-md-1">
                                 {!! Form::label('flight_from[]', 'From', ['class' => 'form-label required-input']) !!}
                                 {!! Form::text('flight_from[]', old("flight_from.$index", $flight->flight_from ?? ''), ['class' => 'form-control flight-from' . $errors->first('flight_from', 'error'), 'placeholder' => 'FCO','maxlength' => '10','required']) !!}
                                 {!! $errors->first('flight_from', '<label class="error">:message</label>') !!}
                             </div>
-                            {{-- ================= Flight To ================= --}} 
+                            {{-- ================= Flight To ================= --}}
                             <div class="form-group col-md-1">
                                 {!! Form::label('flight_to[]', 'To', ['class' => 'form-label required-input']) !!}
                                 {!! Form::text('flight_to[]', old("flight_to.$index", $flight->flight_to ?? ''), ['class' => 'form-control flight-to' . $errors->first('flight_to', 'error'), 'placeholder' => 'JED','maxlength' => '10','required']) !!}
@@ -243,7 +243,7 @@
                         </div>
                         @endforeach
                     </div>
-                    
+
                     {{-- ================= Routes Detail ================= --}}
                     <hr>
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -256,22 +256,17 @@
                     {{-- Routes Container --}}
                     <div id="route_container">
                         @php
-                            $bookingRoutes = $booking->routeDetails ?? collect([]);
-                            $hasRoutes = $bookingRoutes->isNotEmpty();
-                            $routeData = $hasRoutes ? $bookingRoutes : [null];
+                        $bookingRoutes = $booking->routeDetails ?? collect([]);
+                        $hasRoutes = $bookingRoutes->isNotEmpty();
+                        $routeData = $hasRoutes ? $bookingRoutes : [null];
                         @endphp
-                        
+
                         @foreach($routeData as $index => $route)
                         <div class="row g-3 route-row" data-row-index="{{ $index }}">
-                            {{-- Hidden route ID for editing --}}
-                            @if($route && $route->id)
-                            {!! Form::hidden('route_id[]', $route->id) !!}
-                            @endif
-                            
                             {{-- ================= Pick & Drop ================= --}}
                             <div class="form-group col-md-3">
                                 {!! Form::label('route_id[]', 'Pick & Drop', ['class' => 'form-label required-input']) !!}
-                                {!! Form::select('route_id[]', ['' => 'Select Route'] + $routeOptions->toArray(),old("route_id.$index", $route->route_id ?? ($route->id ?? '')),['class' => 'form-control pick-up', 'maxlength' => '191', 'required']) !!}
+                                {!! Form::select('route_id[]', ['' => 'Select Route'] + $routeOptions->toArray(),old("route_id.$index", $route->route_id ?? ''),['class' => 'form-control pick-up', 'maxlength' => '191', 'required']) !!}
                                 {!! $errors->first('route_id', '<label class="error">:message</label>') !!}
                             </div>
                             {{-- ================= Date Field ================= --}}
@@ -318,12 +313,12 @@
 <script src="{{ asset('js/jquery.mask.js') }}"></script>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         // Initialize variables based on existing rows
         let accommodationCounter = {{ count($accommodationData ?? []) }};
         let flightCounter = {{ count($flightData ?? []) }};
         let routeCounter = {{ count($routeData ?? []) }};
-        
+
         // Add custom validation rule for person sum check
         $.validator.addMethod("personSumCheck", function(value, element) {
             var totalPersons = parseInt($('#number_of_pax').val()) || 0;
@@ -331,10 +326,10 @@
             var childPersons = parseInt($('#child_person').val()) || 0;
             var infantPersons = parseInt($('#infant_person').val()) || 0;
             var sum = adultPersons + childPersons + infantPersons;
-            
+
             return sum === totalPersons;
         }, "Total persons must equal Adult + Child + Infant");
-        
+
         // Initialize form validation with custom behavior AND person rules
         $('#formValidation').validate({
             errorPlacement: function(error, element) {
@@ -385,7 +380,7 @@
                 }
             }
         });
-        
+
         // Clear errors when field gets value
         $(document).on('change keyup', 'input, select, textarea', function() {
             if ($(this).val() && $(this).val().trim() !== '') {
@@ -393,7 +388,7 @@
                 $(this).next('label.error').remove();
             }
         });
-        
+
         // Function to initialize validation for dynamically added rows
         function initializeValidationForNewRow(row) {
             row.find('input, select, textarea').on('change keyup', function() {
@@ -403,7 +398,7 @@
                 }
             });
         }
-        
+
         $('.cnic-mask').mask('00000-0000000-0');
         $('.mobile-mask').mask('0000-0000000');
         // $('#academic_year_start , #academic_year_end').monthpicker({dateFormat: "MM yy"});
@@ -433,7 +428,7 @@
         function setPhoneNumberWithCountry() {
             var oldFullNumber = $('#customer_contact_full').val();
             var oldContactNumber = $('#customer_contact').val();
-            
+
             if (oldFullNumber) {
                 // If we have the full number with country code, use it
                 iti.setNumber(oldFullNumber);
@@ -441,7 +436,7 @@
                 // If only the local number is available, try to set it
                 iti.setNumber(oldContactNumber);
             }
-            
+
             updateFullNumber();
         }
 
@@ -467,21 +462,21 @@
         $(document).on('change', '.pick-up', function() {
             var $row = $(this).closest('.route-row');
             var pickUpValue = $(this).val().trim();
-            
+
             var $dateField = $row.find('.pickup-date-field');
             var $timeField = $row.find('.pickup-time-field');
             var $vehicleField = $row.find('.vehicle-id-field');
-            
+
             if (pickUpValue.length > 0) {
                 $dateField.slideDown(300);
                 $timeField.slideDown(300);
                 $vehicleField.removeClass('col-md-3').addClass('col-md-3');
                 $row.find('.pickup-date').prop('required', true);
                 $row.find('.pickup-time').prop('required', true);
-                
+
                 // Set minimum date to today
                 $row.find('.pickup-date').attr('min', today);
-                
+
                 setTimeout(function() {
                     $row.find('.pickup-date').focus();
                 }, 350);
@@ -505,14 +500,14 @@
         $('#add_accommodation').on('click', function() {
             const newRow = $('.accommodation-row:first').clone();
             const rowIndex = accommodationCounter++;
-            
+
             // Update data attribute
             newRow.attr('data-row-index', rowIndex);
-            
+
             // Clear input values
             newRow.find('input[type="text"], input[type="date"]').val('');
             newRow.find('input[name="accommodation_id[]"]').val(''); // Clear any hidden ID
-            
+
             // Update names for array indexing
             newRow.find('input[name="accommodation_id[]"]').attr('name', 'accommodation_id[' + rowIndex + ']');
             newRow.find('input[name="city[]"]').attr('name', 'city[' + rowIndex + ']');
@@ -520,19 +515,19 @@
             newRow.find('input[name="check_in_date[]"]').attr('name', 'check_in_date[' + rowIndex + ']');
             newRow.find('input[name="check_out_date[]"]').attr('name', 'check_out_date[' + rowIndex + ']');
             newRow.find('input[name="duration[]"]').attr('name', 'duration[' + rowIndex + ']');
-            
+
             // Show remove button for new row
             newRow.find('.remove-accommodation').show();
-            
+
             // Add event listeners for new row
             newRow.find('.accommodation-checkin, .accommodation-checkout').on('change', calculateRowDuration);
-            
+
             // Append to container
             $('#accommodation_container').append(newRow);
-            
+
             // Initialize validation for new row
             initializeValidationForNewRow(newRow);
-            
+
             // Set minimum date
             newRow.find('input[type="date"]').attr('min', today);
         });
@@ -541,14 +536,14 @@
         $('#add_flight').on('click', function() {
             const newRow = $('.flight-row:first').clone();
             const rowIndex = flightCounter++;
-            
+
             // Update data attribute
             newRow.attr('data-row-index', rowIndex);
-            
+
             // Clear input values
             newRow.find('input[type="text"], input[type="date"], input[type="time"]').val('');
             newRow.find('input[name="flight_id[]"]').val(''); // Clear any hidden ID
-            
+
             // Update names for array indexing
             newRow.find('input[name="flight_id[]"]').attr('name', 'flight_id[' + rowIndex + ']');
             newRow.find('input[name="flight_code[]"]').attr('name', 'flight_code[' + rowIndex + ']');
@@ -557,16 +552,16 @@
             newRow.find('input[name="flight_date[]"]').attr('name', 'flight_date[' + rowIndex + ']');
             newRow.find('input[name="departure_time[]"]').attr('name', 'departure_time[' + rowIndex + ']');
             newRow.find('input[name="arrival_time[]"]').attr('name', 'arrival_time[' + rowIndex + ']');
-            
+
             // Show remove button for new row
             newRow.find('.remove-flight').show();
-            
+
             // Append to container
             $('#flight_container').append(newRow);
-            
+
             // Initialize validation for new row
             initializeValidationForNewRow(newRow);
-            
+
             // Set minimum date
             newRow.find('input[type="date"]').attr('min', today);
         });
@@ -575,35 +570,33 @@
         $('#add_route').on('click', function() {
             const newRow = $('.route-row:first').clone();
             const rowIndex = routeCounter++;
-            
+
             // Update data attribute
             newRow.attr('data-row-index', rowIndex);
-            
+
             // Clear input values
             newRow.find('select').val('');
             newRow.find('input').val('');
-            newRow.find('input[name="route_id[]"]').val(''); // Clear any hidden ID
-            
-            // Update names for array indexing
-            newRow.find('input[name="route_id[]"]').attr('name', 'route_id[' + rowIndex + ']');
-            // newRow.find('select[name="pick_up[]"]').attr('name', 'pick_up[' + rowIndex + ']');
-            newRow.find('input[name="pickup_date[]"]').attr('name', 'pickup_date[' + rowIndex + ']');
-            newRow.find('input[name="pickup_time[]"]').attr('name', 'pickup_time[' + rowIndex + ']');
-            newRow.find('select[name="vehicle_id[]"]').attr('name', 'vehicle_id[' + rowIndex + ']');
-            
+
+            // Update names for array indexing (keep as arrays, don't add index)
+            // newRow.find('select[name="route_id[]"]').attr('name', 'route_id[]');
+            // newRow.find('input[name="pickup_date[]"]').attr('name', 'pickup_date[]');
+            // newRow.find('input[name="pickup_time[]"]').attr('name', 'pickup_time[]');
+            // newRow.find('select[name="vehicle_id[]"]').attr('name', 'vehicle_id[]');
+
             // Hide date/time fields for new rows initially
             newRow.find('.pickup-date-field').hide();
             newRow.find('.pickup-time-field').hide();
 
             // Show remove button for new row
             newRow.find('.remove-route').show();
-            
+
             // Append to container
             $('#route_container').append(newRow);
-            
+
             // Initialize validation for new row
             initializeValidationForNewRow(newRow);
-            
+
             // Set minimum date
             newRow.find('input[type="date"]').attr('min', today);
         });
@@ -612,7 +605,7 @@
         $(document).on('click', '.remove-accommodation', function() {
             const row = $(this).closest('.accommodation-row');
             const rowIndex = row.data('row-index');
-            
+
             // Don't remove first row
             if (rowIndex > 0) {
                 row.remove();
@@ -625,7 +618,7 @@
         $(document).on('click', '.remove-flight', function() {
             const row = $(this).closest('.flight-row');
             const rowIndex = row.data('row-index');
-            
+
             // Don't remove first row
             if (rowIndex > 0) {
                 row.remove();
@@ -638,7 +631,7 @@
         $(document).on('click', '.remove-route', function() {
             const row = $(this).closest('.route-row');
             const rowIndex = row.data('row-index');
-            
+
             // Don't remove first row
             if (rowIndex > 0) {
                 row.remove();
@@ -651,7 +644,7 @@
         function updateRowIndexes(containerSelector, rowSelector, idFieldName = '') {
             $(containerSelector + ' ' + rowSelector).each(function(index) {
                 $(this).attr('data-row-index', index);
-                
+
                 // Update array indexes for form submission
                 if (containerSelector === '#accommodation_container') {
                     $(this).find('input[name^="accommodation_id["]').attr('name', 'accommodation_id[' + index + ']');
@@ -669,11 +662,11 @@
                     $(this).find('input[name^="departure_time["]').attr('name', 'departure_time[' + index + ']');
                     $(this).find('input[name^="arrival_time["]').attr('name', 'arrival_time[' + index + ']');
                 } else if (containerSelector === '#route_container') {
-                    $(this).find('input[name^="route_id["]').attr('name', 'route_id[' + index + ']');
-                    // $(this).find('select[name^="pick_up["]').attr('name', 'pick_up[' + index + ']');
-                    $(this).find('input[name^="pickup_date["]').attr('name', 'pickup_date[' + index + ']');
-                    $(this).find('input[name^="pickup_time["]').attr('name', 'pickup_time[' + index + ']');
-                    $(this).find('select[name^="vehicle_id["]').attr('name', 'vehicle_id[' + index + ']');
+                    // Keep array notation for route fields
+                    // $(this).find('select[name^="route_id"]').attr('name', 'route_id[]');
+                    // $(this).find('input[name^="pickup_date"]').attr('name', 'pickup_date[]');
+                    // $(this).find('input[name^="pickup_time"]').attr('name', 'pickup_time[]');
+                    // $(this).find('select[name^="vehicle_id"]').attr('name', 'vehicle_id[]');
                 }
             });
         }
@@ -684,11 +677,11 @@
             const checkIn = row.find('.accommodation-checkin').val();
             const checkOut = row.find('.accommodation-checkout').val();
             const durationField = row.find('.accommodation-duration');
-            
+
             if (checkIn && checkOut) {
                 const checkInDate = new Date(checkIn);
                 const checkOutDate = new Date(checkOut);
-                
+
                 if (checkOutDate > checkInDate) {
                     const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
                     const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
@@ -696,23 +689,23 @@
                     return;
                 }
             }
-            
+
             durationField.val('');
         }
 
         // Initialize duration calculation for all existing rows
         $(document).on('change', '.accommodation-checkin, .accommodation-checkout', calculateRowDuration);
-        
+
         // Calculate duration for existing rows on page load
         $('.accommodation-row').each(function() {
             const checkIn = $(this).find('.accommodation-checkin').val();
             const checkOut = $(this).find('.accommodation-checkout').val();
             const durationField = $(this).find('.accommodation-duration');
-            
+
             if (checkIn && checkOut) {
                 const checkInDate = new Date(checkIn);
                 const checkOutDate = new Date(checkOut);
-                
+
                 if (checkOutDate > checkInDate) {
                     const timeDiff = checkOutDate.getTime() - checkInDate.getTime();
                     const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
@@ -724,18 +717,18 @@
         // Handle total persons change
         $('#number_of_pax').on('change keyup', function() {
             var totalPersons = $(this).val();
-            
+
             if (totalPersons && totalPersons > 0) {
                 $('#person_details_section').slideDown();
                 $('#number_of_pax_display').text(totalPersons);
-                
+
                 // Only auto-set if all person fields are empty
                 if (!$('#adult_person').val() && !$('#child_person').val() && !$('#infant_person').val()) {
                     $('#adult_person').val(totalPersons);
                     $('#child_person').val(0);
                     $('#infant_person').val(0);
                 }
-                
+
                 validatePersonSum();
             } else {
                 $('#person_details_section').slideUp();
@@ -754,7 +747,7 @@
             var childPersons = parseInt($('#child_person').val()) || 0;
             var infantPersons = parseInt($('#infant_person').val()) || 0;
             var sum = adultPersons + childPersons + infantPersons;
-            
+
             if (sum === totalPersons) {
                 $('#person_sum_alert').hide();
                 $('#adult_person, #child_person, #infant_person').removeClass('error');

@@ -273,7 +273,10 @@ class BookingController extends Controller
      */
     public function update(UpdateBookingRequest $request, Booking $booking)
     {
+        DB::beginTransaction();
+
         $validated = $request->validated();
+
         // Calculate number of pax automatically if not provided
         if (empty($validated['number_of_pax'])) {
             $validated['number_of_pax'] = ($validated['adult_person'] ?? 0) +
@@ -287,11 +290,13 @@ class BookingController extends Controller
         }
 
         $fullContactNumber = $request->input('customer_contact_full');
+
         if (empty($fullContactNumber)) {
+            DB::rollback();
             return back()->withErrors(['customer_contact' => 'Please enter a valid contact number.'])->withInput();
         }
 
-         // Extract main booking data
+        // Extract main booking data
         $bookingData = [
             'customer_name' => trim($validated['title'] . ' ' . $validated['customer_name']),
             'customer_email' => $validated['customer_email'] ?? null,
@@ -359,6 +364,8 @@ class BookingController extends Controller
                 'vehicle_id' => $validated['vehicle_id'][$index]
             ]);
         }
+
+        DB::commit();
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
         // For debugging
