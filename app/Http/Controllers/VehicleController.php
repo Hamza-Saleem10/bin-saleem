@@ -62,7 +62,7 @@ class VehicleController extends Controller
                     $actions .= '</div>';
                     return $actions;
                 })
-                ->rawColumns(['is_active', 'features', 'action'])
+                ->rawColumns(['is_active', 'image_url', 'features', 'action'])
                 ->make(true);
         }
         return view('vehicles.index');
@@ -118,6 +118,13 @@ class VehicleController extends Controller
      */
     public function edit(Vehicle $vehicle)
     {
+        // Convert features JSON array to comma-separated string for the form input
+        $features = $vehicle->features;
+        if (is_string($features)) {
+            $features = json_decode($features, true);
+        }
+        $vehicle->features = is_array($features) ? implode(', ', $features) : $features;
+
         return view('vehicles.edit', get_defined_vars());
     }
 
