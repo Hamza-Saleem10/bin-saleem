@@ -18,6 +18,7 @@ class BookingsRouteDetail extends Model
         'pickup_date',
         'pickup_time',
         'vehicle_id',
+        'status',
         'created_by',
         'updated_by',
     ];

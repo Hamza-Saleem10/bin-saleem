@@ -45,7 +45,7 @@
                 <div class="col-xl-12 col-md-12">
                     <div class="card user-profile-list">
                         <div class="card-body-dd theme-tbl">
-                            <x-table :keys="['Voucher No','Customer Name','Contact No', 'Vehicle', 'Pick & Drop ', 'Pick Up Date','Pick Up Time','Status','']"></x-table>
+                            <x-table :keys="['Voucher No','Customer Name','Contact No', 'Vehicle', 'Pick & Drop ', 'Pick Up Date','Pick Up Time','Booking Status', 'Travel Status','']"></x-table>
                         </div>
                     </div>
                 </div>
@@ -83,6 +83,11 @@
                     },
                     {
                         data: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'route_status',
                         orderable: false,
                         searchable: false
                     },

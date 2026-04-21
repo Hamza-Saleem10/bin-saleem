@@ -51,7 +51,10 @@ class BookingController extends Controller
                 ->addColumn('status', function ($r) {
                     return $this->formatStatusBadge($r->booking->status);
                 })
-
+                ->addColumn('route_status', function ($r) {
+                    return $this->formatStatusBadge($r->status);
+                })
+                
                 ->addColumn('action', function ($r) {
                     $booking = $r->booking;
 
@@ -61,6 +64,11 @@ class BookingController extends Controller
                         $actions .= '<a href="' . route('bookings.edit', $booking->uuid) . '" class="btn btn-icon btn-secondary me-1">
                         <i class="feather icon-edit-2"></i></a>';
                     }
+
+                    if (auth()->user()->can('View Booking')) {
+                        $actions .= '<a href="' . route('bookings.show', $booking->uuid) . '" class="btn btn-icon btn-info me-1"><i class="feather icon-eye"></i></a>';
+                    }
+
                     if (auth()->user()->can('Update Booking Status')) {
                         $actions .= '<button type="button" class="btn btn-icon btn-warning me-1 btn-change-status" data-booking-uuid="' . $booking->uuid . '" data-current-status="' . $booking->status . '" title="Change Status">
                         <i class="feather icon-refresh-ccw"></i></button>';
@@ -80,7 +88,7 @@ class BookingController extends Controller
                     return $actions;
                 })
                 
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['status', 'route_status', 'action'])
                 ->make(true);
         }
 
@@ -95,6 +103,9 @@ class BookingController extends Controller
      */
     private function formatStatusBadge($status)
     {
+        if (empty($status)) {
+            return '<span class="badge bg-secondary">N/A</span>';
+        }
         $status = strtolower($status);
         $badgeClass = '';
         $statusText = ucfirst($status);

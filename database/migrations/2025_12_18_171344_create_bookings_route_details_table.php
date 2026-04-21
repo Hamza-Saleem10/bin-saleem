@@ -18,10 +18,10 @@ class CreateBookingsRouteDetailsTable extends Migration
             $table->uuid('uuid')->unique();
             $table->bigInteger('booking_id')->unsigned()->index();
             $table->bigInteger('route_id')->unsigned()->index()->comment('Pick & Drop Route');
-            // $table->string('pick_up', 191);
             $table->date('pickup_date');
             $table->time('pickup_time');
             $table->bigInteger('vehicle_id')->unsigned()->index();
+            $table->enum('status', ['Pending', 'Completed', 'Cancelled'])->default('Pending');
             $table->bigInteger('created_by')->nullable()->unsigned();
             $table->bigInteger('updated_by')->nullable()->unsigned();
             $table->timestamps();
