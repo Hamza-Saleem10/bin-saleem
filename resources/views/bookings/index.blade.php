@@ -93,7 +93,7 @@
                     }
                 ];
 
-                create_datatables(datatable_url, datatable_columns);
+                const table = create_datatables(datatable_url, datatable_columns);
                 // Handle Status Change Button Click
                 $(document).on('click', '.btn-change-status', function() {
                     const bookingUuid = $(this).data('booking-uuid');
