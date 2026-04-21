@@ -384,13 +384,16 @@ class BookingController extends Controller
 
         try {
             // don't allow deletion of confirmed/completed bookings
-            if (in_array($booking->status, ['confirmed', 'completed'])) {
-                return redirect()->route('bookings.index')
-                    ->with('error', 'Cannot delete a booking with status: ' . $booking->status);
+            if (in_array($booking->status, ['Confirmed', 'Completed'])) {
+                if (request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Cannot delete a booking that has status ' . $booking->status
+                    ], 422);
+                }
             }
 
             // Delete related records (if not using cascade delete in database)
-            // These might be automatically deleted if foreign keys have ON DELETE CASCADE
             $booking->hotelDetails()->delete();
             $booking->flightDetails()->delete();
             $booking->routeDetails()->delete();
@@ -400,11 +403,21 @@ class BookingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('bookings.index')->with('success', 'Booking deleted successfully!');
-
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Booking deleted successfully!'
+                ]);
+            }
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->route('bookings.index')->with('error', 'Failed to delete booking. Please try again.');
+
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete booking. Please try again.'
+                ], 500);
+            }
         }
     }
 
