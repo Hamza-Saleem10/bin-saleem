@@ -58,13 +58,13 @@
         <script>
             $(document).ready(function() {
                 const datatable_url = route('bookings.datatable');
-                const datatable_columns = [{
+                const datatable_columns = [
+                    {
                         data: 'booking.voucher_number',
                     },
                     {
                         data: 'booking.customer_name',
                     },
-                    
                     {
                         data: 'booking.customer_contact'
                     },
@@ -78,7 +78,8 @@
                         data: 'pickup_date'
                     },
                     {
-                        data: 'pickup_time'
+                        data: 'pickup_time',
+                        searchable: false
                     },
                     {
                         data: 'status',

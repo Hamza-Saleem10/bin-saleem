@@ -40,6 +40,13 @@ class BookingController extends Controller
                 })
                 ->addColumn('pickup_date', fn($r) => $r->pickup_date ? $r->pickup_date->format('d-m-Y') : '')
                 ->addColumn('pickup_time', fn($r) => $r->pickup_time ? $r->pickup_time->format('h:i A') : '')
+                
+                ->filterColumn('pickup_date', function($query, $keyword) {
+                    $query->where(function($q) use ($keyword) {
+                        $q->whereRaw("DATE_FORMAT(pickup_date, '%d-%m-%Y') like ?", ["%{$keyword}%"])
+                          ->orWhereRaw("DATE_FORMAT(pickup_date, '%Y-%m-%d') like ?", ["%{$keyword}%"]);
+                    });
+                })
 
                 ->addColumn('status', function ($r) {
                     return $this->formatStatusBadge($r->booking->status);
