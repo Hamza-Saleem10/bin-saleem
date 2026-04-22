@@ -327,46 +327,46 @@
                                 <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-primary bg-opacity-10">
-                                            <div class="text-primary mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-bell fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-new-bookings">0</div>
+                                            <div class="fw-bold fs-4 stats-new-bookings text-white">0</div>
                                             <div class="small text-muted">New Today</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-success bg-opacity-10">
-                                            <div class="text-success mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-check-circle fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-confirmed-bookings">0</div>
+                                            <div class="fw-bold fs-4 stats-confirmed-bookings text-white">0</div>
                                             <div class="small text-muted">Confirmed</div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-10">
-                                            <div class="text-warning mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-clock fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-pending-bookings">0</div>
+                                            <div class="fw-bold fs-4 stats-pending-bookings text-white">0</div>
                                             <div class="small text-muted">Pending</div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="text-center p-3 border rounded-3 bg-info bg-opacity-10">
-                                            <div class="text-info mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-flag-checkered fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-completed-bookings">0</div>
+                                            <div class="fw-bold fs-4 stats-completed-bookings text-white">0</div>
                                             <div class="small text-muted">Completed</div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="text-center p-3 border rounded-3 bg-danger bg-opacity-10">
-                                            <div class="text-danger mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-times-circle fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-cancelled-bookings">0</div>
+                                            <div class="fw-bold fs-4 stats-cancelled-bookings text-white">0</div>
                                             <div class="small text-muted">Cancelled</div>
                                         </div>
                                     </div>
@@ -390,10 +390,10 @@
                                 <div class="row g-4">
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-success bg-opacity-25">
-                                            <div class="text-success mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-check fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-active-vehicles-detailed">0</div>
+                                            <div class="fw-bold fs-4 stats-active-vehicles-detailed text-white">0</div>
                                             <div class="small text-muted">Active</div>
                                             <div class="progress mt-2" style="height: 5px;">
                                                 <div class="progress-bar bg-success" role="progressbar" 
@@ -403,10 +403,10 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-secondary bg-opacity-25">
-                                            <div class="text-secondary mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-pause fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-inactive-vehicles">0</div>
+                                            <div class="fw-bold fs-4 stats-inactive-vehicles text-white">0</div>
                                             <div class="small text-muted">Inactive</div>
                                             <div class="progress mt-2" style="height: 5px;">
                                                 <div class="progress-bar bg-secondary" role="progressbar" 
@@ -416,10 +416,10 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="text-center p-3 border rounded-3 bg-warning bg-opacity-25">
-                                            <div class="text-warning mb-2">
+                                            <div class="text-white mb-2">
                                                 <i class="fas fa-wrench fa-2x"></i>
                                             </div>
-                                            <div class="fw-bold fs-4 stats-under-maintenance-vehicles">0</div>
+                                            <div class="fw-bold fs-4 stats-under-maintenance-vehicles text-white">0</div>
                                             <div class="small text-muted">Maintenance</div>
                                             <div class="progress mt-2" style="height: 5px;">
                                                 <div class="progress-bar bg-warning" role="progressbar" 
