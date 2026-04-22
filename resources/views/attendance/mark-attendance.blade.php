@@ -8,7 +8,7 @@
                 <div class="dashboard-section">
                     <div class="dashboard-card status-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-chart-line"></i> Today's Status</h3>
+                            <h3><i class="fas fa-chart-line text-primary me-2"></i> Today's Status</h3>
                         </div>
                         <div class="card-body" id="todayStatus">
                             <div class="status-loading">
@@ -20,7 +20,7 @@
 
                     <div class="dashboard-card controls-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-user-check"></i> Attendance Controls</h3>
+                            <h3><i class="fas fa-user-check text-primary me-2"></i> Attendance Controls</h3>
                         </div>
                         <div class="card-body">
                             <div class="controls-grid">
@@ -38,7 +38,7 @@
 
                     <div class="dashboard-card location-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                            <h3><i class="fas fa-map-marker-alt text-primary me-2"></i> Location</h3>
                             <div class="location-status" id="locationStatus">
                                 <i class="fas fa-sync fa-spin"></i>
                                 <span>Getting location...</span>
@@ -73,7 +73,7 @@
                 <div class="monthly-attendance-section">
                     <div class="dashboard-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-calendar-alt"></i> Monthly Attendance</h3>
+                            <h3><i class="fas fa-calendar-alt text-primary me-2"></i> Monthly Attendance</h3>
                             <div class="month-selector">
                                 <button id="prevMonth" class="month-nav-btn">
                                     <i class="fas fa-chevron-left"></i>
