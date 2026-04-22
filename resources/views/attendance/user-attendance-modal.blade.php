@@ -118,12 +118,35 @@
     .modal-xl {
         max-width: 95%;
     }
-    .day-sunday {
-        background-color: #ffeaea !important;
-        color: #dc3545;
-        font-weight: bold;
+    
+    /* Make all rows white by default */
+    #attendanceDetailsTable tbody tr {
+        background-color: #ffffff !important;
     }
+    
+    /* Sunday rows in red */
+    #attendanceDetailsTable tbody tr.day-sunday {
+        background-color: #ffcccc !important;
+        color: #dc3545 !important;
+    }
+    
+    #attendanceDetailsTable tbody tr.day-sunday td {
+        color: #dc3545 !important;
+        font-weight: 500;
+    }
+    
+    /* Ensure hover doesn't override Sunday styling */
+    #attendanceDetailsTable tbody tr.day-sunday:hover {
+        background-color: #ffb3b3 !important;
+    }
+    
+    /* Normal row hover */
+    #attendanceDetailsTable tbody tr:not(.day-sunday):hover {
+        background-color: #f8f9fa !important;
+    }
+    
     .badge-holiday {
-        background-color: #6c757d !important;
+        background-color: #dc3545 !important;
+        color: #ffffff !important;
     }
 </style>

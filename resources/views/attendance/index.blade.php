@@ -126,6 +126,8 @@
                 
                 // Load user attendance details function
                 function loadUserAttendanceDetails(userId, userName, month) {
+                    console.log('Loading attendance for:', userId, userName, month);
+                    
                     // Show loading state
                     $('#attendanceDetailsBody').html(`
                         <tr>
@@ -145,6 +147,9 @@
                     const monthYear = moment(month, "YYYY-MM").format("MMMM YYYY");
                     $('#modalMonthYear').val(monthYear);
                     
+                    // Show the modal
+                    $('#userAttendanceModal').modal('show');
+                    
                     // Make AJAX request
                     $.ajax({
                         url: "{{ route('attendance.user.details') }}",
@@ -154,6 +159,7 @@
                             m: month
                         },
                         success: function(response) {
+                            console.log('Attendance response:', response);
                             if (response.success) {
                                 populateAttendanceDetails(response.data);
                             } else {
@@ -169,6 +175,7 @@
                         },
                         error: function(xhr, status, error) {
                             console.error('Error loading attendance details:', error);
+                            console.error('XHR:', xhr);
                             $('#attendanceDetailsBody').html(`
                                 <tr>
                                     <td colspan="6" class="text-center text-danger">
@@ -179,13 +186,11 @@
                             `);
                         }
                     });
-                    
-                    // Show the modal
-                    $('#userAttendanceModal').modal('show');
                 }
                 
                 // Function to populate attendance details
                 function populateAttendanceDetails(data) {
+                    console.log('Populating attendance details:', data);
                     const tbody = $('#attendanceDetailsBody');
                     tbody.empty();
                     
@@ -199,7 +204,7 @@
                     $('#summaryHolidays').text(data.holidays);
                     
                     // Populate daily attendance
-                    if (data.attendance.length === 0) {
+                    if (!data.attendance || data.attendance.length === 0) {
                         tbody.html(`
                             <tr>
                                 <td colspan="6" class="text-center text-muted">
@@ -211,6 +216,8 @@
                         return;
                     }
                     
+                    console.log('Processing attendance records:', data.attendance.length);
+                    
                     data.attendance.forEach(item => {
                         const date = moment(item.date).format('DD-MM-YYYY');
                         const day = moment(item.date).format('ddd');
@@ -220,19 +227,25 @@
                         let checkOut = 'N/A';
                         
                         if (item.check_in) {
-                            if (item.check_in.includes(':')) {
+                            // Check if it's just time (HH:MM:SS) or full datetime
+                            if (item.check_in.includes(':') && !item.check_in.includes(' ')) {
+                                // It's just time, combine with date
                                 const dateTimeStr = `${item.date} ${item.check_in}`;
                                 checkIn = moment(dateTimeStr).format('hh:mm A');
                             } else {
+                                // It's full datetime
                                 checkIn = moment(item.check_in).format('hh:mm A');
                             }
                         }
                         
                         if (item.check_out) {
-                            if (item.check_out.includes(':')) {
+                            // Check if it's just time (HH:MM:SS) or full datetime
+                            if (item.check_out.includes(':') && !item.check_out.includes(' ')) {
+                                // It's just time, combine with date
                                 const dateTimeStr = `${item.date} ${item.check_out}`;
                                 checkOut = moment(dateTimeStr).format('hh:mm A');
                             } else {
+                                // It's full datetime
                                 checkOut = moment(item.check_out).format('hh:mm A');
                             }
                         }
@@ -262,6 +275,8 @@
                             </tr>
                         `);
                     });
+                    
+                    console.log('Attendance details populated successfully');
                 }
                 
                 // Function to get status badge HTML
@@ -751,13 +766,32 @@
             100% { transform: rotate(360deg); }
         }
 
-        .badge-holiday {
-            background-color: #ffc107;
-            color: #212529;
+        /* User Attendance Modal Styles */
+        #attendanceDetailsTable tbody tr {
+            background-color: #ffffff !important;
+        }
+        
+        #attendanceDetailsTable tbody tr.day-sunday {
+            background-color: #ffcccc !important;
+            color: #dc3545 !important;
+        }
+        
+        #attendanceDetailsTable tbody tr.day-sunday td {
+            color: #dc3545 !important;
+            font-weight: 500;
+        }
+        
+        #attendanceDetailsTable tbody tr.day-sunday:hover {
+            background-color: #ffb3b3 !important;
+        }
+        
+        #attendanceDetailsTable tbody tr:not(.day-sunday):hover {
+            background-color: #f8f9fa !important;
         }
 
-        .day-sunday {
-            background-color: #fff3cd !important;
+        .badge-holiday {
+            background-color: #dc3545 !important;
+            color: #ffffff !important;
         }
         </style>
     @endpush

@@ -37,8 +37,10 @@ class AttendanceController extends Controller
             return DataTables::of($query)
                 ->addColumn('check_in', function ($user) use ($month) {
                     // Get today's attendance check-in
-                    $today = date('Y-m-d');
-                    $todayAttendance = $user->attendances->where('date', $today)->first();
+                    $today = \Carbon\Carbon::today()->format('Y-m-d');
+                    $todayAttendance = $user->attendances->first(function ($attendance) use ($today) {
+                        return $attendance->date->format('Y-m-d') === $today;
+                    });
 
                     if ($todayAttendance && $todayAttendance->check_in) {
                         return \Carbon\Carbon::parse($todayAttendance->check_in)->format('h:i A');
@@ -47,8 +49,10 @@ class AttendanceController extends Controller
                 })
                 ->addColumn('check_out', function ($user) use ($month) {
                     // Get today's attendance check-out
-                    $today = date('Y-m-d');
-                    $todayAttendance = $user->attendances->where('date', $today)->first();
+                    $today = \Carbon\Carbon::today()->format('Y-m-d');
+                    $todayAttendance = $user->attendances->first(function ($attendance) use ($today) {
+                        return $attendance->date->format('Y-m-d') === $today;
+                    });
 
                     if ($todayAttendance && $todayAttendance->check_out) {
                         return \Carbon\Carbon::parse($todayAttendance->check_out)->format('h:i A');
@@ -57,9 +61,11 @@ class AttendanceController extends Controller
                 })
                 ->addColumn('status', function ($user) use ($month) {
                     // Get today's attendance status
-                    $today = date('Y-m-d');
-                    $todayAttendance = $user->attendances->where('date', $today)->first();
-                    $status = $todayAttendance->status ?? 'Unmarked';
+                    $today = \Carbon\Carbon::today()->format('Y-m-d');
+                    $todayAttendance = $user->attendances->first(function ($attendance) use ($today) {
+                        return $attendance->date->format('Y-m-d') === $today;
+                    });
+                    $status = $todayAttendance ? ($todayAttendance->status ?? 'Unmarked') : 'Unmarked';
                     $status = ucfirst($status);
                     $badgeClass = 'badge-light';
 
@@ -81,9 +87,11 @@ class AttendanceController extends Controller
                 })
                 ->addColumn('location', function ($user) use ($month) {
                     // Get today's location
-                    $today = date('Y-m-d');
-                    $todayAttendance = $user->attendances->where('date', $today)->first();
-                    return $todayAttendance->location->location_name ?? 'N/A';
+                    $today = \Carbon\Carbon::today()->format('Y-m-d');
+                    $todayAttendance = $user->attendances->first(function ($attendance) use ($today) {
+                        return $attendance->date->format('Y-m-d') === $today;
+                    });
+                    return ($todayAttendance && $todayAttendance->location) ? $todayAttendance->location->location_name : 'N/A';
                 })
                 ->addColumn('total_days', function ($user) use ($startDate, $endDate) {
                     // Calculate total days in the month
@@ -193,7 +201,9 @@ class AttendanceController extends Controller
                 ->where('user_id', $userId)
                 ->whereBetween('date', [$startDate, $endDate])
                 ->get()
-                ->keyBy('date');
+                ->keyBy(function ($item) {
+                    return $item->date->format('Y-m-d');
+                });
 
             // Prepare attendance data for all days in month
             $attendanceData = [];
@@ -230,10 +240,10 @@ class AttendanceController extends Controller
 
                     $attendanceData[] = [
                         'date' => $date,
-                        'check_in' => $record->check_in,
-                        'check_out' => $record->check_out,
+                        'check_in' => $record->check_in ? \Carbon\Carbon::parse($record->check_in)->format('H:i:s') : null,
+                        'check_out' => $record->check_out ? \Carbon\Carbon::parse($record->check_out)->format('H:i:s') : null,
                         'status' => ucfirst($record->status),
-                        'location_name' => $record->location->location_name ?? null,
+                        'location_name' => $record->location ? $record->location->location_name : null,
                         'is_sunday' => $isSunday
                     ];
                 } else {
