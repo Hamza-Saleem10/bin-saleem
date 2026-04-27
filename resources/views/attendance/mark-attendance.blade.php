@@ -103,20 +103,26 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="monthly-stats">
-                                <div class="stat-card">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <div>
-                                        <span class="stat-value" id="presentDays">0</span>
-                                        <span class="stat-label">Total Present</span>
+                        <div class="card-body ">
+                            <div class="container-fluid">
+                                <div class="row g-4">
+                                    <div class="col-6 col-md-6">
+                                        <div class="text-center p-3 border rounded-3 bg-success bg-opacity-10">
+                                            <div class="text-white mb-2">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-value text-white" id="presentDays">0</div>
+                                            <div class="small stat-label text-white">Total Present</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="stat-card">
-                                    <i class="fas fa-calendar-times"></i>
-                                    <div>
-                                        <span class="stat-value" id="absentDays">0</span>
-                                        <span class="stat-label">Total Absent</span>
+                                    <div class="col-6 col-md-6">
+                                        <div class="text-center p-3 border rounded-3 bg-danger bg-opacity-10">
+                                            <div class="text-white mb-2">
+                                                <i class="fas fa-calendar-times"></i>
+                                            </div>
+                                            <div class="fw-bold fs-4 stats-value text-white" id="absentDays">0</div>
+                                            <div class="small stat-label text-white">Total Absent</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -915,19 +921,6 @@
         .month-nav-btn:hover {
             background: #f7fafc;
             border-color: #cbd5e0;
-        }
-
-        .monthly-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        @media (max-width: 768px) {
-            .monthly-stats {
-                grid-template-columns: 1fr;
-            }
         }
 
         .stat-card {
