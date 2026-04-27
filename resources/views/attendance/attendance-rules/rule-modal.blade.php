@@ -66,35 +66,24 @@
                         </div>
                     </div>
 
-                    <!-- Allowed Locations -->
+                    <!-- Allowed Location -->
                     <div class="form-group">
-                        <label>Allowed Locations</label>
-                        <div id="locations-container">
-                            <div class="location-item mb-2">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" name="allowed_locations[0][name]" 
-                                               placeholder="Location name" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" name="allowed_locations[0][latitude]" 
-                                               placeholder="Latitude" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control" name="allowed_locations[0][longitude]" 
-                                               placeholder="Longitude" required>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger remove-location">
-                                            <i class="feather icon-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                        <label>Allowed Location</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="allowed_locations_name" 
+                                       name="allowed_locations_name" placeholder="Location name">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="latitude" 
+                                       name="latitude" placeholder="Latitude" step="any">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="longitude" 
+                                       name="longitude" placeholder="Longitude" step="any">
                             </div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-success mt-2" id="add-location">
-                            <i class="feather icon-plus"></i> Add Location
-                        </button>
+                        <small class="text-muted">Enter the designated location coordinates for attendance</small>
                     </div>
                 </div>
                 <div class="modal-footer">

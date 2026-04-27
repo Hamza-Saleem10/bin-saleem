@@ -21,7 +21,9 @@ class CreateAttendanceRulesTable extends Migration
             $table->time('check_out_time')->default('17:00:00');
             $table->integer('late_threshold')->default(15); // minutes
             $table->integer('location_radius')->default(100); // meters
-            $table->json('allowed_locations')->nullable();
+            $table->string('allowed_locations_name')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
             $table->boolean('is_active')->default(1)->comment('0: Inactive, 1: Active');
             $table->bigInteger('created_by')->nullable()->unsigned();
             $table->bigInteger('updated_by')->nullable()->unsigned();

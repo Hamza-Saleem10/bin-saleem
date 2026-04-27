@@ -47,7 +47,9 @@ class AttendanceRuleController extends Controller
                             data-check-out-time="' . $rule->check_out_time . '"
                             data-late-threshold="' . $rule->late_threshold . '"
                             data-location-radius="' . $rule->location_radius . '"
-                            data-allowed-locations="' . htmlspecialchars(json_encode($rule->allowed_locations ?? [])) . '"
+                            data-allowed-locations-name="' . htmlspecialchars($rule->allowed_locations_name ?? '') . '"
+                            data-latitude="' . ($rule->latitude ?? '') . '"
+                            data-longitude="' . ($rule->longitude ?? '') . '"
                             data-is-active="' . $rule->is_active . '"
                             title="Edit Rule">
                             <i class="feather icon-edit-2"></i></button>';
@@ -81,10 +83,9 @@ class AttendanceRuleController extends Controller
             'check_out_time' => 'required|date_format:H:i',
             'late_threshold' => 'required|integer|min:0',
             'location_radius' => 'required|numeric|min:0',
-            'allowed_locations' => 'nullable|array',
-            'allowed_locations.*.name' => 'required|string',
-            'allowed_locations.*.latitude' => 'required|numeric',
-            'allowed_locations.*.longitude' => 'required|numeric',
+            'allowed_locations_name' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'is_active' => 'boolean'
         ]);
 
@@ -102,7 +103,9 @@ class AttendanceRuleController extends Controller
                 'check_out_time' => $request->check_out_time,
                 'late_threshold' => $request->late_threshold,
                 'location_radius' => $request->location_radius,
-                'allowed_locations' => $request->allowed_locations ?? [],
+                'allowed_locations_name' => $request->allowed_locations_name,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
                 'is_active' => $request->boolean('is_active')
             ]);
 
@@ -136,10 +139,9 @@ class AttendanceRuleController extends Controller
             'check_out_time' => 'required|date_format:H:i',
             'late_threshold' => 'required|integer|min:0',
             'location_radius' => 'required|numeric|min:0',
-            'allowed_locations' => 'nullable|array',
-            'allowed_locations.*.name' => 'required|string',
-            'allowed_locations.*.latitude' => 'required|numeric',
-            'allowed_locations.*.longitude' => 'required|numeric',
+            'allowed_locations_name' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'is_active' => 'boolean'
         ]);
 
@@ -157,7 +159,9 @@ class AttendanceRuleController extends Controller
                 'check_out_time' => $request->check_out_time,
                 'late_threshold' => $request->late_threshold,
                 'location_radius' => $request->location_radius,
-                'allowed_locations' => $request->allowed_locations ?? [],
+                'allowed_locations_name' => $request->allowed_locations_name,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
                 'is_active' => $request->boolean('is_active')
             ]);
 

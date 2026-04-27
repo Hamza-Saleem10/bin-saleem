@@ -58,43 +58,6 @@
 
             create_datatables(datatable_url, datatable_columns);
 
-            // Add location field
-            let locationCount = 1;
-            $('#add-location').click(function() {
-                const html = `
-                    <div class="location-item mb-2">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="allowed_locations[${locationCount}][name]" 
-                                       placeholder="Location name" required>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="allowed_locations[${locationCount}][latitude]" 
-                                       placeholder="Latitude" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" name="allowed_locations[${locationCount}][longitude]" 
-                                       placeholder="Longitude" required>
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-danger remove-location">
-                                    <i class="feather icon-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                $('#locations-container').append(html);
-                locationCount++;
-            });
-
-            // Remove location field
-            $(document).on('click', '.remove-location', function() {
-                if ($('.location-item').length > 1) {
-                    $(this).closest('.location-item').remove();
-                }
-            });
-
             // Edit rule
             $(document).on('click', '.btn-edit-rule', function() {
                 const rule = $(this).data();
@@ -106,71 +69,10 @@
                 $('#check_out_time').val(rule.checkOutTime);
                 $('#late_threshold').val(rule.lateThreshold);
                 $('#location_radius').val(rule.locationRadius);
+                $('#allowed_locations_name').val(rule.allowedLocationsName || '');
+                $('#latitude').val(rule.latitude || '');
+                $('#longitude').val(rule.longitude || '');
                 $('#is_active').val(rule.isActive ? '1' : '0');
-                
-                // Clear and populate locations
-                $('#locations-container').empty();
-                
-                // rule.allowedLocations is already an object/array, no need to parse
-                const locations = rule.allowedLocations || [];
-                locationCount = 0;
-                
-                if (locations.length > 0) {
-                    locations.forEach((loc, index) => {
-                        const html = `
-                            <div class="location-item mb-2">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" name="allowed_locations[${index}][name]" 
-                                            value="${loc.name || ''}" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" name="allowed_locations[${index}][latitude]" 
-                                            value="${loc.latitude || ''}" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control" name="allowed_locations[${index}][longitude]" 
-                                            value="${loc.longitude || ''}" required>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger remove-location">
-                                            <i class="feather icon-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        $('#locations-container').append(html);
-                        locationCount = index + 1;
-                    });
-                } else {
-                    // Add one empty location
-                    const html = `
-                        <div class="location-item mb-2">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" name="allowed_locations[0][name]" 
-                                        placeholder="Location name" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" class="form-control" name="allowed_locations[0][latitude]" 
-                                        placeholder="Latitude" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="text" class="form-control" name="allowed_locations[0][longitude]" 
-                                        placeholder="Longitude" required>
-                                </div>
-                                <div class="col-md-1">
-                                    <button type="button" class="btn btn-danger remove-location">
-                                        <i class="feather icon-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    $('#locations-container').append(html);
-                    locationCount = 1;
-                }
                 
                 $('#ruleModal').modal('show');
             });
@@ -180,34 +82,6 @@
                 $('#ruleForm')[0].reset();
                 $('#rule_uuid').val('');
                 $('#form_method').val('POST');
-                $('#locations-container').empty();
-                
-                // Add one empty location
-                const html = `
-                    <div class="location-item mb-2">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="allowed_locations[0][name]" 
-                                       placeholder="Location name" required>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" name="allowed_locations[0][latitude]" 
-                                       placeholder="Latitude" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" name="allowed_locations[0][longitude]" 
-                                       placeholder="Longitude" required>
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-danger remove-location">
-                                    <i class="feather icon-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                $('#locations-container').append(html);
-                locationCount = 1;
                 
                 $('#ruleModal').modal('show');
             });

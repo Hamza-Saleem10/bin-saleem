@@ -19,15 +19,17 @@ class AttendanceRule extends Model
         'check_out_time',
         'late_threshold',
         'location_radius',
-        'allowed_locations',
+        'allowed_locations_name',
+        'latitude',
+        'longitude',
         'is_active',
         'created_by',
         'updated_by'
     ];
     
     protected $casts = [
-        'allowed_locations' => 'array',
-        'is_active' => 'boolean'
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8'
     ];
 
     public function scopeActive($query)
